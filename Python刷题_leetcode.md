@@ -494,6 +494,28 @@
     
     ```
 
+21. #### [696. 计数二进制子串](https://leetcode-cn.com/problems/count-binary-substrings/)
+
+    ```python
+    class Solution:
+        def countBinarySubstrings(self, s: str) -> int:
+            res,last=0,0
+            cur=1
+            for i in range(1,len(s)):
+                if s[i]==s[i-1]:
+                    cur +=1
+                else:
+                    last=cur
+                    cur=1
+                if last>=cur:
+                    res +=1
+            return res
+        
+    """last代表之前一位数，cur代表另一位，用来统计连续次数，从第二位开始。
+    如果相同，计数+1;否则，cur所指的数变为last，统计的次数也给last，cur从1开始计算另一个数连续出现的次数。
+    每次判定，last》=cur，说明，可以组成以cur作为相等次数，last所指的数在前，cur所指的数在后的目标字符串"""
+    ```
+
     
 
 ## medium
