@@ -43,7 +43,25 @@
    nums.remove(max_)  # 根据第一个匹配的值删除元素
    ```
 
-7. 
+7. ```python
+    'sep'.join(seq)
+   ```
+
+   参数说明：
+   sep：分隔符，可以为空
+   seq：要连接的元素序列、字符串、元组、字典
+   上面的语法即：以sep作为分隔符（空），将seq所有的元素合并成一个`新的字符串`
+
+8. ```python
+    # return ''.join([chr(ord(c)+32) if ord(c)>=65 and ord(c)<=90 else c for c in str])
+   # 内置函数ord（），将字符转换为ascii码，chr（）将ascii码转换为字符
+   ```
+
+9. 1 str.replace(old, new[, max])
+   2 Python replace() 方法把字符串中的 old（旧字符串）替换成 new(新字符串)，如果指定第三个参数max，则替换不超过 max次
+   3 原str不被更改，使用需由新的变量接收
+   4 replace调用C的接口，无python源码
+   5 经测试，str里不存在old时返回原str，不会报错的
 
 
 
@@ -514,6 +532,173 @@
     """last代表之前一位数，cur代表另一位，用来统计连续次数，从第二位开始。
     如果相同，计数+1;否则，cur所指的数变为last，统计的次数也给last，cur从1开始计算另一个数连续出现的次数。
     每次判定，last》=cur，说明，可以组成以cur作为相等次数，last所指的数在前，cur所指的数在后的目标字符串"""
+    ```
+
+22. #### [617. 合并二叉树](https://leetcode-cn.com/problems/merge-two-binary-trees/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def mergeTrees(self, t1: TreeNode, t2: TreeNode) -> TreeNode:
+            if not t1 and not t2:
+                return 
+            elif not t1:
+                return t2
+            elif not t2:
+                return t1
+            else:
+                t1.val+=t2.val
+                t1.left=self.mergeTrees(t1.left,t2.left)
+                t1.right=self.mergeTrees(t1.right,t2.right)
+                return t1
+    ```
+
+23. #### [剑指 Offer 05. 替换空格](https://leetcode-cn.com/problems/ti-huan-kong-ge-lcof/)
+
+    ```python
+    class Solution:
+        def replaceSpace(self, s: str) -> str: 
+            res = []
+            for c in s:
+                if c == ' ': res.append("%20")
+                else: res.append(c)
+            return "".join(res)
+    
+    ```
+
+24. #### [1351. 统计有序矩阵中的负数](https://leetcode-cn.com/problems/count-negative-numbers-in-a-sorted-matrix/)
+
+    ```python
+    class Solution:
+        def countNegatives(self, grid: List[List[int]]) -> int:
+            ans=0             #ans统计数量
+            m=len(grid)       # 长
+            
+            n=len(grid[0])    # 宽
+            position=n        
+            for i in range(m):
+                for j in range(position):
+                    if grid[i][j]<0:      # 利用非递增特性，一旦找到小于0的，整个矩形（偏右下角的部分）就都是负值，因此用乘法，然后此轮就不用统计了。重新锚定矩形的最右端位子。
+                        ans+=(position-j)*(m-i)
+                        position=j
+                        break
+            return ans
+    
+    ```
+
+25. #### [剑指 Offer 06. 从尾到头打印链表](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/)
+
+    ```python
+    # Definition for singly-linked list.
+    # class ListNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.next = None
+    
+    class Solution:
+        def reversePrint(self, head: ListNode) -> List[int]:
+            stack=[]
+            while head:
+                stack.append(head.val)
+                head=head.next
+            res=[]
+            while stack:
+                res.append(stack.pop())
+            return res
+    ```
+
+26. #### [1252. 奇数值单元格的数目](https://leetcode-cn.com/problems/cells-with-odd-values-in-a-matrix/)
+
+    ```python
+    class Solution:
+        def oddCells(self, n: int, m: int, indices: List[List[int]]) -> int:
+            rows = [False] * n      #用Falseh、True来表示奇偶性，来取代加法
+            cols = [False] * m
+    
+            for r, c in indices:
+                rows[r] = not rows[r]    # 两个数组表示横、纵的奇偶性
+                cols[c] = not cols[c]
+            
+            # rows数组里，True和False的个数
+            rows_true = rows.count(True)     # 统计，数组中有多少奇，剩下的是偶
+            rows_false = n - rows_true
+    
+            cols_true = cols.count(True)
+            cols_false = m - cols_true
+    
+            return rows_true * cols_false + rows_false * cols_true#相乘即得，可以想象成调整行列，变成田字格
+        奇偶
+        偶奇   #这样可以理解
+    
+    ```
+
+27. #### [709. 转换成小写字母](https://leetcode-cn.com/problems/to-lower-case/)
+
+    ```python
+    class Solution:
+        def toLowerCase(self, str: str) -> str:
+            result = ""
+            for s in str:
+                if s >= 'A' and s <= 'Z':
+                    s = chr(ord(s) + 32)
+                else:
+                    pass
+                result += s
+            return result
+    
+    #pythonic:
+     # return ''.join([chr(ord(c)+32) if ord(c)>=65 and ord(c)<=90 else c for c in str])
+    # 内置函数ord（），将字符转换为ascii码，chr（）将ascii码转换为字符
+    ```
+
+28. #### [804. 唯一摩尔斯密码词](https://leetcode-cn.com/problems/unique-morse-code-words/)
+
+    ```python
+    class Solution:
+        def uniqueMorseRepresentations(self, words: List[str]) -> int:
+            dic = {'a': '.-',  'b': '-...',  'c': '-.-.',  'd': '-..',  'e': '.',  'f': '..-.',  'g': '--.',  'h':                      '....',  'i': '..',  'j': '.---',  'k': '-.-',  'l': '.-..',  'm': '--',  'n': '-.', 'o': '---',                     'p': '.--.',  'q': '--.-',  'r': '.-.',  's': '...',  't': '-', 'u': '..-',  'v': '...-',  'w': '.--',                'x': '-..-',  'y': '-.--',  'z': '--..'}
+            res = set()  # set()用来去重，最后统计set的数量就好
+            for word in words:
+                temp = ''
+                for s in word:
+                    temp += dic[s]
+                res.add(temp)
+            
+            return len(res)  # 注意，和java不同，这里使用len（）来计算set的数量
+    ```
+
+29. #### [832. 翻转图像](https://leetcode-cn.com/problems/flipping-an-image/)
+
+    ```python
+    class Solution:
+        def flipAndInvertImage(self, A: List[List[int]]) -> List[List[int]]:
+            for row in A:
+                for j in range((len(row) + 1) // 2):
+                    if row[j] == row[-1-j]:             # 采用Python化的符号索引
+                        row[j] = row[-1-j] = 1 - row[j]    
+            return A
+    # 如果一行首尾对称位置不同，那么先水平翻转，再图像翻转等于没有翻转，所以不用管，相反，如果相同，那么不用位置互换，但是都要翻转。如果是奇数列，那么中间的相当于和自己相同，也要翻转。这里注意len+1，才能触及中间的那个元素
+    ```
+
+30. #### [1323. 6 和 9 组成的最大数字](https://leetcode-cn.com/problems/maximum-69-number/)
+
+    ```python
+    class Solution:
+        def maximum69Number (self, num: int) -> int:
+             return int(str(num).replace("6", "9", 1))
+     '''       
+    1 str.replace(old, new[, max])
+    2 Python replace() 方法把字符串中的 old（旧字符串）替换成 new(新字符串)，如果指定第三个参数max，则替换不超过 max次
+    3 原str不被更改，使用需由新的变量接收
+    4 replace调用C的接口，无python源码
+    5 经测试，str里不存在old时返回原str，不会报错的
+    '''
     ```
 
     
