@@ -701,6 +701,63 @@
     '''
     ```
 
+31. #### [剑指 Offer 24. 反转链表](https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/)
+
+    ```python
+    # Definition for singly-linked list.
+    # class ListNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.next = None
+    
+    class Solution:
+        def reverseList(self, head: ListNode) -> ListNode:
+            if not head or head.next==None:
+                return  head
+            past=None
+            pre=head.next
+            t=head
+            while pre :
+                t.next=past
+                past=t
+                t=pre
+                pre=pre.next
+            t.next=past
+            return  t
+    ```
+
+32. #### [1460. 通过翻转子数组使两个数组相等](https://leetcode-cn.com/problems/make-two-arrays-equal-by-reversing-sub-arrays/)
+
+    ```python
+    class Solution:
+        def canBeEqual(self, target: List[int], arr: List[int]) -> bool:
+            return False if sorted(target) != sorted(arr) else True
+        
+      ##实际上只用考虑，两个数组元素是否一致就好，只要一直交换下去，总可以顺序一致，所以直接排序，作比较
+    ##更值得注意的是，arr.sort和sorted（arr）的区别
+    ```
+
+33. #### [1309. 解码字母到整数映射](https://leetcode-cn.com/problems/decrypt-string-from-alphabet-to-integer-mapping/)
+
+    ```python
+    class Solution:
+        def freqAlphabets(self, s: str) -> str:
+            def get(st):
+                return chr(int(st) + 96)
+    
+            i, ans = 0, ""
+            while i < len(s):
+                if i + 2 < len(s) and s[i + 2] == '#':
+                    ans += get(s[i : i + 2])
+                    i += 2
+                else:
+                    ans += get(s[i])
+                i += 1
+            return ans
+    
+    
+    ```
+
     
 
 ## medium
