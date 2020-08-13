@@ -62,6 +62,18 @@
    3 原str不被更改，使用需由新的变量接收
    4 replace调用C的接口，无python源码
    5 经测试，str里不存在old时返回原str，不会报错的
+   
+10. python中if。else的几种简易写法
+
+   ```python
+   c = a if a>b else b    # 如果a>b,那c=a，否则，c=b
+   
+   c = [a, b][a > b]       # 如果a>b,那c=a，否则，c=b
+   
+   d = c and a or b        #当c为真时走a,当c为假时走b
+   ```
+
+   
 
 
 
@@ -758,6 +770,31 @@
     
     ```
 
+34. #### [1370. 上升下降字符串](https://leetcode-cn.com/problems/increasing-decreasing-string/)
+
+    ```python
+    class Solution:
+        def sortString(self, s: str) -> str:
+            str_counter = collections.Counter(s)
+            result = []
+            flag = False
+            while str_counter:
+                keys = list(str_counter)  # 是包含非重复字符的一些键,可以理解为hash表，展示的是键……
+                keys.sort(reverse=flag)   # 通过false 、true控制正序还是倒叙
+                flag = not flag           # 每次取字符的方向颠倒
+                result.append(''.join(keys))  # 将这些键加入列表
+                str_counter -= collections.Counter(keys)   # 集合做差集，实际是减小次数
+            return ''.join(result)
+    '''
+    关于排序，我们可以直接调用Python内置的list的sort方法，通过设置reverse参数来控制是否降序。
+    关于字符集合提取，我们可以采用Python中collections内置库的Counter对象来操作
+    一个 Counter 是一个 dict 的子类，用于计数可哈希对象。它是一个集合，元素像字典键(key)一样存储，它们的计数存储为值。计数可以是任何整数值，包括0和负数。 Counter 类有点像其他语言中的 bags或multisets。
+    '''
+    
+    
+    假如：    print(str_counter)，s=aaaabbbbcccc,输出是Counter({'a': 4, 'b': 4, 'c': 4})
+    ```
+
     
 
 ## medium
@@ -810,6 +847,55 @@
            
    
            return cnt == numCourses
+   ```
+
+2. #### [43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
+
+   ```python
+   class Solution:
+       def multiply(self, num1: str, num2: str) -> str:
+           if num1 == "0" or num2 == "0":
+               return "0"
+           
+   
+           res="0"
+   
+           m, n = len(num1), len(num2)
+   
+           for i in range(n-1, -1, -1):
+               add = 0
+               y = int(num2[i])
+               curr = ["0"]*(n-i-1)  #计算需要填充多少0,先填进去
+               for j in range(m-1, -1, -1):
+                   product = int(num1[j])*y+add   # 要考虑到进位情况
+                   curr.append(str(product%10))   #余数先填进去
+                   add=product//10                #查看是否进位
+               if add > 0:
+                   curr.append(str(add))          # 如果存在进位情况，就把进位填充进去，注意着是在内循环外部，说明是num2中的一个数，乘完了所有num1，后的最终进位。
+               curr="".join(curr[::-1])          #从后向前，不断翻转位置
+               res = self.addString(res, curr)
+   
+           return res
+   
+   
+   
+   
+       def addString(self, num1:str, num2:str) -> str:   # 乘完的每一行相加
+           i, j = len(num1)-1, len(num2)-1
+           add = 0
+           res = list()
+           while i >=0 or j>=0 or add!=0:
+               x=int(num1[i])   if  i>=0 else 0      # if else 的简易写法
+               y=int(num2[j])   if j>=0 else 0
+               result = x + y +add
+               res.append(str(result%10))
+               add = result // 10
+               i -= 1
+               j -= 1
+           return "".join(res[::-1])
+   
+   
+   
    ```
 
    
