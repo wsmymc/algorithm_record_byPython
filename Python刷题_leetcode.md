@@ -795,6 +795,76 @@
     假如：    print(str_counter)，s=aaaabbbbcccc,输出是Counter({'a': 4, 'b': 4, 'c': 4})
     ```
 
+35. #### [90. N叉树的后序遍历](https://leetcode-cn.com/problems/n-ary-tree-postorder-traversal/)
+
+    ```python
+    """
+    # Definition for a Node.
+    class Node:
+        def __init__(self, val=None, children=None):
+            self.val = val
+            self.children = children
+    """
+    # 递归
+    class Solution:
+        def postorder(self, root: 'Node') -> List[int]:
+            result = []
+    
+            def postHelper(root):
+                if not root:
+                    return Node
+                children = root.children
+                for child in children:
+                    postHelper(child)
+    
+                result.append(root.val)
+            postHelper(root)    # 最后加上root
+    
+            return result
+        
+        
+        # 迭代
+        if not root:
+                return None
+            stack, res = [root], []
+            while stack:
+                node = stack.pop()
+                res.append(node.val)
+                for i in node.children:
+                    stack.append(i)
+    
+            return res[::-1]
+    ```
+
+36. #### [剑指 Offer 54. 二叉搜索树的第k大节点](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-di-kda-jie-dian-lcof/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    # 二叉搜索树的中序遍历为 递增序列 ，所以易得二叉搜索树的 中序遍历倒序 为 递减序列 。
+    class Solution:
+        def kthLargest(self, root: TreeNode, k: int) -> int:
+            res = 0
+            self.cnt = 0
+            self.k=k
+            def inOrder(root,k):
+                if not root:
+                    return None
+                inOrder(root.right,k)
+                
+                self.cnt +=1
+                if self.cnt == k:
+                    self.res=root.val
+                    return None
+                inOrder(root.left,k)
+            inOrder(root,k)   # 嵌套的函数，需要在外函数中调用，才能运行
+            return self.res
+    ```
+
     
 
 ## medium
