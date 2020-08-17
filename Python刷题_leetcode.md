@@ -73,7 +73,11 @@
    d = c and a or b        #当c为真时走a,当c为假时走b
    ```
 
-   
+11. https://docs.python.org/zh-cn/3/library/collections.html(容器数据类型)
+
+    * | [`deque`](https://docs.python.org/zh-cn/3/library/collections.html#collections.deque) | 类似列表(list)的容器，实现了在两端快速添加(append)和弹出(pop) |
+      | ------------------------------------------------------------ | ------------------------------------------------------------ |
+      |                                                              | 相关用法点击链接                                             |
 
 
 
@@ -863,6 +867,140 @@
                 inOrder(root.left,k)
             inOrder(root,k)   # 嵌套的函数，需要在外函数中调用，才能运行
             return self.res
+    ```
+
+37. #### [733. 图像渲染](https://leetcode-cn.com/problems/flood-fill/)
+
+    ```python
+    class Solution:
+        def floodFill(self, image: List[List[int]], sr: int, sc: int, newColor: int) -> List[List[int]]:
+            currColor = image[sr][sc]
+            if currColor == newColor:
+                return image
+            
+            n, m = len(image), len(image[0])
+            queue = collections.deque([(sr,sc)])  # 内部用元祖作为记录，外部用列表作为队列
+            image[sr][sc] = newColor
+            while queue:
+                x, y = queue.popleft()
+                for new_x, new_y in [(x-1,y),(x+1,y), (x,y-1), (x, y+1)]:
+                    if 0<= new_x<n and 0 <= new_y < m and image[new_x][new_y] == currColor:
+                        queue.append((new_x,new_y))
+                        image[new_x][new_y] = newColor
+    
+            return image 
+    ```
+
+38. #### [110. 平衡二叉树](https://leetcode-cn.com/problems/balanced-binary-tree/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def isBalanced(self, root: TreeNode) -> bool:
+            '''
+            def height(root: TreeNode) -> int:
+                if not root:
+                    return 0
+                return max(height(root.left), height(root.right)) + 1
+    
+            if not root:
+                return True
+            return abs(height(root.left) - height(root.right)) <= 1 and self.isBalanced(root.left) and self.isBalanced(root.right)
+    
+    '''
+            def judge(root):
+                if not root:
+                    return 0
+                l=judge(root.left)
+                if l == -1:
+                    return l
+                r=judge(root.right)
+                if r == -1:
+                    return r
+                if abs(l-r)>1:
+                    return -1
+                else:
+                    return max(l,r)+1
+    
+            
+            return False if judge(root) == -1 else True
+    ```
+
+39. #### [108. 将有序数组转换为二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def sortedArrayToBST(self, nums: List[int]) -> TreeNode:
+            def build(nums, l, r):
+                if r<l:
+                    return None
+                mid = l+(r-l)//2
+                root = TreeNode(nums[mid])
+                root.left = build( nums, l, mid-1)
+                root.right = build(nums, mid+1, r)
+                return root
+    
+    
+    
+    
+    
+    
+    
+            if not nums or len(nums) == 0:
+                return 
+            mid=0+len(nums)//2
+            root = TreeNode(nums[mid])
+            root.left = build( nums, 0, mid-1)
+            root.right = build(nums, mid+1, len(nums)-1)
+            return root
+        
+    ```
+
+40. #### [剑指 Offer 32 - II. 从上到下打印二叉树 II](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def levelOrder(self, root: TreeNode) -> List[List[int]]:
+            q1=collections.deque()
+            if not root :
+                return []
+            res = []
+            q1.append(root)
+            while q1:
+                temp = []
+                for i in range(len(q1)):
+                    
+                    
+                    t = q1.popleft()
+                    temp.append(t.val)
+                    if t.left:
+                        q1.append(t.left)
+                    if t.right:
+                        q1.append(t.right)
+                res.append(temp)    
+    
+            return res
+    
     ```
 
     
