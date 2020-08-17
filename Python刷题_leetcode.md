@@ -43,7 +43,41 @@
    nums.remove(max_)  # 根据第一个匹配的值删除元素
    ```
 
-7. 
+7. ```python
+    'sep'.join(seq)
+   ```
+
+   参数说明：
+   sep：分隔符，可以为空
+   seq：要连接的元素序列、字符串、元组、字典
+   上面的语法即：以sep作为分隔符（空），将seq所有的元素合并成一个`新的字符串`
+
+8. ```python
+    # return ''.join([chr(ord(c)+32) if ord(c)>=65 and ord(c)<=90 else c for c in str])
+   # 内置函数ord（），将字符转换为ascii码，chr（）将ascii码转换为字符
+   ```
+
+9. 1 str.replace(old, new[, max])
+   2 Python replace() 方法把字符串中的 old（旧字符串）替换成 new(新字符串)，如果指定第三个参数max，则替换不超过 max次
+   3 原str不被更改，使用需由新的变量接收
+   4 replace调用C的接口，无python源码
+   5 经测试，str里不存在old时返回原str，不会报错的
+   
+10. python中if。else的几种简易写法
+
+   ```python
+   c = a if a>b else b    # 如果a>b,那c=a，否则，c=b
+   
+   c = [a, b][a > b]       # 如果a>b,那c=a，否则，c=b
+   
+   d = c and a or b        #当c为真时走a,当c为假时走b
+   ```
+
+11. https://docs.python.org/zh-cn/3/library/collections.html(容器数据类型)
+
+    * | [`deque`](https://docs.python.org/zh-cn/3/library/collections.html#collections.deque) | 类似列表(list)的容器，实现了在两端快速添加(append)和弹出(pop) |
+      | ------------------------------------------------------------ | ------------------------------------------------------------ |
+      |                                                              | 相关用法点击链接                                             |
 
 
 
@@ -494,9 +528,482 @@
     
     ```
 
-21. #### 733. 图像渲染](https://leetcode-cn.com/problems/flood-fill/)
+21. #### [696. 计数二进制子串](https://leetcode-cn.com/problems/count-binary-substrings/)
 
-    （周一填补）
+    ```python
+    class Solution:
+        def countBinarySubstrings(self, s: str) -> int:
+            res,last=0,0
+            cur=1
+            for i in range(1,len(s)):
+                if s[i]==s[i-1]:
+                    cur +=1
+                else:
+                    last=cur
+                    cur=1
+                if last>=cur:
+                    res +=1
+            return res
+        
+    """last代表之前一位数，cur代表另一位，用来统计连续次数，从第二位开始。
+    如果相同，计数+1;否则，cur所指的数变为last，统计的次数也给last，cur从1开始计算另一个数连续出现的次数。
+    每次判定，last》=cur，说明，可以组成以cur作为相等次数，last所指的数在前，cur所指的数在后的目标字符串"""
+    ```
+
+22. #### [617. 合并二叉树](https://leetcode-cn.com/problems/merge-two-binary-trees/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def mergeTrees(self, t1: TreeNode, t2: TreeNode) -> TreeNode:
+            if not t1 and not t2:
+                return 
+            elif not t1:
+                return t2
+            elif not t2:
+                return t1
+            else:
+                t1.val+=t2.val
+                t1.left=self.mergeTrees(t1.left,t2.left)
+                t1.right=self.mergeTrees(t1.right,t2.right)
+                return t1
+    ```
+
+23. #### [剑指 Offer 05. 替换空格](https://leetcode-cn.com/problems/ti-huan-kong-ge-lcof/)
+
+    ```python
+    class Solution:
+        def replaceSpace(self, s: str) -> str: 
+            res = []
+            for c in s:
+                if c == ' ': res.append("%20")
+                else: res.append(c)
+            return "".join(res)
+    
+    ```
+
+24. #### [1351. 统计有序矩阵中的负数](https://leetcode-cn.com/problems/count-negative-numbers-in-a-sorted-matrix/)
+
+    ```python
+    class Solution:
+        def countNegatives(self, grid: List[List[int]]) -> int:
+            ans=0             #ans统计数量
+            m=len(grid)       # 长
+            
+            n=len(grid[0])    # 宽
+            position=n        
+            for i in range(m):
+                for j in range(position):
+                    if grid[i][j]<0:      # 利用非递增特性，一旦找到小于0的，整个矩形（偏右下角的部分）就都是负值，因此用乘法，然后此轮就不用统计了。重新锚定矩形的最右端位子。
+                        ans+=(position-j)*(m-i)
+                        position=j
+                        break
+            return ans
+    
+    ```
+
+25. #### [剑指 Offer 06. 从尾到头打印链表](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/)
+
+    ```python
+    # Definition for singly-linked list.
+    # class ListNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.next = None
+    
+    class Solution:
+        def reversePrint(self, head: ListNode) -> List[int]:
+            stack=[]
+            while head:
+                stack.append(head.val)
+                head=head.next
+            res=[]
+            while stack:
+                res.append(stack.pop())
+            return res
+    ```
+
+26. #### [1252. 奇数值单元格的数目](https://leetcode-cn.com/problems/cells-with-odd-values-in-a-matrix/)
+
+    ```python
+    class Solution:
+        def oddCells(self, n: int, m: int, indices: List[List[int]]) -> int:
+            rows = [False] * n      #用Falseh、True来表示奇偶性，来取代加法
+            cols = [False] * m
+    
+            for r, c in indices:
+                rows[r] = not rows[r]    # 两个数组表示横、纵的奇偶性
+                cols[c] = not cols[c]
+            
+            # rows数组里，True和False的个数
+            rows_true = rows.count(True)     # 统计，数组中有多少奇，剩下的是偶
+            rows_false = n - rows_true
+    
+            cols_true = cols.count(True)
+            cols_false = m - cols_true
+    
+            return rows_true * cols_false + rows_false * cols_true#相乘即得，可以想象成调整行列，变成田字格
+        奇偶
+        偶奇   #这样可以理解
+    
+    ```
+
+27. #### [709. 转换成小写字母](https://leetcode-cn.com/problems/to-lower-case/)
+
+    ```python
+    class Solution:
+        def toLowerCase(self, str: str) -> str:
+            result = ""
+            for s in str:
+                if s >= 'A' and s <= 'Z':
+                    s = chr(ord(s) + 32)
+                else:
+                    pass
+                result += s
+            return result
+    
+    #pythonic:
+     # return ''.join([chr(ord(c)+32) if ord(c)>=65 and ord(c)<=90 else c for c in str])
+    # 内置函数ord（），将字符转换为ascii码，chr（）将ascii码转换为字符
+    ```
+
+28. #### [804. 唯一摩尔斯密码词](https://leetcode-cn.com/problems/unique-morse-code-words/)
+
+    ```python
+    class Solution:
+        def uniqueMorseRepresentations(self, words: List[str]) -> int:
+            dic = {'a': '.-',  'b': '-...',  'c': '-.-.',  'd': '-..',  'e': '.',  'f': '..-.',  'g': '--.',  'h':                      '....',  'i': '..',  'j': '.---',  'k': '-.-',  'l': '.-..',  'm': '--',  'n': '-.', 'o': '---',                     'p': '.--.',  'q': '--.-',  'r': '.-.',  's': '...',  't': '-', 'u': '..-',  'v': '...-',  'w': '.--',                'x': '-..-',  'y': '-.--',  'z': '--..'}
+            res = set()  # set()用来去重，最后统计set的数量就好
+            for word in words:
+                temp = ''
+                for s in word:
+                    temp += dic[s]
+                res.add(temp)
+            
+            return len(res)  # 注意，和java不同，这里使用len（）来计算set的数量
+    ```
+
+29. #### [832. 翻转图像](https://leetcode-cn.com/problems/flipping-an-image/)
+
+    ```python
+    class Solution:
+        def flipAndInvertImage(self, A: List[List[int]]) -> List[List[int]]:
+            for row in A:
+                for j in range((len(row) + 1) // 2):
+                    if row[j] == row[-1-j]:             # 采用Python化的符号索引
+                        row[j] = row[-1-j] = 1 - row[j]    
+            return A
+    # 如果一行首尾对称位置不同，那么先水平翻转，再图像翻转等于没有翻转，所以不用管，相反，如果相同，那么不用位置互换，但是都要翻转。如果是奇数列，那么中间的相当于和自己相同，也要翻转。这里注意len+1，才能触及中间的那个元素
+    ```
+
+30. #### [1323. 6 和 9 组成的最大数字](https://leetcode-cn.com/problems/maximum-69-number/)
+
+    ```python
+    class Solution:
+        def maximum69Number (self, num: int) -> int:
+             return int(str(num).replace("6", "9", 1))
+     '''       
+    1 str.replace(old, new[, max])
+    2 Python replace() 方法把字符串中的 old（旧字符串）替换成 new(新字符串)，如果指定第三个参数max，则替换不超过 max次
+    3 原str不被更改，使用需由新的变量接收
+    4 replace调用C的接口，无python源码
+    5 经测试，str里不存在old时返回原str，不会报错的
+    '''
+    ```
+
+31. #### [剑指 Offer 24. 反转链表](https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/)
+
+    ```python
+    # Definition for singly-linked list.
+    # class ListNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.next = None
+    
+    class Solution:
+        def reverseList(self, head: ListNode) -> ListNode:
+            if not head or head.next==None:
+                return  head
+            past=None
+            pre=head.next
+            t=head
+            while pre :
+                t.next=past
+                past=t
+                t=pre
+                pre=pre.next
+            t.next=past
+            return  t
+    ```
+
+32. #### [1460. 通过翻转子数组使两个数组相等](https://leetcode-cn.com/problems/make-two-arrays-equal-by-reversing-sub-arrays/)
+
+    ```python
+    class Solution:
+        def canBeEqual(self, target: List[int], arr: List[int]) -> bool:
+            return False if sorted(target) != sorted(arr) else True
+        
+      ##实际上只用考虑，两个数组元素是否一致就好，只要一直交换下去，总可以顺序一致，所以直接排序，作比较
+    ##更值得注意的是，arr.sort和sorted（arr）的区别
+    ```
+
+33. #### [1309. 解码字母到整数映射](https://leetcode-cn.com/problems/decrypt-string-from-alphabet-to-integer-mapping/)
+
+    ```python
+    class Solution:
+        def freqAlphabets(self, s: str) -> str:
+            def get(st):
+                return chr(int(st) + 96)
+    
+            i, ans = 0, ""
+            while i < len(s):
+                if i + 2 < len(s) and s[i + 2] == '#':
+                    ans += get(s[i : i + 2])
+                    i += 2
+                else:
+                    ans += get(s[i])
+                i += 1
+            return ans
+    
+    
+    ```
+
+34. #### [1370. 上升下降字符串](https://leetcode-cn.com/problems/increasing-decreasing-string/)
+
+    ```python
+    class Solution:
+        def sortString(self, s: str) -> str:
+            str_counter = collections.Counter(s)
+            result = []
+            flag = False
+            while str_counter:
+                keys = list(str_counter)  # 是包含非重复字符的一些键,可以理解为hash表，展示的是键……
+                keys.sort(reverse=flag)   # 通过false 、true控制正序还是倒叙
+                flag = not flag           # 每次取字符的方向颠倒
+                result.append(''.join(keys))  # 将这些键加入列表
+                str_counter -= collections.Counter(keys)   # 集合做差集，实际是减小次数
+            return ''.join(result)
+    '''
+    关于排序，我们可以直接调用Python内置的list的sort方法，通过设置reverse参数来控制是否降序。
+    关于字符集合提取，我们可以采用Python中collections内置库的Counter对象来操作
+    一个 Counter 是一个 dict 的子类，用于计数可哈希对象。它是一个集合，元素像字典键(key)一样存储，它们的计数存储为值。计数可以是任何整数值，包括0和负数。 Counter 类有点像其他语言中的 bags或multisets。
+    '''
+    
+    
+    假如：    print(str_counter)，s=aaaabbbbcccc,输出是Counter({'a': 4, 'b': 4, 'c': 4})
+    ```
+
+35. #### [90. N叉树的后序遍历](https://leetcode-cn.com/problems/n-ary-tree-postorder-traversal/)
+
+    ```python
+    """
+    # Definition for a Node.
+    class Node:
+        def __init__(self, val=None, children=None):
+            self.val = val
+            self.children = children
+    """
+    # 递归
+    class Solution:
+        def postorder(self, root: 'Node') -> List[int]:
+            result = []
+    
+            def postHelper(root):
+                if not root:
+                    return Node
+                children = root.children
+                for child in children:
+                    postHelper(child)
+    
+                result.append(root.val)
+            postHelper(root)    # 最后加上root
+    
+            return result
+        
+        
+        # 迭代
+        if not root:
+                return None
+            stack, res = [root], []
+            while stack:
+                node = stack.pop()
+                res.append(node.val)
+                for i in node.children:
+                    stack.append(i)
+    
+            return res[::-1]
+    ```
+
+36. #### [剑指 Offer 54. 二叉搜索树的第k大节点](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-di-kda-jie-dian-lcof/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    # 二叉搜索树的中序遍历为 递增序列 ，所以易得二叉搜索树的 中序遍历倒序 为 递减序列 。
+    class Solution:
+        def kthLargest(self, root: TreeNode, k: int) -> int:
+            res = 0
+            self.cnt = 0
+            self.k=k
+            def inOrder(root,k):
+                if not root:
+                    return None
+                inOrder(root.right,k)
+                
+                self.cnt +=1
+                if self.cnt == k:
+                    self.res=root.val
+                    return None
+                inOrder(root.left,k)
+            inOrder(root,k)   # 嵌套的函数，需要在外函数中调用，才能运行
+            return self.res
+    ```
+
+37. #### [733. 图像渲染](https://leetcode-cn.com/problems/flood-fill/)
+
+    ```python
+    class Solution:
+        def floodFill(self, image: List[List[int]], sr: int, sc: int, newColor: int) -> List[List[int]]:
+            currColor = image[sr][sc]
+            if currColor == newColor:
+                return image
+            
+            n, m = len(image), len(image[0])
+            queue = collections.deque([(sr,sc)])  # 内部用元祖作为记录，外部用列表作为队列
+            image[sr][sc] = newColor
+            while queue:
+                x, y = queue.popleft()
+                for new_x, new_y in [(x-1,y),(x+1,y), (x,y-1), (x, y+1)]:
+                    if 0<= new_x<n and 0 <= new_y < m and image[new_x][new_y] == currColor:
+                        queue.append((new_x,new_y))
+                        image[new_x][new_y] = newColor
+    
+            return image 
+    ```
+
+38. #### [110. 平衡二叉树](https://leetcode-cn.com/problems/balanced-binary-tree/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def isBalanced(self, root: TreeNode) -> bool:
+            '''
+            def height(root: TreeNode) -> int:
+                if not root:
+                    return 0
+                return max(height(root.left), height(root.right)) + 1
+    
+            if not root:
+                return True
+            return abs(height(root.left) - height(root.right)) <= 1 and self.isBalanced(root.left) and self.isBalanced(root.right)
+    
+    '''
+            def judge(root):
+                if not root:
+                    return 0
+                l=judge(root.left)
+                if l == -1:
+                    return l
+                r=judge(root.right)
+                if r == -1:
+                    return r
+                if abs(l-r)>1:
+                    return -1
+                else:
+                    return max(l,r)+1
+    
+            
+            return False if judge(root) == -1 else True
+    ```
+
+39. #### [108. 将有序数组转换为二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def sortedArrayToBST(self, nums: List[int]) -> TreeNode:
+            def build(nums, l, r):
+                if r<l:
+                    return None
+                mid = l+(r-l)//2
+                root = TreeNode(nums[mid])
+                root.left = build( nums, l, mid-1)
+                root.right = build(nums, mid+1, r)
+                return root
+    
+    
+    
+    
+    
+    
+    
+            if not nums or len(nums) == 0:
+                return 
+            mid=0+len(nums)//2
+            root = TreeNode(nums[mid])
+            root.left = build( nums, 0, mid-1)
+            root.right = build(nums, mid+1, len(nums)-1)
+            return root
+        
+    ```
+
+40. #### [剑指 Offer 32 - II. 从上到下打印二叉树 II](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def levelOrder(self, root: TreeNode) -> List[List[int]]:
+            q1=collections.deque()
+            if not root :
+                return []
+            res = []
+            q1.append(root)
+            while q1:
+                temp = []
+                for i in range(len(q1)):
+                    
+                    
+                    t = q1.popleft()
+                    temp.append(t.val)
+                    if t.left:
+                        q1.append(t.left)
+                    if t.right:
+                        q1.append(t.right)
+                res.append(temp)    
+    
+            return res
+    
+    ```
+
+    
 
 ## medium
 
@@ -548,6 +1055,55 @@
            
    
            return cnt == numCourses
+   ```
+
+2. #### [43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
+
+   ```python
+   class Solution:
+       def multiply(self, num1: str, num2: str) -> str:
+           if num1 == "0" or num2 == "0":
+               return "0"
+           
+   
+           res="0"
+   
+           m, n = len(num1), len(num2)
+   
+           for i in range(n-1, -1, -1):
+               add = 0
+               y = int(num2[i])
+               curr = ["0"]*(n-i-1)  #计算需要填充多少0,先填进去
+               for j in range(m-1, -1, -1):
+                   product = int(num1[j])*y+add   # 要考虑到进位情况
+                   curr.append(str(product%10))   #余数先填进去
+                   add=product//10                #查看是否进位
+               if add > 0:
+                   curr.append(str(add))          # 如果存在进位情况，就把进位填充进去，注意着是在内循环外部，说明是num2中的一个数，乘完了所有num1，后的最终进位。
+               curr="".join(curr[::-1])          #从后向前，不断翻转位置
+               res = self.addString(res, curr)
+   
+           return res
+   
+   
+   
+   
+       def addString(self, num1:str, num2:str) -> str:   # 乘完的每一行相加
+           i, j = len(num1)-1, len(num2)-1
+           add = 0
+           res = list()
+           while i >=0 or j>=0 or add!=0:
+               x=int(num1[i])   if  i>=0 else 0      # if else 的简易写法
+               y=int(num2[j])   if j>=0 else 0
+               result = x + y +add
+               res.append(str(result%10))
+               add = result // 10
+               i -= 1
+               j -= 1
+           return "".join(res[::-1])
+   
+   
+   
    ```
 
    
