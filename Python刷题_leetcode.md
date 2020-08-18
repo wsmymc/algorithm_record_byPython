@@ -1002,11 +1002,40 @@
                     if t.right:
                         q1.append(t.right)
                 res.append(temp)    
-<<<<<<< HEAD
+
     
             return res
     
     ```
+    
+41. [589. N叉树的前序遍历](https://leetcode-cn.com/problems/n-ary-tree-preorder-traversal/)
+
+    ```python
+    """
+    # Definition for a Node.
+    class Node:
+        def __init__(self, val=None, children=None):
+            self.val = val
+            self.children = children
+    """
+    
+    class Solution:
+        def preorder(self, root: 'Node') -> List[int]:
+            if root is None:
+                return []
+            
+            stack, output = [root], []            
+            while stack:
+                root = stack.pop()
+                output.append(root.val)
+                stack.extend(root.children[::-1])  # 加入栈的时候，要倒着加，才能在出栈的时候，从左至右出栈
+                    
+            return output
+    
+    
+    ```
+
+    
 
 
 
@@ -1111,7 +1140,7 @@
    
    ```
 
-<<<<<<< HEAD
+
 3. #### [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
 
    ```python
@@ -1275,6 +1304,26 @@
    链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
    来源：力扣（LeetCode）
    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+   ```
+
+5. [1325. 删除给定值的叶子节点](https://leetcode-cn.com/problems/delete-leaves-with-a-given-value/)
+
+   ```python
+   # Definition for a binary tree node.
+   # class TreeNode:
+   #     def __init__(self, val=0, left=None, right=None):
+   #         self.val = val
+   #         self.left = left
+   #         self.right = right
+   class Solution:
+       def removeLeafNodes(self, root: TreeNode, target: int) -> TreeNode:
+           if not root:
+               return root
+           root.left = self.removeLeafNodes(root.left, target)
+           root.right = self.removeLeafNodes(root.right, target)
+           if not root.left and not root.right and root.val ==target:
+               return None
+           return root
    ```
 
    
