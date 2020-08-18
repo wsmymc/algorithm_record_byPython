@@ -73,13 +73,15 @@
    d = c and a or b        #当c为真时走a,当c为假时走b
    ```
 
+
+
 11. https://docs.python.org/zh-cn/3/library/collections.html(容器数据类型)
 
     * | [`deque`](https://docs.python.org/zh-cn/3/library/collections.html#collections.deque) | 类似列表(list)的容器，实现了在两端快速添加(append)和弹出(pop) |
       | ------------------------------------------------------------ | ------------------------------------------------------------ |
       |                                                              | 相关用法点击链接                                             |
 
-
+=======
 
 
 
@@ -869,6 +871,8 @@
             return self.res
     ```
 
+
+>>>>>>> ea754aa30be19ff499f61cee80613aabe5407cba
 37. #### [733. 图像渲染](https://leetcode-cn.com/problems/flood-fill/)
 
     ```python
@@ -998,12 +1002,13 @@
                     if t.right:
                         q1.append(t.right)
                 res.append(temp)    
+<<<<<<< HEAD
     
             return res
     
     ```
 
-    
+
 
 ## medium
 
@@ -1106,4 +1111,26 @@
    
    ```
 
+3. #### [剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+
+   ```python
+   class Solution:
+       def __init__(self):
+           self.res=0
+       def sumNums(self, n: int) -> int:
+           n > 1 and self.sumNums(n - 1)  # 如果n-1小于等于1，这一步就会返回，截止
+           print("n:",n)
+           self.res += n
+           return self.res
+   ## 常见的逻辑运算符有三种，即 “与 \&\&&& ”，“或 ||∣∣ ”，“非 !! ” ；而其有重要的短路效应，如下所示：
    
+   
+   if(A && B)  // 若 A 为 false ，则 B 的判断不会执行（即短路），直接判定 A && B 为 false
+   
+   if(A || B) // 若 A 为 true ，则 B 的判断不会执行（即短路），直接判定 
+   
+   # 相当放在后面的递归函数不被执行了，执行下一行，但是因为没有递归，所以到此为之
+   ```
+
+   
+
