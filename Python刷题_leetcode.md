@@ -1111,6 +1111,79 @@
    
    ```
 
+<<<<<<< HEAD
+3. #### [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+
+   ```python
+   # Definition for singly-linked list.
+   # class ListNode:
+   #     def __init__(self, val=0, next=None):
+   #         self.val = val
+   #         self.next = next
+   # Definition for a binary tree node.
+   # class TreeNode:
+   #     def __init__(self, val=0, left=None, right=None):
+   #         self.val = val
+   #         self.left = left
+   #         self.right = right
+   class Solution:
+       def sortedListToBST(self, head: ListNode) -> TreeNode:
+           def getMedian(left: ListNode, right: ListNode) -> ListNode:
+               fast = slow = left
+               while fast != right and fast.next != right:   # 快慢指针
+                   fast = fast.next.next
+                   slow = slow.next
+               return slow
+           
+           def buildTree(left: ListNode, right: ListNode) -> TreeNode:
+               if left == right:
+                   return None
+               mid = getMedian(left, right)
+               root = TreeNode(mid.val)
+               root.left = buildTree(left, mid)  # 这里的左右端点使用节点表示
+               root.right = buildTree(mid.next, right)
+               return root
+           
+           return buildTree(head, None)  # 最右端是None很合理
+       
+       
+       
+       
+       
+       ## 另一种解法：仅供参考。这里利用中序遍历，特性，从头到尾依次放置节点
+       class Solution:
+       def sortedListToBST(self, head: ListNode) -> TreeNode:
+           def getLength(head: ListNode) -> int:
+               ret = 0
+               while head:
+                   ret += 1
+                   head = head.next
+               return ret
+           
+           def buildTree(left: int, right: int) -> TreeNode:
+               if left > right:
+                   return None
+               mid = (left + right + 1) // 2
+               root = TreeNode()
+               root.left = buildTree(left, mid - 1)
+               nonlocal head
+               root.val = head.val  
+               head = head.next   # 每次节点确定好后，跳到下一节点
+               root.right = buildTree(mid + 1, right)
+               return root
+           
+           length = getLength(head)  # 先统计一边长度，知道长度，基本就确定了平衡树的结构，剩下的，就是依次添值和关系
+           return buildTree(0, length - 1)  # 这里的l，r实际上是用来确定位置的参数，即分割左右子树，自身不决定树的值
+   
+   作者：LeetCode-Solution
+   链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
+   来源：力扣（LeetCode）
+   著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+   ```
+
+   
+
+
 3. #### [剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
 
    ```python
@@ -1132,5 +1205,76 @@
    # 相当放在后面的递归函数不被执行了，执行下一行，但是因为没有递归，所以到此为之
    ```
 
-   
 
+
+
+4. [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+
+   ```python
+   # Definition for singly-linked list.
+   # class ListNode:
+   #     def __init__(self, val=0, next=None):
+   #         self.val = val
+   #         self.next = next
+   # Definition for a binary tree node.
+   # class TreeNode:
+   #     def __init__(self, val=0, left=None, right=None):
+   #         self.val = val
+   #         self.left = left
+   #         self.right = right
+   class Solution:
+       def sortedListToBST(self, head: ListNode) -> TreeNode:
+           def getMedian(left: ListNode, right: ListNode) -> ListNode:
+               fast = slow = left
+               while fast != right and fast.next != right:   # 快慢指针
+                   fast = fast.next.next
+                   slow = slow.next
+               return slow
+           
+           def buildTree(left: ListNode, right: ListNode) -> TreeNode:
+               if left == right:
+                   return None
+               mid = getMedian(left, right)
+               root = TreeNode(mid.val)
+               root.left = buildTree(left, mid)  # 这里的左右端点使用节点表示
+               root.right = buildTree(mid.next, right)
+               return root
+           
+           return buildTree(head, None)  # 最右端是None很合理
+       
+       
+       
+       
+       
+       ## 另一种解法：仅供参考。这里利用中序遍历，特性，从头到尾依次放置节点
+       class Solution:
+       def sortedListToBST(self, head: ListNode) -> TreeNode:
+           def getLength(head: ListNode) -> int:
+               ret = 0
+               while head:
+                   ret += 1
+                   head = head.next
+               return ret
+           
+           def buildTree(left: int, right: int) -> TreeNode:
+               if left > right:
+                   return None
+               mid = (left + right + 1) // 2
+               root = TreeNode()
+               root.left = buildTree(left, mid - 1)
+               nonlocal head
+               root.val = head.val  
+               head = head.next   # 每次节点确定好后，跳到下一节点
+               root.right = buildTree(mid + 1, right)
+               return root
+           
+           length = getLength(head)  # 先统计一边长度，知道长度，基本就确定了平衡树的结构，剩下的，就是依次添值和关系
+           return buildTree(0, length - 1)  # 这里的l，r实际上是用来确定位置的参数，即分割左右子树，自身不决定树的值
+   
+   作者：LeetCode-Solution
+   链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
+   来源：力扣（LeetCode）
+   著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+   ```
+
+   
