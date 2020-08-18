@@ -73,7 +73,15 @@
    d = c and a or b        #当c为真时走a,当c为假时走b
    ```
 
-   
+<<<<<<< HEAD
+11. https://docs.python.org/zh-cn/3/library/collections.html(容器数据类型)
+
+    * | [`deque`](https://docs.python.org/zh-cn/3/library/collections.html#collections.deque) | 类似列表(list)的容器，实现了在两端快速添加(append)和弹出(pop) |
+      | ------------------------------------------------------------ | ------------------------------------------------------------ |
+      |                                                              | 相关用法点击链接                                             |
+=======
+
+>>>>>>> 5c048991efa3ca666acefeab043834f8448af241
 
 
 
@@ -865,7 +873,142 @@
             return self.res
     ```
 
+<<<<<<< HEAD
+37. #### [733. 图像渲染](https://leetcode-cn.com/problems/flood-fill/)
+
+    ```python
+    class Solution:
+        def floodFill(self, image: List[List[int]], sr: int, sc: int, newColor: int) -> List[List[int]]:
+            currColor = image[sr][sc]
+            if currColor == newColor:
+                return image
+            
+            n, m = len(image), len(image[0])
+            queue = collections.deque([(sr,sc)])  # 内部用元祖作为记录，外部用列表作为队列
+            image[sr][sc] = newColor
+            while queue:
+                x, y = queue.popleft()
+                for new_x, new_y in [(x-1,y),(x+1,y), (x,y-1), (x, y+1)]:
+                    if 0<= new_x<n and 0 <= new_y < m and image[new_x][new_y] == currColor:
+                        queue.append((new_x,new_y))
+                        image[new_x][new_y] = newColor
     
+            return image 
+    ```
+
+38. #### [110. 平衡二叉树](https://leetcode-cn.com/problems/balanced-binary-tree/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def isBalanced(self, root: TreeNode) -> bool:
+            '''
+            def height(root: TreeNode) -> int:
+                if not root:
+                    return 0
+                return max(height(root.left), height(root.right)) + 1
+    
+            if not root:
+                return True
+            return abs(height(root.left) - height(root.right)) <= 1 and self.isBalanced(root.left) and self.isBalanced(root.right)
+    
+    '''
+            def judge(root):
+                if not root:
+                    return 0
+                l=judge(root.left)
+                if l == -1:
+                    return l
+                r=judge(root.right)
+                if r == -1:
+                    return r
+                if abs(l-r)>1:
+                    return -1
+                else:
+                    return max(l,r)+1
+    
+            
+            return False if judge(root) == -1 else True
+    ```
+
+39. #### [108. 将有序数组转换为二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def sortedArrayToBST(self, nums: List[int]) -> TreeNode:
+            def build(nums, l, r):
+                if r<l:
+                    return None
+                mid = l+(r-l)//2
+                root = TreeNode(nums[mid])
+                root.left = build( nums, l, mid-1)
+                root.right = build(nums, mid+1, r)
+                return root
+    
+    
+    
+    
+    
+    
+    
+            if not nums or len(nums) == 0:
+                return 
+            mid=0+len(nums)//2
+            root = TreeNode(nums[mid])
+            root.left = build( nums, 0, mid-1)
+            root.right = build(nums, mid+1, len(nums)-1)
+            return root
+        
+    ```
+
+40. #### [剑指 Offer 32 - II. 从上到下打印二叉树 II](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
+    
+    class Solution:
+        def levelOrder(self, root: TreeNode) -> List[List[int]]:
+            q1=collections.deque()
+            if not root :
+                return []
+            res = []
+            q1.append(root)
+            while q1:
+                temp = []
+                for i in range(len(q1)):
+                    
+                    
+                    t = q1.popleft()
+                    temp.append(t.val)
+                    if t.left:
+                        q1.append(t.left)
+                    if t.right:
+                        q1.append(t.right)
+                res.append(temp)    
+    
+            return res
+    
+    ```
+
+
 
 ## medium
 
@@ -968,7 +1111,104 @@
    
    ```
 
+<<<<<<< HEAD
 3. #### [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+
+   ```python
+   # Definition for singly-linked list.
+   # class ListNode:
+   #     def __init__(self, val=0, next=None):
+   #         self.val = val
+   #         self.next = next
+   # Definition for a binary tree node.
+   # class TreeNode:
+   #     def __init__(self, val=0, left=None, right=None):
+   #         self.val = val
+   #         self.left = left
+   #         self.right = right
+   class Solution:
+       def sortedListToBST(self, head: ListNode) -> TreeNode:
+           def getMedian(left: ListNode, right: ListNode) -> ListNode:
+               fast = slow = left
+               while fast != right and fast.next != right:   # 快慢指针
+                   fast = fast.next.next
+                   slow = slow.next
+               return slow
+           
+           def buildTree(left: ListNode, right: ListNode) -> TreeNode:
+               if left == right:
+                   return None
+               mid = getMedian(left, right)
+               root = TreeNode(mid.val)
+               root.left = buildTree(left, mid)  # 这里的左右端点使用节点表示
+               root.right = buildTree(mid.next, right)
+               return root
+           
+           return buildTree(head, None)  # 最右端是None很合理
+       
+       
+       
+       
+       
+       ## 另一种解法：仅供参考。这里利用中序遍历，特性，从头到尾依次放置节点
+       class Solution:
+       def sortedListToBST(self, head: ListNode) -> TreeNode:
+           def getLength(head: ListNode) -> int:
+               ret = 0
+               while head:
+                   ret += 1
+                   head = head.next
+               return ret
+           
+           def buildTree(left: int, right: int) -> TreeNode:
+               if left > right:
+                   return None
+               mid = (left + right + 1) // 2
+               root = TreeNode()
+               root.left = buildTree(left, mid - 1)
+               nonlocal head
+               root.val = head.val  
+               head = head.next   # 每次节点确定好后，跳到下一节点
+               root.right = buildTree(mid + 1, right)
+               return root
+           
+           length = getLength(head)  # 先统计一边长度，知道长度，基本就确定了平衡树的结构，剩下的，就是依次添值和关系
+           return buildTree(0, length - 1)  # 这里的l，r实际上是用来确定位置的参数，即分割左右子树，自身不决定树的值
+   
+   作者：LeetCode-Solution
+   链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
+   来源：力扣（LeetCode）
+   著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+   ```
+
+   
+
+
+3. #### [剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+
+   ```python
+   class Solution:
+       def __init__(self):
+           self.res=0
+       def sumNums(self, n: int) -> int:
+           n > 1 and self.sumNums(n - 1)  # 如果n-1小于等于1，这一步就会返回，截止
+           print("n:",n)
+           self.res += n
+           return self.res
+   ## 常见的逻辑运算符有三种，即 “与 \&\&&& ”，“或 ||∣∣ ”，“非 !! ” ；而其有重要的短路效应，如下所示：
+   
+   
+   if(A && B)  // 若 A 为 false ，则 B 的判断不会执行（即短路），直接判定 A && B 为 false
+   
+   if(A || B) // 若 A 为 true ，则 B 的判断不会执行（即短路），直接判定 
+   
+   # 相当放在后面的递归函数不被执行了，执行下一行，但是因为没有递归，所以到此为之
+   ```
+
+
+
+
+4. [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
 
    ```python
    # Definition for singly-linked list.
