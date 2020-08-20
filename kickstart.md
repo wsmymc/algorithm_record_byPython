@@ -136,7 +136,7 @@
     except:
         print("ss")
     '''
-    
+    # 最简单的思路，比较法统计
     a = int(input())
     
     for i in range(a):
@@ -144,17 +144,15 @@
         n = int(input())
         line = [int(x) for x in input().split()]
         ma = -1
-        for j in range(len(line)-1):
-            if line[j]>ma and line[j]>line[j+1]:
-                res += 1
-                ma = line[j]
-    
-        if line[-1] >ma:
-            res +=1
+        for j in range(len(line)):
+            if line[j]>ma:
+                if(j == len(line)-1 or line[j]>line[j+1]):  # 如果是最后一个，直接短路，+1。这里注意：没有关注第一个是因为第一个一定>0 ,but the original ma == -1,so,if the first > 2nd,就是一个破纪录，所以不需要特殊对待
+                    res +=1
+                ma = max(ma, line[j])
         print("Case #{0}: {1}".format(int(i+1), int(res)))
     
     
     
     ```
-
+    
     
