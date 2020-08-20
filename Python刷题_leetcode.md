@@ -1415,6 +1415,50 @@
    
    ```
 
+7. #### [529. 扫雷游戏](https://leetcode-cn.com/problems/minesweeper/)
+
+   ```python
+   class Solution:
+       def updateBoard(self, board: List[List[str]], click: List[int]) -> List[List[str]]:
+           if not board or not board[0]: return board
+   
+           rows, cols = len(board), len(board[0])
+           if not (0 <= click[0] < rows and 0 <= click[1] < cols):
+               return board
+           
+           if board[click[0]][click[1]] == 'M':
+               board[click[0]][click[1]] = 'X'
+               return board
+           
+   
+           def _dfs(i,j):   # 因为这里没有新建borad，所以整个solution中用的都是同一个board
+               #如果不是E，就返回。这里就是规避B和M
+               if  not (0 <= i < rows and 0 <= j < cols and board[i][j] != 'E'):
+                   return
+               # 制作移动方向，总共八个
+               directions = [(0, 1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (1, 0), (1, -1), (1, 1)]
+               mine_num = 0  # 地雷计数
+               for d in directions:
+                   if 0 <= (i + d[0]) < rows and 0 <= (j + d[1]) < cols and board[i + d[0]][j + d[1]] == 'M':
+                       mine_num += 1  # 统计合法的移动范围内的隐藏地雷
+   
+   
+               # 如果有雷，标记数量；如果没有，标记为B，并且递归周围
+               if mine_num > 0:
+                   board[i][j] = str(mine_num)
+               else:
+                   board[i][j] = 'B'
+                   for d in directions:
+                       _dfs(i+d[0],j+d[1])
+               return
+   
+   
+          # _dfs(click[0],click[1])
+          # 也可以使用变动参数的形式
+           _dfs(*click)
+           return board
+   ```
+
    
 
 
