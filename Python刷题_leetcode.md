@@ -1035,6 +1035,32 @@
     
     ```
 
+42. #### [1207. 独一无二的出现次数](https://leetcode-cn.com/problems/unique-number-of-occurrences/)
+
+    ```python
+    class Solution:
+        def uniqueOccurrences(self, arr: List[int]) -> bool:
+            
+    
+            # 更加pythonic的写法:
+            eleNum = collections.Counter(arr)
+            return len(set(eleNum.values())) == len(eleNum.values())
+    
+    
+    
+    
+    
+            '''
+            map = dict()
+            for i in arr:
+                t=map.get(i, 0)
+               map[i]=t+1
+    
+            print(map)
+            return len(set(map.values())) == len(map.values())
+            '''
+    ```
+
     
 
 
@@ -1457,6 +1483,21 @@
           # 也可以使用变动参数的形式
            _dfs(*click)
            return board
+   ```
+
+8. #### [910. 最小差值 II](https://leetcode-cn.com/problems/smallest-range-ii/)
+
+   ```python
+   class Solution:
+       def smallestRangeII(self, A: List[int], K: int) -> int:
+   
+           # 实际上就是先排序，然后以一个位置开始分割，前一部分加，后一部分减，只用比较端点就好，0~i：+k，i+1~-1 ：-K。这样只用比较这四个的最大最小值，然后在循环中不断更新
+           A.sort()
+           mi, ma = A[0], A[-1]
+           res = ma - mi
+           for i in range(len(A)-1):
+               res = min(res, max(A[i]+K,ma-K)-min(mi+K, A[i+1]-K))
+           return res
    ```
 
    
