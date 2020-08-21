@@ -1061,7 +1061,87 @@
             '''
     ```
 
+43. #### [111. 二叉树的最小深度](https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/)
+
+    ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.left = None
+    #         self.right = None
     
+    class Solution:
+        def minDepth(self, root: TreeNode) -> int:
+            def dfs(root):
+                if not root:  # 没有节点
+                    return 0
+                elif root.right and root.left:  # 双亲节点
+                    return 1+min(dfs(root.left),dfs(root.right))
+                else:
+                    return 1+dfs(root.left)+dfs(root.right)#这里是针对只有单个子节点的情况，需要加上单个节点自己
+    
+    
+            if not root:
+                return 0
+            elif not root.left and not root.right:
+                return 1
+            else:
+                return dfs(root)
+    
+    
+    
+            
+    ```
+
+44. #### [1512. 好数对的数目](https://leetcode-cn.com/problems/number-of-good-pairs/)
+
+    ```python
+    class Solution:
+        def numIdenticalPairs(self, nums: List[int]) -> int:
+            def getSum(n):#这是在求和，这里的规律就是0+……+n-1
+                l=[x for x in range(n)]
+                return sum(l)
+            
+            
+            dic = dict()
+            n =len(nums)
+            res = 0
+            for i in range(n):
+                dic.setdefault(nums[i],[]).append(i)  #dict.setdefault(key,[]).append  特殊用法记住。统计相同值的索引
+            for v in dic.values():
+                if len(v)>1:
+                    res += getSum(len(v))
+    
+            return res
+        
+        
+        
+        # 极简方法，用统计来计算
+         l=[0 for i in range(100)]  #因为题目限制，所以留下100个桶
+            
+            #print(l)
+            res =0
+            for num in nums:
+                res += l[num-1]  # 每次统计到，先加在填入桶中，避免了只有1个时，因为原始是0，所以不用加。
+                l[num-1] += 1
+            return res
+    
+    ```
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1498,6 +1578,31 @@
            for i in range(len(A)-1):
                res = min(res, max(A[i]+K,ma-K)-min(mi+K, A[i+1]-K))
            return res
+   ```
+
+9. #### [861. 翻转矩阵后的得分](https://leetcode-cn.com/problems/score-after-flipping-matrix/)
+
+   ```python
+   class Solution:
+       '''不要被题目吓到，这么想：每行都是一个二进制数。因此：
+           自左到右，每一位的值:2^n,这个n是总列数-1-当前列，因此未必需要横着求和
+           也可以竖着求和：每一列代表的值是由列数确定，统计有多少个1，相乘即可。
+           这里注意，因为越高位的1越有价值，贪心算法，先使最左一列全为1，然后统计
+           各列1的个数（这里是统计不同的个数，然后取大的，因为可以一列翻转，使相同的更多的为1），乘以各自的因子，最后累加即可
+       '''
+       def matrixScore(self, A: List[List[int]]) -> int:
+           rows, cols = len(A), len(A[0])
+           res = 0
+           for col in range(cols):
+               c =0
+               for row in range(rows):
+                   c += A[row][col]^A[row][0]  #这里有一点特殊，其他列是和A[row][0]比较获取自己列的异同数量，第一列是和自己比较，此时
+               res += max(c, rows-c)*2**(cols-1-col)
+       
+   
+           return res
+   
+   
    ```
 
    
