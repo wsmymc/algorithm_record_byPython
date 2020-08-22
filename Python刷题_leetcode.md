@@ -1129,7 +1129,56 @@
     
     ```
 
+45. #### [1486. 数组异或操作](https://leetcode-cn.com/problems/xor-operation-in-an-array/)
+
+    ```python
+    class Solution:
+        def xorOperation(self, n: int, start: int) -> int:
+            res = 0
+            for i in range(n):
+                res ^= (start+i*2)
+            return res
     
+    # 暴力方法
+    
+    
+    # O（1）的位运算方法
+    '''
+    异或的性质：
+    1) 0 ^ x = x
+    2) x ^ x = 0
+    3) 2x ^ (2x+1) = 1
+    
+    思路：
+    公式是：start^start+2^...。但是性质三很有趣，因此，这里需要将步长减半，就可以利用性质3，方法是除以2.--》start/2^start/2 + 1 ^...。最后乘2，在讨论最后一位就好
+    于是根据奇偶性需要分类讨论：
+    如果  start 为偶，n也为偶：
+    	那就是两两异或成1，然后（n/2)个1，进行异或，可以用（n/2)^1,计算。这是可以对res*2，直接得到结果
+    如果 start为偶， n 为奇数：
+    	那就是两两异或成1之外，还会剩下start/2+n-1,随意（n/2)^1^(start/2+n-1),然后res*2
+    如果 start 为奇数：那么我们可以在前面补充(start/2−1)⊕(start/2−1），以为性质2，相当于0^原本的式子，然后性质1，相当于没变。此时相当于(start/2−1)^以f((start/2−1),n+1)的式子，就将后面的变成的偶数开始。
+    	此时：如果n为偶数，最终一共有 n/2个1进行异或，即 res = (n/2)^1，因为补充的那段没有影响，这时res*2
+    	如果n为奇数：会剩下一个，即 res = (n/2)^1 & (start+num-1)，这里res= 2* res+1
+    '''
+    class Solution:
+        def xorOperation(self, n: int, start: int) -> int:
+            res = 2* self.myxor(n, start//2) # 总是要*2 ，这里先不管start的奇偶性，要//2 以后在讨论。因为只有整除2，以后，才能用到异或性质3
+            if n&1 and start&1:  #they are all odd ，只有n为奇数，所以会有statt因素影响，进而有1被整除忽略，需要加上
+                res = res +1
+            return res
+        
+        def myxor(self, n, start):
+            if start&1:
+                return (start-1)^self.myxor(n+1,start-1)
+            else:
+                if n&1:  # n为奇数
+                    return (n//2&1)^(start+n-1)
+                else:   # n为偶数
+                    return (n//2)&1
+    
+    ```
+
+46. #### [459. 重复的子字符串](https://leetcode-cn.com/problems/repeated-substring-pattern/)（待解决8.23）
 
 
 
@@ -1620,4 +1669,77 @@
 
 
 ## hard
+
+1. #### [679. 24 点游戏](https://leetcode-cn.com/problems/24-game/)
+
+   ```python
+   '''
+   一共有 44 个数和 33 个运算操作，因此可能性非常有限。一共有多少种可能性呢？
+   
+   首先从 44 个数字中有序地选出 22 个数字，共有 4 \times 3=124×3=12 种选法，并选择加、减、乘、除 44 种运算操作之一，用得到的结果取代选出的 22 个数字，剩下 33 个数字。
+   
+   然后在剩下的 33 个数字中有序地选出 22 个数字，共有 3 \times 2=63×2=6 种选法，并选择 44 种运算操作之一，用得到的结果取代选出的 22 个数字，剩下 22 个数字。
+   
+   最后剩下 22 个数字，有 22 种不同的顺序，并选择 44 种运算操作之一。
+   
+   因此，一共有 12 \times 4 \times 6 \times 4 \times 2 \times 4=921612×4×6×4×2×4=9216 种不同的可能性。
+   
+   可以通过回溯的方法遍历所有不同的可能性。具体做法是，使用一个列表存储目前的全部数字，每次从列表中选出 22 个数字，再选择一种运算操作，用计算得到的结果取代选出的 22 个数字，这样列表中的数字就减少了 11 个。重复上述步骤，直到列表中只剩下 11 个数字，这个数字就是一种可能性的结果，如果结果等于 2424，则说明可以通过运算得到 2424。如果所有的可能性的结果都不等于 2424，则说明无法通过运算得到 2424。
+   
+   实现时，有一些细节需要注意。
+   
+   除法运算为实数除法，因此结果为浮点数，列表中存储的数字也都是浮点数。在判断结果是否等于 2424 时应考虑精度误差，这道题中，误差小于 10^{-6}10 
+   −6
+     可以认为是相等。
+   
+   进行除法运算时，除数不能为 00，如果遇到除数为 00 的情况，则这种可能性可以直接排除。由于列表中存储的数字是浮点数，因此判断除数是否为 00 时应考虑精度误差，这道题中，当一个数字的绝对值小于 10^{-6}10 
+   −6时，可以认为该数字等于 00。
+   '''
+   
+   class Solution:
+       def judgePoint24(self, nums: List[int]) -> bool:
+           # 第一难点在于想清楚递归回溯的思路
+           # 第二难点在于，具体实现中的细节
+           target = 24
+           epsilon = 1e-6  #允许的精度误差在这
+   
+           add, multipy,subtract,divide =0,1,2,3  # 加减乘除操作符
+   
+           def solve(nums)-> bool:
+               if not nums:
+                   return False
+               if len(nums)==1:
+                   return abs(nums[0] - target)  <epsilon 
+               
+               for i ,x in enumerate(nums):   # 构造索引序列。k-v形式
+                   for j, y in enumerate(nums):
+                       if i != j:
+                           newNums = list()
+                           for k ,z in enumerate(nums):  # 操作前两个数，将第三、四个数保存
+                               if k != i and k !=j:
+                                   newNums.append(z)
+                           
+                           for k in range(4):
+                               if k<2 and i>j:
+                                   continue
+                               if k == add:
+                                   newNums.append(x+y)
+                               elif k == multipy:
+                                   newNums.append(x*y)
+                               elif k == sub:
+                                   newNums.append(x-y)
+                               elif k == divide:
+                                   if abs(y)<epsilon:  #这里考虑，如果有y的值近似于0，不可除，跳过
+                                       continue
+                                   newNums.append(x/y)
+                           if solve(newNums):   # 递归
+                               return True
+                           newNums.pop()    # 回溯
+               return False
+   
+   
+           return solve(nums)
+   ```
+
+   
 
