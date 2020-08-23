@@ -4,3 +4,17 @@ python刷题记录
 
 用于记录刷题结果，间或会有思路提及
 不够详尽，但是……尽力吧
+
+
+
+
+
+
+
+学习资料：
+
+https://github.com/OI-wiki/OI-wiki/
+
+https://oi-wiki.org/
+
+有空要看看

@@ -1,6 +1,6 @@
 # lc周赛&双周赛
 
-## 周赛33
+## 双周赛33
 
 1. [千位分隔数](https://leetcode-cn.com/contest/biweekly-contest-33/problems/thousand-separator/)
 
@@ -110,8 +110,222 @@
        
        
        # 错误原因，第一点： visited = [[True for i in range(m)] for i in range(n)]，二位矩阵要这么创建，否则：
-       []*n   这种是共同索引
+      # [x]*n   这种是共同索引
        
    ```
 
    
+
+
+
+
+
+
+
+
+
+
+
+# 周赛203
+
+* #### [5495. 圆形赛道上经过次数最多的扇区](https://leetcode-cn.com/problems/most-visited-sector-in-a-circular-track/)
+
+  ```python
+  # 一开始被模拟法误导了，陷在里面浪费很多时间，事情的本质，是考察起点和终点，因为其他都是绕圈，只有不满圈的那一部分，会比其他部分多1次
+  
+  class Solution:
+      def mostVisited(self, n: int, rounds: List[int]) -> List[int]:
+          li =list()
+          if len(rounds) == 1:
+              return rounds[0]
+          else:
+              l = rounds[0]
+              r = rounds[-1]
+              if l < r:    # 正常情况是从左到右
+                  # print("s")
+                  li = [i for i in range(l, r + 1)]
+                  return li
+              elif l == r:
+                  return [l]  # 相同的话，只用考虑这个
+              elif l > r:   #非正常情况从右到左，这个时候，先把剩下的跑满，在考虑重新出发的部分
+  
+                  #print(lp)
+                  for i in range(l, n + 1):  
+                      li.append(i)
+                  #print(lp)
+                  for i in range(1, r + 1):
+                      li.append(i)
+                  #print(li)
+  
+                  li.sort() # 这一点差点搞死我，记住，这块sort后没有返回值，所以不能直接return，要return li
+                  #print(li)
+                  return  li
+              
+              
+  ```
+
+* #### [5496. 你可以获得的最大硬币数目](https://leetcode-cn.com/problems/maximum-number-of-coins-you-can-get/)
+
+  ```python
+  # 最简单的贪心，每一轮，我要拿第二，随意，必需和第一十分接近——排序，然后第三直接扔到最后一部分，实际上是排序后，间隔取数，取满n个
+  class Solution:
+      def maxCoins(self, piles: List[int]) -> int:
+          piles.sort(reverse=True)
+          #print((piles))
+          n = len(piles)//3
+          res = 0
+          for i in range(n):
+              #print(piles[2*i+1])
+              res +=piles[2*i+1]
+  
+          return res
+      
+      #其实没什么好说的，比第一题用时还少，看题解时，有一个这个，可以看看
+  class Solution:
+      def maxCoins(self, piles: List[int]) -> int:
+          # return sum(sorted(piles)[len(piles) // 3::2])
+          print("sorrted:",sorted(piles))            #测试用的，实际只有最后一句话
+          print(sorted(piles)[len(piles) // 3::2])  # 用来找原理的，很巧妙，因为第三有n个（0~n-1），直接从n开始，步长为2。
+          # sorted（list）[start:end:step]这种用法值得记一下
+          return sum(sorted(piles)[len(piles) // 3::2])   
+  ```
+
+* #### [5497. 查找大小为 M 的最新分组](https://leetcode-cn.com/problems/find-latest-group-of-size-m/)
+
+  * 反思一个错误，注意是“最新”分组，我读题不仔细，当前没有的话，不代表下一次不会产生，我自己的代码是太早退出了……ORZ
+
+  ```python
+  import collections
+  from typing import List
+  
+  '''
+  来自题解的理解，我读懂了，偷懒复制：（实质还是暴力解，每次统计，然后有意思的是修改节点对应1的长度时，只修改端点的，相当于O(1)操作了。
+  当然，总体是O（N））
+  分析题目, 某个位置变成 1 之后, 最直接的影响就是其左右两边, 左右两边连续的 1 的长度都会变成新的总长度
+  所以首先我们需要一个字典 iToLen, 键值对为{i:len}, 存储某个下标对应的连续 1 的长度, 用于动态更新
+  其次我们还需要一个反向字典 lenToCnt, 键值对为{len:cnt}, 存储当前连续 1 长度对应的个数, 那么每次只要这个字典里 m 对应的 cnt 大于 0, 就说明仍有连续 1 长度为 m 的部分
+  如果我们在每次把某个位置变成 1 之后都修改左右两边所有连续 1 的位置的 iToLen 字典, 这样时间复杂度就达到了 O(N^2), 大概率会超时
+  但真的有必要修改所有下标吗? 答案是否定的, 其实我们只需要修改新的连续 1 的起点和终点的 iToLen 字典即可, 因为后面操作里新的 1 的左右两边绝不可能是当前连续 1 的中间部分, 只需要考虑两个边界就行, 这样就把这部分操作从 O(N)降到了 O(1)
+  然后就是修改反向字典 lenToCnt 了, 这个也很简单, 就是拿到原来左右两侧连续 1 的长度 left 和 right, 将其对应的值各减去 left 和 right, 因为这些下标的长度都不再是原来的值了, 然后再把总长度 left+right+1 在 lenToCnt 字典中的值加上 left+right+1 即可
+  下面代码对必要的步骤有详细的解释, 方便大家理解
+  
+  作者：suibianfahui
+  链接：https://leetcode-cn.com/problems/find-latest-group-of-size-m/solution/di-203-chang-zhou-sai-ti-jie-by-suibianfahui-2/
+  来源：力扣（LeetCode）
+  著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+  '''
+  class Solution:
+      def findLatestStep(self, arr: List[int], m: int) -> int:
+          n = len(arr)
+          lenToCnt = collections.defaultdict(int)   # 设置默认值的类型
+          iToLen={}
+          res =-1
+          for index x in enumerate(arr):  #这两天常见，使生成索引序列，k-v格式
+              i = x-1   #转换成以0为起点的操作,方便使用
+              left = 0
+              right = 0  ## 原来的左侧和右侧的连续1的长度
+              start = end = i # 新的连续1的起点和终点下标, 初始化为当前下标
+  
+              if i-1 >=0 and i-1 in iToLen:  # 首先没有越界，其次，i-1是某段连续1的右端点，因为只
+                  left =iToLen[i-1]          #有为1，才会在tTolen的字典里。取被填补缺口的左侧长度
+                  start -=left               # 其实质:i-left,找到左端点的索引号
+              if i+1 <n and i+1 in iToLen:    # 类似上面
+                  right = iToLen[i+1]
+                  end +=right
+              newLen = left +right +1         # 左边长度+右边长度+自己（1）
+              iToLen[start] = iToLen[end] = newLen  #这是更新新的左右端点的在字典里的对应长度
+  
+              lenToCnt[left] -= 1           # 原本的左边长度要减少
+              lenToCnt[right] -= 1         #原本右边长度对应的计数也要减少
+              lenToCnt[newLen] += 1
+  
+              if lenToCnt[m] > 0:   # 如果当前操作完成后，m长度对应的计数还有，那么就更新为当前操作，之所以+1，是因为enumerate生成的索引从0开始
+                  res = index +1
+          return res
+  
+  
+  # 当然这里最聪明的办法是倒着做，什么时候第一次出现，就是什么时候最后更新。具体可以到后面实现  实现如下
+  
+  
+  
+  #bisect.bisect(a, x, lo=0, hi=len(a))
+  #类似于 bisect_left()，但是返回的插入点是 a 中已存在元素 x 的右侧。
+  #有点像Java里的TreeSet()
+  #返回的插入点 i 可以将数组 a 分成两部分。左侧是 all(val <= x for val in a[lo:i])，右侧是 all(val > x for val in a[i:hi]) for the right side。
+  '''
+  bisect.bisect_left(a, x, lo=0, hi=len(a))
+  在 a 中找到 x 合适的插入点以维持有序。参数 lo 和 hi 可以被用于确定需要考虑的子集；默认情况下整个列表都会被使用。如果 x 已经在 a 里存在，那么插入点会在已存在元素之前（也就是左边）。如果 a 是列表（list）的话，返回值是可以被放在 list.insert() 的第一个参数的
+  '''
+  
+  class Solution:
+      def findLatestStep(self, arr: List[int], m: int) -> int:
+          if m == len(arr):
+              return  m
+          l = [0,len(arr)+1]   #两个端点？虚端点，用于计算方便
+          for i, t in enumerate(arr[::-1]):   # 倒着走
+              idx = bisect.bisect(l,t)  #查找插入后的索引
+              l.insert(idx,t)  # 在查找好索引后的指定位置插入数据
+              if l[idx+1]-l[idx]-1 ==m or l[idx]- l[idx-1]-1 == m:#此即为这次更新的位置左右连续1的个数， 已经考察过的位置就不用再看了，必定不符合条件。这里运算是做差后-1，因为两端都是0，而不是1，仔细想想
+                  return len(arr)-(i+1)  #  原因同上，i 是从0开始，操作是从1开始，需要吻合
+          return -1
+  
+  
+  
+  
+  
+  
+  
+  ```
+
+* #### [5498. 石子游戏 V](https://leetcode-cn.com/problems/stone-game-v/)
+
+  ```python
+  from typing import List
+  
+  # 看题解说是经典动态规划问题，问题是我没机会见到，见到了，也不会……
+  '''
+  时间复杂度：O(N^3) ,字典里最多有n^2个状态，每次遍历n个数
+  元组这里最多会有n**2个，所以，空间复杂度是n**2（这里都需要内部连续，例如长为2，则只有n-1中科能，前n项和公式）
+  
+  
+  ====
+  一般对于这种博弈问题, 都可以先尝试用记忆化搜索的思路来解决, 这个题也不例外
+  但这道题不需要双方做最优决策, 只需要 Alice 一个人来分, 所以不需要额外一个 flag 来判断当前是谁的回合
+  直接模拟整个过程, 传入当前元组(转成元组的目的是可以作为 memo 字典的 key), 然后依次遍历当前元组, 动态求得左侧和右侧部分的和, 根据题目描述的情况继续递归, 最终求得最大值作为当前元组的最终结果, 加入 memo 字典中
+  递归出口是元组长度为 1 的时候, 此时游戏结束, 直接返回 0 即可
+  下面代码对必要的步骤有详细的解释, 方便大家理解
+  
+  作者：suibianfahui
+  链接：https://leetcode-cn.com/problems/stone-game-v/solution/di-203-chang-zhou-sai-ti-jie-by-suibianfahui/
+  来源：力扣（LeetCode）
+  著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+  '''
+  class Solution:
+      def stoneGameV(self, stoneValue: List[int]) -> int:
+          memo = {}    # 动态规划常有的记忆结构，其实动态规划本身就是一种记忆化搜索
+          def getMax(t):
+              if len(t) == 1:
+                  return 0   # 只有1个石子，退出递归
+              if t not in memo:     # 避免发生的重复，因为这里有递归，一旦有递归，就一定会有重复，可以减少计算
+                  sm = sum(t)
+                  leftsum =0
+                  mx =0
+                  for i in range(len(t)-1):
+                      leftsum += t[i]
+                      rightsum = sm - leftsum
+                      if leftsum < rightsum:  # 分情况递归
+                          mx = max(mx, leftsum+getMax(t[:i+1]))
+                      elif leftsum == rightsum:
+                          mx = max(mx ,leftsum+getMax(t[:i+1]), rightsum+getMax(t[i+1:]))
+                      else:
+                          mx = max(mx, rightsum+ getMax(t[i+1:]))
+  
+                  memo[t] = mx    # 记忆结果
+              return memo[t]      # 返回
+          return getMax(tuple(stoneValue))    # 注意这里用tuple(),将传入的数组元组化，这用与在memo最为key
+  
+  
+  
+  ```
+
+  
