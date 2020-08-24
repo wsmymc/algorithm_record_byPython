@@ -263,7 +263,7 @@
               return  m
           l = [0,len(arr)+1]   #两个端点？虚端点，用于计算方便
           for i, t in enumerate(arr[::-1]):   # 倒着走
-              idx = bisect.bisect(l,t)  #查找插入后的索引
+              idx = bisect.bisect(l,t)   #查找插入后的索引 ,尝试手动加索引，超时。这个结构的好处是能够用二分缩短时间
               l.insert(idx,t)  # 在查找好索引后的指定位置插入数据
               if l[idx+1]-l[idx]-1 ==m or l[idx]- l[idx-1]-1 == m:#此即为这次更新的位置左右连续1的个数， 已经考察过的位置就不用再看了，必定不符合条件。这里运算是做差后-1，因为两端都是0，而不是1，仔细想想
                   return len(arr)-(i+1)  #  原因同上，i 是从0开始，操作是从1开始，需要吻合
@@ -325,7 +325,51 @@
           return getMax(tuple(stoneValue))    # 注意这里用tuple(),将传入的数组元组化，这用与在memo最为key
   
   
+      
+      
+    
+      # 上面是记忆化搜索，下面是正规的动态规划
+      import sys
+  sys.setrecursionlimit(999999999)   #用来设置递归层数，防止栈深度不够
+  
+  from typing import List
+  class Solution:
+      def stoneGameV(self, stoneValue: List[int]) -> int:
+          n = len(stoneValue)
+          S = [val for val in stoneValue]
+          for i in range(1, n):
+              S[i] += S[i-1]
+  
+          # 区间i到j数值能够取到的最大值
+          #from functools import lru_cache       用来设置缓存，提升速度，防止超时
+          @lru_cache(typed=False, maxsize=1280000000)
+          def dp(i, j):
+              if i == j:
+                  return 0
+  
+              start_val = 0 if i == 0 else S[i-1]
+              total = S[j] - start_val
+  
+              ans = 0
+              for mid in range(i, j):
+                  part1 = S[mid] - start_val
+                  part2 = total - part1
+  
+                  tmp = None
+                  if part1 < part2:
+                      tmp = part1 + dp(i, mid)
+                  elif part1 > part2:
+                      tmp = part2 + dp(mid+1, j)
+                  else:
+                      tmp = max( part1 + dp(i, mid), part2 + dp(mid+1, j) )
+  
+                  ans = max(ans, tmp)
+  
+              return ans
+  
+          return dp(0, n-1)
+  
   
   ```
-
+  
   
