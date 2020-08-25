@@ -1654,7 +1654,114 @@
    
    ```
 
-   
+10. #### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
+
+    ```python
+    ## 自己写的，手生，花了些时间，这种问题，首要方法是递归回溯
+    #有一点:
+    '''
+    list.append()是原地变化，list+[]是生成一个新的值。'''
+    from typing import List
+    import time
+    
+    class Solution:
+        def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+            set_=set()  # 对结果的去重
+            def dfs(l,r,tmp):
+                #print(type(tmp))
+                #print(l)
+                if l == r:
+                    return
+                s1=set()    # 一次循环对一个位置，不允许重复，这里放在去重
+                for i in range(l,r):
+                    if nums[i] in s1:
+                        continue
+                    elif len(tmp)==0:
+                        tmp.append(nums[i])
+                        # print(tmp)
+    
+                        dfs(i + 1, r, tmp)  # 递归
+                        tmp.pop()
+                        continue            #这一块是回溯
+                    elif  nums[i] >= tmp[-1]:
+    
+                        tmp.append(nums[i])    # list.append()也是和list.sort()一样，没有返回值，在原地址修改
+    
+                        #print(tmp)
+    
+                        set_.add(tuple(tmp))
+                        dfs(i+1,r,tmp)   # 递归搜索
+                        tmp.pop()     # 
+                        continue     # 这里是回溯
+                    else:
+                        pass
+    
+    
+    
+            r = []
+    
+            dfs(0, len(nums), [])
+            res =[]
+            for j in set_:
+                res.append(j)
+            return res
+    
+        
+        
+        ## 更见简单的书写，思路一致，这里写的明显更漂亮
+    class Solution:
+        def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+            res = []
+    
+            def dfs(nums: List[int], tmp: List[int]) -> None:
+                if len(tmp) > 1:
+                    res.append(tmp)
+                curPres = set()   # 这里实际上已经保证不会有重复值了
+                for inx, i in enumerate(nums):
+                    if i in curPres:
+                        continue
+                    if not tmp or i >= tmp[-1]:
+                        curPres.add(i)
+                        dfs(nums[inx+1:], tmp+[i])  # 下一次才判定
+    
+            dfs(nums, [])
+            return res
+    
+    
+        
+        
+        
+        # 参考上面的进行修改 ，明细思路
+    from typing import List
+    import time
+    
+    class Solution:
+        def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+            set_=set()
+            res = []
+            def dfs(l,r,tmp):
+                if len(tmp)>1:
+                    res.append(tmp)
+                if l ==r:
+                    return
+                s1=set()
+                for i in range(l,r):
+                    if nums[i] not in s1 and (l==0 or nums[i]>=tmp[-1]):
+                        s1.add(nums[i])
+                        t = tmp+[nums[i]]      #不能用tmp，因为循环中的tmp不能变
+    
+                        print(tmp)
+                        dfs(i + 1, r, t)
+    
+    
+    
+            dfs(0, len(nums), [])
+    
+            return res
+    
+    ```
+
+    
 
 
 
