@@ -1838,9 +1838,67 @@
     
     ```
 
+13. #### [1482. 制作 m 束花所需的最少天数](https://leetcode-cn.com/problems/minimum-number-of-days-to-make-m-bouquets/)
+
+    ```python
+    class Solution:
+        def minDays(self, bloomDay: List[int], m: int, k: int) -> int:
+            # 这道题和磁力的题类型一种，不过那里二分，找的是距离，这里二分，找的是时间。搜索方法确定了
     
+            # check是用来对核心条件做判定的，首先是有足够的相邻的话，能满足m朵的需求
+            # 这里利用滑动窗口
+            def check_OK(mid):
+                n = len(bloomDay)
+                l = r = 0  # 初始时，滑动窗口左右端都在头部
+                cnt = 0
+                while r < n: # 退出条件：遍历到头
+                    # 开始非连续
+                    if bloomDay[r]>mid:
+                        cnt += (r - l)//k
+                        l = r+1
+                        r = r+1
+                    else:
+                        r += 1
+                cnt += (r-l)//k  # 走到头后，还要再计算一段
+                return cnt >= m
+    
+    
+            # 另一种判定方式，直接用贪心去数
+            def check1(day):
+                curr = 0
+                total = 0
+                for i in range(len(bloomDay)):
+                    if(bloomDay[i] <= day):
+                        curr += 1
+                    else:
+                        total += curr // k;
+                        curr = 0;
+                total += curr // k
+                return total >= m
+    
+    
+    
+    
+    
+    
+    
+    
+            # 确定最开始的上下限
+            min_, max_ =min(bloomDay), max(bloomDay)
+            #res = -1
+            while min_ <= max_:
+                mid = (min_+max_)>>1
+                if check_OK(mid):  # 如果判定通过，时间可以减小
+                    #res = max(res,mid)
+                    max_ = mid-1
+                else: # 不通过，时间可以放大
+    
+                    min_ = mid+1
+            #return res
+            return min_ if check1(min_) else -1  #二分查找，直接检查左端点
+    ```
 
-
+    
 
 
 
