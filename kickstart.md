@@ -354,9 +354,7 @@ for j in range(t):
     print("Case #{0}: {1}".format(j+1,res))
 ```
 
-
-
-## B题
+### B题
 
 ```python
 Problem
