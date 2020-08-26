@@ -1761,6 +1761,83 @@
     
     ```
 
+11. #### [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+
+    ```python
+    # 简单的递归回溯，手生，注意一点，这里split不能分割成字符数组，要用list，也可以直接用str[i]
+    # 另外一点：递归是recur，递归回溯是backtrack，这里搞错了。然后是，每次判定是否添加到结果中，是在每次递归开始，否则扔到下次递归，这样写起来漂亮一点。
+    class Solution:
+        def letterCombinations(self, digits: str) -> List[str]:
+            if not digits :
+                return []
+            #s = digits.split()
+    
+            dic = {
+                '2': ['a', 'b', 'c'],
+                '3': ['d', 'e', 'f'],
+                '4': ['g', 'h', 'i'],
+                '5': ['j', 'k', 'l'],
+                '6': ['m', 'n', 'o'],
+                '7': ['p', 'q', 'r','s'],
+                '8': ['t', 'u', 'v'],
+                '9': ['w','x', 'y', 'z'],
+            }
+            res = []
+            tmp = []
+            def recur(i):
+                if i == len(digits):
+                    #print(tmp)
+                    res.append(("".join(tmp)))
+                else:
+                    for c in dic[str(digits[i])]:
+                        tmp.append(c)
+                        recur(i+1)
+                        tmp.pop()
+            recur(0)
+            return res
+    
+    ```
+
+12. #### [1552. 两球之间的磁力](https://leetcode-cn.com/problems/magnetic-force-between-two-balls/)
+
+    ```python
+    # 没见过的提醒，需要再熟悉。思路就是，挨个试，只是这里使用二分的方式确定平均边界，通过能按照这个边界放入球的数目，来判断死否成功，然后根据情况，调整min和max，间接更更新mid，实现对最终结果的逼近，知道min》max，脱离循环输出结果
+    from typing import List
+    
+    
+    class Solution:
+        def maxDistance(self, position: List[int], m: int) -> int:
+            position.sort()
+            min_ =max_=position[-1]-position[0]
+            res = 0
+            for i in range(1,len(position)):
+                min_=min(min_,position[i]-position[i-1])
+    
+    
+            def check_OK(dist):
+                last = position[0]
+                cnt =1
+                for i in range(1,len(position)):
+                    if position[i]-last >=dist:
+                        last = position[i]
+                        cnt +=1
+                return cnt >=m
+    
+    
+    
+    
+    
+            while min_ <= max_:
+                mid = (min_ + max_)>>1    #每次更新可能的mid，通过更新min和max实现
+                if check_OK(mid):  #如果cnt》=m，说明放得下
+                    res = max(res,mid)
+                    min_ = mid+1
+                else:
+                    max_ =mid -1
+            return res
+    
+    ```
+
     
 
 
