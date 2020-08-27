@@ -1838,6 +1838,67 @@
     
     ```
 
+13. #### [332. 重新安排行程](https://leetcode-cn.com/problems/reconstruct-itinerary/)
+
+    ```python
+    import collections
+    from typing import List
+    
+    
+    class Solution:
+        def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+            # 基本思路是：建立邻接表，对出度排序，然后用df，能走完，就返回True
+            d = collections.defaultdict(list)        # 设置玲姐表（dict），注意这里可以设置value的类型,不能用deque，因为需要排血，的确没有这个方法
+            for f, t in tickets:   # 这种写法，直接分割数组取数据
+                d[f] += [t]
+            for f in d:
+                d[f].sort()   # 倒排，方便后面按照字典序递归
+           # print("d:\n", d)
+            res = []
+            def dfs(f):
+                while(d[f]):
+    
+                    dfs(d[f].pop(0))
+                res.insert(0, f)  # 注意因为这里是递归，所以append的顺序是反着来的，所以这里头插
+    
+            dfs("JFK")
+    
+            return res
+    
+    
+        
+        # 其实有更好的欧拉路径方式，具体的方法有官方题解给出：
+        https://leetcode-cn.com/problems/reconstruct-itinerary/solution/zhong-xin-an-pai-xing-cheng-by-leetcode-solution/
+    import collections
+    import heapq
+    from typing import List
+    
+    # 欧拉路径解法，利用天然或者后续搜索过程中拆边造成的“死胡同”，依次递归
+    class Solution:
+        def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+            dic = collections.defaultdict(list)
+            for f,t in tickets:
+                dic[f].append((t))         # 建立邻接表
+            for k in dic:
+                heapq.heapify(dic[k])      # 调整为优先级队列（这里保证了题目需要的最小字典序）    需要导入heapq模块
+    
+            def dfs(curr):
+                while dic[curr]:
+                    tmp = heapq.heappop(dic[curr])   # 按照字典序搜素，同时因为pop所以需要拆边
+                    dfs(tmp)                   # 递归解决
+                #知道没有出度，确定是某段结尾，加入栈
+                stack.append((curr))       # 递归返回后，说明此时curr已经出度为零，自己也成了死胡同，所以入栈
+    
+    
+            stack = list()
+            dfs("JFK")
+            return stack[::-1]   #因为递归，顺序是反的，所以这里要倒序输出
+    
+    
+    
+    
+    ```
+
     
 
 
