@@ -1180,6 +1180,46 @@
 
 46. #### [459. 重复的子字符串](https://leetcode-cn.com/problems/repeated-substring-pattern/)（待解决8.23）
 
+47. #### [1266. 访问所有点的最小时间](https://leetcode-cn.com/problems/minimum-time-visiting-all-points/)
+
+    ```python
+    class Solution:
+        def minTimeToVisitAllPoints(self, points: List[List[int]]) -> int:
+            x0, x1 = points[0]
+            ans = 0
+            for i in range(1, len(points)):
+                y0, y1 = points[i]
+                ans += max(abs(x0 - y0), abs(x1 - y1))
+                x0, x1 = points[i]
+            return ans
+    
+    # 无论怎么走，都是使用Dx ，和 Dy中的最大值，自己画一下就出来了
+    ```
+
+48. #### [290. 二进制链表转整数](https://leetcode-cn.com/problems/convert-binary-number-in-a-linked-list-to-integer/)
+
+    ```python
+    # Definition for singly-linked list.
+    # class ListNode:
+    #     def __init__(self, x):
+    #         self.val = x
+    #         self.next = None
+    
+    class Solution:
+        def getDecimalValue(self, head: ListNode) -> int:
+            cur = head
+            ans = 0
+            while cur:
+                ans = ans * 2 + cur.val
+                cur = cur.next
+            return ans
+    
+    # 单纯按位代表的值模拟就好
+    # 二进制转化十进制常用  ans = ans * 2 + cur.val，反过来就是10->2 
+    ```
+
+    
+
 
 
 
@@ -2044,5 +2084,100 @@
            return solve(nums)
    ```
 
+2. #### [410. 分割数组的最大值](https://leetcode-cn.com/problems/split-array-largest-sum/)
+
+   ```python
+   ## 二分法，问题是为什么逼近就可以，是因为什么呢？
+   from typing import List
    
+   
+   class Solution:
+       def splitArray(self, nums: List[int], m: int) -> int:
+           def check(mid):
+               nonlocal flag
+               #print(("flag:", flag))
+               #print("mid", mid)
+   
+               cnt = 0
+               res = 0
+               #_max = min(nums)
+               for i in range(n):
+                   #print(i)
+                   if i == n - 1:
+                       if (res + nums[i]) > mid:
+                           #print("res",res, "nums[i]",nums[i],"mid",mid)
+                           cnt += 2
+                           #_max = max(_max, res, nums[i])
+   
+                       else:
+                           cnt += 1
+                           res += nums[i]
+                           #print("res", res, "i", i)
+                          #_max = max(res, _max)
+   
+                   else:
+                       if (res + nums[i]) > mid:
+   
+                           cnt += 1
+                           #print("res",res,"i",i)
+                           #_max = max(res, _max)
+                           res = nums[i]
+   
+                       else:
+                           #cnt += 1
+                           res += nums[i]
+   
+               #flag = min(_max, flag)
+               #print("f",flag)
+               #print("cnt", cnt)
+               return cnt <= m   # 题目要求==m，这里为什么《=就可以
+   
+           min_, max_ = max(nums), sum(nums)   # 注意这里一开始高搞错了，最小的最大是max，不是民min
+           n = len(nums)
+           mx = max(nums)
+           while min_ <= max_:
+               mid = (min_ + max_) >> 1
+               print(min_, max_)
+               if check(mid):
+                   flag = mid
+                   max_ = mid -1
+               else:
+                   min_ = mid + 1
+           return min_ if check(min_) else -1
+   
+   
+   
+   a = Solution()
+   arr = [1,4,4]
+   
+   m =3
+   print(a.splitArray(arr,m))
+   ```
+
+3. #### [1553. 吃掉 N 个橘子的最少天数](https://leetcode-cn.com/problems/minimum-number-of-days-to-eat-n-oranges/)
+
+   ```python
+   from functools import lru_cache
+   
+   # 思路没问题，就是记忆化搜索，问题在于放弃-1的递归，分析发现完全可以放在/2，/3之前的取余步骤中，否则不断减一递归太浪费时间了
+   
+   class Solution:
+       @lru_cache(None)
+       def minDays(self, n: int) -> int:
+           if n <= 1:
+               return n
+           return min(n % 2 + 1 + self.minDays(n // 2), n % 3 + 1 + self.minDays(n // 3))
+   
+   
+   ```
+
+   
+
+
+
+
+
+
+
+## end
 
