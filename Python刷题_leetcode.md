@@ -1178,7 +1178,15 @@
     
     ```
 
-46. #### [459. 重复的子字符串](https://leetcode-cn.com/problems/repeated-substring-pattern/)（待解决8.23）
+46. #### [459. 重复的子字符串](https://leetcode-cn.com/problems/repeated-substring-pattern/)
+
+    ```python
+    class Solution:  # 遇到重复问题，考虑重复拼接，然后具体处理，也是一个思路
+        def repeatedSubstringPattern(self, s: str) -> bool:
+            return s in (s+s)[1:-1]
+    ```
+
+    
 
 47. #### [1266. 访问所有点的最小时间](https://leetcode-cn.com/problems/minimum-time-visiting-all-points/)
 
@@ -2162,13 +2170,55 @@
    # 思路没问题，就是记忆化搜索，问题在于放弃-1的递归，分析发现完全可以放在/2，/3之前的取余步骤中，否则不断减一递归太浪费时间了
    
    class Solution:
-       @lru_cache(None)
+       @lru_cache(None)  # 常用的加速手法，设立设立缓存
        def minDays(self, n: int) -> int:
            if n <= 1:
                return n
            return min(n % 2 + 1 + self.minDays(n // 2), n % 3 + 1 + self.minDays(n // 3))
    
    
+   ```
+
+4. #### [214. 最短回文串](https://leetcode-cn.com/problems/shortest-palindrome/)
+
+   ```python
+   # 最简单的思路。倒置，然后取一部分拼接
+   class Solution:
+       def shortestPalindrome(self, s: str) -> str:
+           reverse = s[::-1]
+           for i in range(len(s) + 1):
+               if s.startswith(reverse[i:]):   # startswith  寻找开头的重复部分
+                   return reverse[:i] + s
+   
+   # 不过这样，只是思路简单，就算法上没有收获。所以根据题解，找一下更有收获的解法
+   ```
+
+5. #### [753. 破解保险箱](https://leetcode-cn.com/problems/cracking-the-safe/)
+
+   ```python
+   # 欧拉回路还是很陌生  ，需要明天再看
+   
+   class Solution:
+       def crackSafe(self, n: int, k: int) -> str:
+           seen = set()
+           ans = list()
+           highest = 10 ** (n - 1)
+   
+           def dfs(node: int):
+               for x in range(k):
+                   nei = node * 10 + x
+                   if nei not in seen:
+                       seen.add(nei)
+                       dfs(nei % highest)
+                       ans.append(str(x))
+   
+           dfs(0)
+           return "".join(ans) + "0" * (n - 1)
+   
+   作者：LeetCode-Solution
+   链接：https://leetcode-cn.com/problems/cracking-the-safe/solution/po-jie-bao-xian-xiang-by-leetcode-solution/
+   来源：力扣（LeetCode）
+   著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
    ```
 
    
