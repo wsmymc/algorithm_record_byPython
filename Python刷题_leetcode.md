@@ -1226,6 +1226,33 @@
     # 二进制转化十进制常用  ans = ans * 2 + cur.val，反过来就是10->2 
     ```
 
+49. #### [5499. 重复至少 K 次且长度为 M 的模式](https://leetcode-cn.com/problems/detect-pattern-of-length-m-repeated-k-or-more-times/)
+
+    ```python
+    class Solution:
+        def containsPattern(self, arr: List[int], m: int, k: int) -> bool:
+            # 就是单纯的滑动窗口，而我是代码实现不熟练，磕磕绊绊了好久
+            # 总之要写代码啊！！！
+            # 而且一开始，傻逼到搞混，m，k的定义……
+            # 总之就是，以m为窗口滑动，依次暴力比较
+            res = False
+            for i ,v in enumerate(arr):
+                if i + 1 < m:
+                    continue
+                cnt = 1  #统计有多少组
+                idx = i  # 指向每组的首个元素
+                while idx+m < len(arr) and cnt<k:   #如果超标，就退出循环
+                    if arr[idx-m+1:idx+1] != arr[idx+1:idx+m+1]:
+                        break   # 脱离内层循环，从外层开始
+    
+                    idx += m
+                    cnt += 1
+                if cnt == k:
+                    return True
+            return False
+    
+    ```
+
     
 
 
@@ -1997,12 +2024,124 @@
             return stack[::-1]   #因为递归，顺序是反的，所以这里要倒序输出
     ```
 
+
+15. #### [5500. 乘积为正数的最长子数组长度](https://leetcode-cn.com/problems/maximum-length-of-subarray-with-positive-product/)
+
+    ```python
+    class Solution:
+        def getMaxLen(self, nums: List[int]) -> int:
+             # 怎么讲？没理解透题的意思，想直接用trick来做，但是如果没有测试用例错误提示，国际差的很远，即便有，实际上也没全做对
+            # 第一个思路比较简单，统计遇到的负数次数，遇到0时状态初始化:
+            # 和我自己的区别在于，如果出现了多个负值（奇数），需要舍弃遇到的第一个负数(我没有想到这点，直接扑街)
+    
+            neg_cnt = 0  # 同济负数、
+            _0_idx = -1    # 标记0的位置  ,一开始放在负一的位置，视为了0-（-1）=1，后续编码统一
+            flag = len(nums)   # 标记最左端0的位置
+            res = 0
+            for i,v in enumerate(nums):
+                if v == 0:
+                    # 初始化
+                    neg_cnt =0
+                    _0_idx = i
+                    flag = len(nums)
+                elif v<0:
+                    neg_cnt += 1
+                    flag = min(i,flag)
+    
+                if neg_cnt &1:# 每次一到奇数个负值就舍弃第一个负值（实际上长度和舍弃当前是一样的）
+                    res = max(res, i-flag)
+                else:
+                    res = max(res,i - _0_idx)
+            return res
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        # 还有一个正统的方式，直接使用递推，不过我数学不过关，只能自己看了
+        '''
+        定义两个数组 pos 和 neg
+    pos[i] 表示：以 nums[i] 结尾的最长乘积为正数的数组长度
+    neg[i] 表示：以 nums[i] 结尾的最长乘积为负数的数组长度
+    ————————————————————————————————
+    重要的是状态转移：
+    根据当前元素的正负性，来考虑 pos 和 neg 数组的更新。
+    ————————————————————————————————
+    
+    初始化 pos[0] 和 neg[0]
+    遍历数组，若当前元素为正，那么：
+    pos[i] 为 pos[i-1] + 1，
+    如果 neg[i-1] > 0，即：以 nums[i-1] 结尾，乘积为负的数组存在，那么 neg[i] 为 neg[i-1] + 1；否则，neg[i] 为 0（因为当前元素也为正，没有乘积为负的数组）
+    若当前元素为负，那么：
+    如果 neg[i-1] > 0，那么 pos[i] 为 neg[i-1] + 1，否则，pos[i] 为 0
+    neg[i] 为 pos[i-1] + 1
+    更新乘积为正数的数组最大长度 ans
+    
+    '''
+        class Solution:
+        def getMaxLen(self, nums: List[int]) -> int:
+            n = len(nums)
+            pos, neg = [0]*n,[0]*n  # dp列表
+            #初始化
+            if nums[0]>0:
+                pos[0] = 1
+            elif nums[0]<0:
+                neg[0] = 1
+            
+            res = pos[0]
+            for i, v in enumerate(nums):
+                if v >0:
+                    pos[i] = 1+pos[i-1]   # 自然累加
+                    neg[i] = 1+ neg[i-1] if neg[i-1]>0 else 0  # #只有前面有，这里才能有，否则如果前面没有负值，这里本神是正值，所以负数长度为0，最好画图理解
+                elif v <0:
+                    pos[i] = 1+neg[i-1]  if neg[i-1]>0 else 0   # 负负得正
+                    neg[i] = 1+ pos[i]     # 正* 负才为负
+                else:
+                    pass# 这时候应该都填0，不过这里因为初始化全部为0，不用再处理
+    
+            res = max(res,max(pos))
+            return res
+            
+    class Solution:
+        def getMaxLen(self, nums: List[int]) -> int:
+            n = len(nums)
+            pos, neg = [0]*n,[0]*n  # dp列表
+            #初始化
+            if nums[0]>0:
+                pos[0] = 1
+            elif nums[0]<0:
+                neg[0] = 1
+            # 动态规划，当前状态只依赖于前一个状态
+            res = pos[0]
+            for i, v in enumerate(nums):
+                if i==0:  # 这里将第一位特殊处理，因为已经初始化过了这里就不用了
+                    continue
+    
+                if v >0:
+                    pos[i] = 1+pos[i-1]   # 自然累加
+                    neg[i] = 1+ neg[i-1] if neg[i-1]>0 else 0  # #只有前面有，这里才能有，否则如果前面没有负值，这里本神是正值，所以负数长度为0，最好画图理解
+                elif v <0:
+                    pos[i] = 1+neg[i-1]  if neg[i-1]>0 else 0   # 负负得正
+                    neg[i] = 1+ pos[i-1]     # 正* 负才为负
+                else:
+                    pass# 这时候应该都填0，不过这里因为初始化全部为0，不用再处理
+            print(pos)
+            print(neg)
+    
+            res = max(res,max(pos))
+            return res
+            
+    #要考虑边界条件条件
+    
+    ```
+
     
 
-
-#### 
-
-
+    
 
 
 
@@ -2213,12 +2352,44 @@
                        ans.append(str(x))
    
            dfs(0)
-           return "".join(ans) + "0" * (n - 1)
+           return "".join(ans) + "0" * (n - 1)   # 因为是递归，实际入列顺序是导过来的，然后，补足‘0’，因为dfs里的0，实际上是n个0，只是值为零
    
    作者：LeetCode-Solution
    链接：https://leetcode-cn.com/problems/cracking-the-safe/solution/po-jie-bao-xian-xiang-by-leetcode-solution/
    来源：力扣（LeetCode）
    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+   ```
+
+6. #### [5502. 将子数组重新排序得到同一个二叉查找树的方案数](https://leetcode-cn.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/)
+
+   ```py
+   class Solution:
+       # 
+       def numOfWays(self, nums: List[int]) -> int:
+           return (self.cal(nums)-1)%1000000007    # 需要减去nums存在的一种
+   
+   
+       def cal(self,nums)-> int:
+           if len(nums)<=2:
+               return 1  #这种情况下，只会有一种方案
+           k = nums[0]  # 第一个元素是树根root
+           # 梳理root左右两边的元素
+           l = [i for i in nums[1:] if i<k]
+           r = [i for i in nums[1:] if i>k ]
+           len_l, len_r = len(l), len(r)
+   
+           from scipy.special import perm,comb
+           p=comb(len_l+len_r,len_r)
+           return self.cal(l)*self.cal(r)*p  # 这里要不断递归
+       '''
+       >> perm(5, 2)
+   20.0  排列
+   >> comb(5, 2)
+   10.0 组合
+   > factorial(5)
+   array(120.0)  阶乘
+       '''
+      
    ```
 
    
@@ -2229,5 +2400,9 @@
 
 
 
-## end
+## 需要注意的边界条件：
+
+1. 序列中，相同元素
+2. 序列中，只有一个元素
+3. 序列中，巨量元素
 
