@@ -81,7 +81,20 @@
       | ------------------------------------------------------------ | ------------------------------------------------------------ |
       |                                                              | 相关用法点击链接                                             |
 
-=======
+12. ```python
+     from scipy.special import perm,comb，factorial
+        # 特殊模块包
+            '''
+        >> perm(5, 2)
+    20.0  排列   (5!)/(5-2)!
+    >> comb(5, 2)
+    10.0 组合    (5!)/((2!)*(5-2)!)
+    > factorial(5)
+    array(120.0)  阶乘
+        '''
+    ```
+
+    
 
 
 
@@ -2139,14 +2152,65 @@
     
     ```
 
+16. #### [5501. 使陆地分离的最少天数](https://leetcode-cn.com/problems/minimum-number-of-days-to-disconnect-island/)(并查集方法待补充)
+
+    ```python
+    class Solution:
+        def minDays(self, grid: List[List[int]]) -> int:
+            # 实际上就是抽取一个角，所以最少天数只有三种可能：0，1，2
+            # 有两种方法，最传统的就是递归回溯，每次消除一个1，然后统计。另一种使并查集，不过我不会，需要学习
+            moves = [(0,1),(1,0),(-1,0),(0,-1)]   # 图常用的方向
+    
+            def dfs(x,y,visited):
+                for i, j in moves:
+                          
+                    if  (x+i) >= 0 and x+i <m and y+j >=0 and y+j <n and visited[x+i][y+j] == 0 and grid[i+x][y+j] ==1:
+                        visited[x+i][y+j] =1
+                        dfs(x+i,y+j,visited)
+                        
+    
+    
+            def count(grid):
+                cnt = 0
+                visited = [[0]*n for i in range(m)]   # 注意构造二维数组时，这里行列是反着来的，先确定列数，再乘行数。否则可能会数组越界
+                for i in range(m):
+                    for j in range(n):
+                        if visited[i][j] == 0 and grid[i][j]==1:
+                            visited[i][j]=1
+                            dfs(i,j,visited)
+                            cnt +=1
+                
+                return cnt
+    
+            
+    
+            m = len(grid)
+            n= len(grid[0])
+            island_cnt = count(grid)
+            if island_cnt == 0 or island_cnt >1:   # 题目中的条件定义，此时可以认为分离
+                return 0
+            for i in range(m):
+                for j in range(n):
+                    if grid[i][j]==1:
+                        grid[i][j]=0
+                        res= count(grid)
+                        if res ==0 or res >1:
+                            return 1
+                        grid[i][j]=1
+            return 2
+    
+    
+    ```
+
     
 
-    
 
 
 
 
-​    
+
+
+
 
 
 
@@ -2362,14 +2426,14 @@
 
 6. #### [5502. 将子数组重新排序得到同一个二叉查找树的方案数](https://leetcode-cn.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/)
 
-   ```py
+   ```python
+   
    class Solution:
-       # 
        def numOfWays(self, nums: List[int]) -> int:
            return (self.cal(nums)-1)%1000000007    # 需要减去nums存在的一种
    
-   
-       def cal(self,nums)-> int:
+       from scipy.special import perm,comb，factorial
+       def cal(self,nums):
            if len(nums)<=2:
                return 1  #这种情况下，只会有一种方案
            k = nums[0]  # 第一个元素是树根root
@@ -2378,20 +2442,12 @@
            r = [i for i in nums[1:] if i>k ]
            len_l, len_r = len(l), len(r)
    
-           from scipy.special import perm,comb
-           p=comb(len_l+len_r,len_r)
-           return self.cal(l)*self.cal(r)*p  # 这里要不断递归
-       '''
-       >> perm(5, 2)
-   20.0  排列
-   >> comb(5, 2)
-   10.0 组合
-   > factorial(5)
-   array(120.0)  阶乘
-       '''
+           
+           p=comb(len_l+len_r,len_r)   # l, r自己的相对位置不能变，但是两者之间可以做组合，这里是从l+r的序列中，抽出r个位置给r，剩下的就是l
+           return self.cal(l)*self.cal(r)*p  # 这里要不断递归，构造子级树。即是否可以改变l，r的顺序，然后使子级树形状不变
       
    ```
-
+   
    
 
 
@@ -2406,3 +2462,39 @@
 2. 序列中，只有一个元素
 3. 序列中，巨量元素
 
+
+
+
+
+
+
+## 一些有用的模块
+
+1.  ```python
+    from scipy.special import perm,comb，factorial
+       # 特殊模块包
+           '''
+       >> perm(5, 2)
+   20.0  排列   (5!)/(5-2)!
+   >> comb(5, 2)
+   10.0 组合    (5!)/((2!)*(5-2)!)
+   > factorial(5)
+   array(120.0)  阶
+    ```
+
+2. ```python
+   from functools import lru_cache
+   
+    @lru_cache(None)  # 常用的加速手法，设立设立缓存
+    def XXX:
+       pass
+   
+   ```
+
+3. ```python
+   import sys
+   sys.setrecursionlimit(100000000)   # 这里是再设置递归层数，并非限制，而是增大否则这一方法无法运行，因为递归太深了
+   
+   ```
+
+4. 
