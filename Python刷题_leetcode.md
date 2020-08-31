@@ -1266,6 +1266,28 @@
     
     ```
 
+50. #### [1025. 除数博弈](https://leetcode-cn.com/problems/divisor-game/)
+
+    ```python
+    # 固然有按照奇偶性找规律的做法，不过，这里是用来学习动态规划
+    class Solution:
+        def divisorGame(self, N: int) -> bool:
+            if N == 1:
+                return False
+            dp = [False] *(N+1)  # 创建数组方式记住，别在这上吃亏
+            print(dp)
+            dp[1], dp[2] =False, True
+            
+            for i in range(3,N+1):
+                for j in range(1, i//2+ 1):
+                    if i % j == 0 and  not (dp[i-j]):   # 如果-j，符合条件，就确定胜利，直接推吹内部循环
+                        dp[i] = True
+                        break
+                    
+            return dp[N]
+    # 因为这个游戏实际上是一开始能赢，就一定能赢，否则必输，所以循环内部的逻辑就是：如果能使对边必输，那我就赢。然后一路地推到N
+    ```
+
     
 
 
