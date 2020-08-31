@@ -2202,6 +2202,19 @@
     
     ```
 
+17. #### [1503. 所有蚂蚁掉下来前的最后一刻](https://leetcode-cn.com/problems/last-moment-before-all-ants-fall-out-of-a-plank/)
+
+    ```python
+    class Solution:
+        def getLastMoment(self, n: int, left: List[int], right: List[int]) -> int:
+            # 不要想碰撞之后的身份转换，会被迷惑，实际上是蚂蚁走了对方的路。或者，理解成双方穿透，所以直接找最大值就好
+            # 本质上是一个脑筋急转弯问题
+            # 人工添加最大最小值，用来避免空列表的情况
+            left.append(0)
+            right.append(n)
+            return max(n-min(right),max(left))
+    ```
+
     
 
 
@@ -2480,7 +2493,7 @@
    10.0 组合    (5!)/((2!)*(5-2)!)
    > factorial(5)
    array(120.0)  阶
-    ```
+   ```
 
 2. ```python
    from functools import lru_cache
@@ -2497,4 +2510,5 @@
    
    ```
 
-4. 
+
+4. 最常见的，就是输出的序列可能为空
