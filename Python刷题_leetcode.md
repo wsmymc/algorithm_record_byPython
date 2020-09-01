@@ -2237,6 +2237,32 @@
             return max(n-min(right),max(left))
     ```
 
+18. #### [486. 预测赢家](https://leetcode-cn.com/problems/predict-the-winner/)
+
+    ```python
+    # 动态规划解法
+    # 代码看起来很简短，实际要考虑的东西很多：基本思路:
+    '''
+    一段长为i~j的数组，如果选i，则i+1~j是由对方选，如果选j，则i~j-1是对方选，假设都是最优解，则有dp[i][j],表示一个选手在面对i~j这一段中最优法下和对手的分差。由于有两种可能。i或者j，所以dp[i][j] = max(nums[i] - dp[i+1][j], nums[j]-dp[i][j-1])，其中内部的两个dp，是在对手的回合，他所能做到的最优分差，我们选择的数减去他的最最优，就是我们的最优选择。
+    这就是最优子结构。
+    然后当j<i,不存在，所以为0
+    i == j,则为nums[i]。 以上属于初始化步骤
+    这种动态规划，一般使用二维数组，因为可以分别用行列表示首尾的位置，然后我们需要有从初始化开始向上递推，直到0~n-1，所以决定了循环的方向。基本就是下面的解法了
+    
+    '''
+    class Solution:
+        def PredictTheWinner(self, nums: List[int]) -> bool:
+            dp = [[0]*len(nums) for _ in range(len(nums))]   # 二维数组
+    
+            for i in range(len(nums)):   # 初始化
+                dp[i][i]=nums[i]
+            n = len(nums)
+            for i in range(n-2,-1,-1):  #行，从下向上
+                for j in range(i+1,n):  # 列，从左到右
+                    dp[i][j] = max(nums[i] - dp[i+1][j], nums[j]-dp[i][j-1])
+            return dp[0][n-1] >= 0
+    ```
+
     
 
 
