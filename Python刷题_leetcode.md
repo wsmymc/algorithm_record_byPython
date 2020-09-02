@@ -1288,9 +1288,25 @@
     # 因为这个游戏实际上是一开始能赢，就一定能赢，否则必输，所以循环内部的逻辑就是：如果能使对边必输，那我就赢。然后一路地推到N
     ```
 
+51. #### [1544. 整理字符串](https://leetcode-cn.com/problems/make-the-string-great/)
+
+    ```python
+    # 我的方法也能过，但是太傻逼了。每次pop都要考虑很多东西，索引变化，然后如果到了n-1又要if
+    # 正统的、好的方法，就是如下，用一个栈解决问题，用来存放整理好的，然后和后面的对比，两头需要删除，pop（），然后这一轮的不要，否则入栈
+    class Solution:
+        def makeGood(self, s: str) -> str:
+            ret = list()
+            for ch in s:
+                if ret and ret[-1].lower() == ch.lower() and ret[-1] != ch:
+                    ret.pop()
+                else:
+                    ret.append(ch)
+            return "".join(ret)
+    ```
+
     
 
-
+    
 
 
 
@@ -2262,6 +2278,42 @@
                     dp[i][j] = max(nums[i] - dp[i+1][j], nums[j]-dp[i][j-1])
             return dp[0][n-1] >= 0
     ```
+
+19. #### [剑指 Offer 20. 表示数值的字符串](https://leetcode-cn.com/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof/)
+
+    ```python
+    # 正统玩法是有限自动机，不过我没有学过编译原理，看题解有些懵。然后照抄了下面的题解，思路比较正常化。基本思路就是枚举各种情况，巧妙在于通过标志位来指代各种情况
+    
+    
+    class Solution:
+        def isNumber(self, s: str) -> bool:
+            if  not  s or len(s) == 0:
+                return False
+            isNum, isDot, ise_or_E = False,False, False   # 表示数字、小数点、e
+            s= s.strip()   # 这个需要接受，而不是在原本的基础上改变
+            for i in range(len(s)):
+                if s[i] >= '0' and s[i] <='9':
+    
+                    isNum = True
+                elif s[i] == '.':  
+                    if isDot or ise_or_E:
+                        return False   # 小数点之前不能再有小数点和e
+                    isDot = True
+                elif s[i] == 'e' or s[i] == 'E':
+                    if not isNum or ise_or_E:
+                        return False    # e前边不能出现e，但必须有数字
+                    ise_or_E = True
+                    isNum = False   # 用来重置，因为e后面从新开始.重置isNum，因为‘e’或'E'之后也必须接上整数，防止出现 123e或者123e+的非法情况
+                elif s[i] == '-' or s[i] == '+':
+                    if i != 0 and s[i-1] != 'e' and s[i-1] !='E':
+                        return False  #正负号只可能出现在第一个位置，或者出现在‘e’或'E'的后面一个位置
+                else:
+                    return False    #除了列出的情况，其他情况都不合法
+            return isNum  # 一定需要数字结尾，避免 1e这种情况
+    
+    ```
+
+    
 
     
 
