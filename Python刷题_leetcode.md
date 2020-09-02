@@ -1304,9 +1304,61 @@
             return "".join(ret)
     ```
 
+52. #### [1217. 玩筹码](https://leetcode-cn.com/problems/minimum-cost-to-move-chips-to-the-same-position/)
+
+    ```python
+    # "每个筹码的位置存在数组 chips 当中",所以实际上说明的是每个筹码的位置
+    # 解法就是，相隔1个移动无代价，随意可以讲奇数和偶数为的各自聚合，重点可以是任意贴在一起的相邻位置
+    # 这时候，比较那个筹码更少，代价更低，就移动那个
+    class Solution:
+        def minCostToMoveChips(self, position: List[int]) -> int:
+            even = 0
+            for c in position:
+                if c&1==0:
+                    even+=1
+            return min(even,len(position)-even)
+    ```
+
+53. #### [1002. 查找常用字符](https://leetcode-cn.com/problems/find-common-characters/)
+
+    ```python
+    class Solution:
+        def commonChars(self, A: List[str]) -> List[str]:
+            from collections import Counter  # 计数器，见过几次了
+            ans = Counter(A[0])
+            for i in A[1:]:  # 这种切片还挺有趣的
+                ans &= Counter(i)  # 每次取交集，计数器的新用法
+            return list(ans.elements())  # 也是计数器的应用性质和dict.item()差不多
+        
+        
+        
+    # 正统哈希解法，统计各自出现的次数，然后取最小    
+    class Solution:
+        def commonChars(self, A: List[str]) -> List[str]:
+            Hash = {}
+            for i in range(97, 123):
+                Hash[chr(i)] = [0 for i in range(len(A))]
+            for j in range(len(A)):
+                for k in A[j]:
+                    Hash[k][j] += 1
+            result = []
+            for key in Hash.keys():
+                if 0 in Hash[key]:
+                    continue
+                else:
+                    result += [key] * min(Hash[key])
+            return result
     
+    作者：yi-wen-statistics
+    链接：https://leetcode-cn.com/problems/find-common-characters/solution/ha-xi-cha-zhao-by-yi-wen-statistics-5/
+    来源：力扣（LeetCode）
+    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+    
+    ```
 
     
+
+
 
 
 
