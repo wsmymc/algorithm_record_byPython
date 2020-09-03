@@ -2613,6 +2613,55 @@
       
    ```
    
+7. #### [51. N 皇后](https://leetcode-cn.com/problems/n-queens/)
+
+   ```python
+   class Solution:
+       def solveNQueens(self, n: int) -> List[List[str]]:
+           # 一开始想单纯dfs，貌似思路有点偏……，dfs要有，但是还有回溯
+           # 所以是backtrace
+           def get_grid():  
+               grid = list()
+               for i in range(n):
+                   row[queues[i]] = 'Q'     # 用同一行操作
+                   grid.append("".join(row))
+                   row[queues[i]] = '.'   # 这一行处理完了，就变回来，操作下一行
+               return grid
+           
+           def backtrace(row):
+               if row == n:  # row最大是n-1，所以这里是遍历完了
+                   grid = get_grid()
+                   res.append(grid)
+               else:
+                   for i in range(n):
+                       if i in col or row - i in diag1 or row+i in diag2:  # 从列的角度考虑，然后是斜线，同一斜线，row +- i的值固定，实际上就是 y = +-x + d，d是定值
+                           continue
+                       queues[row] = i
+                       col.add(i)
+                       diag1.add(row -i)
+                       diag2.add(row+i)
+                       backtrace(row +1)
+                       col.remove(i)
+                       diag1.remove(row -i)
+                       diag2.remove(row+i)
+   
+   
+   
+   
+   
+           
+   
+           res = list()  # 结果集
+           queues = [-1]*n     # 记录每一行的Q的横坐标
+           col= set()
+           diag1 , diag2 = set(),set()   # 集合 这里代表左右两个斜线
+           row = ['.']*n # 一行只可能有一个，所以用行来占位,也单纯从行的维度来递归
+           backtrace(0)  # 从第0行开始
+           return res
+   
+   
+   ```
+
    
 
 
@@ -2626,6 +2675,7 @@
 1. 序列中，相同元素
 2. 序列中，只有一个元素
 3. 序列中，巨量元素
+4. 序列正常，但是返回值应该为空
 
 
 
