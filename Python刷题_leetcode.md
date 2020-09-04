@@ -2369,17 +2369,102 @@
 
     
 
+#### 20 [877. 石子游戏](https://leetcode-cn.com/problems/stone-game/)
+
+```python
+class Solution:
+    def stoneGame(self, piles: List[int]) -> bool:
+        return True  # 最透彻的解法，因为是2n，先手。这样掌握了以后是否只取0,2，2n-2；还是1,3,2n-1。那个总和大取哪个，所以必赢
+ 
+
+# dp做法，和预测赢家思路想通
+class Solution:
+    def stoneGame(self, piles: List[int]) -> bool:
+        n = len(piles)
+        dp = [[0]*n for i in range(n)]
+        for i in range(n):
+            dp[i][i]=piles[i]
+  
+        for i in range(n-2,-1,-1):
+            for j in range(i+1,n):
+                dp[i][j] = max(piles[i]-dp[i+1][j],piles[j]-dp[i][j-1])
+        return dp[0][-1] >0
+    
+```
 
 
 
+#### 21  [1140. 石子游戏 II](https://leetcode-cn.com/problems/stone-game-ii/)
+
+```python
+# 记忆化搜索法，为了简便计算，使用了后缀和
+class Solution:
+    def stoneGameII(self, piles: List[int]) -> int:
+        n, _map = len(piles), dict()
+
+        #需要用到后缀和
+        s = [0]*(n+1)
+        for i in range(n-1,-1,-1):
+            s[i] = s[i+1] + piles[i]
+
+        # dfs ,dfs(i,m) 表示从i开始，向后最多能取m堆石子的最大值
+        def dfs(i,m):
+            # 已经遇到过
+            if (i,m) in _map:
+                return _map[(i,m)]
+            # 超标
+            if i>= n:
+                return 0
+            if i+m*2  >= n:
+                return s[i]
+            
+
+            # 遍历可以取得堆数，暴力深搜
+            enum = 0
+            for j in range(1,m*2+1):
+                enum = max(enum,s[i]- dfs(i+j,max(j,m)))
+            
+
+            # 记忆化
+            _map[(i,m)] = enum
+            return enum
+        return dfs(0,1)
+
+    
+    
+    
+    
+    # 动态规划玩法，除了用dp来记忆，没什么不同，也是类似从后向前推，也是在做决策的时候需要遍历可能，找到最大值
+class Solution:
+    def stoneGameII(self, piles: List[int]) -> int:
+        n = len(piles)
+        last_sum = [0]* (n+1)
 
 
+        # 还是需要后缀和节省时间
+        for i in range(n-1,-1,-1):
+            last_sum[i] = piles[i] + last_sum[i+1]
+        
 
+        # 动态数组
+        dp = [[0]* n for i in range(n)]
+        # 这里的动态规划，需要从后向前推
+        for i in range(n-1,-1,-1):
+            for M in range(1,n):
+                # 如果覆盖，全量拿去
+                if (i + 2*M) >= n:
+                    dp[i][M] = last_sum[i]
+                    #再做一点剪枝，一次超过，后面的都超过
+                    for t in range(M,n):
+                        dp[i][t] = last_sum[i]
+                    break
+                else:
+                    #如果没有覆盖，那就遍历，j为1~2m中的所有可能，dp[i+j][max(j,M)]为对方在我选定之后能娶到的最大值，后缀和剪去，然后找差值最大的，就是我能选到的，最优
+                    for j in range(1, 2*M+1):
+                        dp[i][M] =max(dp[i][M],last_sum[i]-dp[i+j][max(j,M)])
+        return dp[0][1]
 
-
-
-
-
+```
 
 
 
