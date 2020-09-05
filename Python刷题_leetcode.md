@@ -2468,6 +2468,69 @@ class Solution:
 
 
 
+#### 21 [60. 第k个排列](https://leetcode-cn.com/problems/permutation-sequence/)
+
+```python
+# 记忆化递归,还需要剪枝
+class Solution:
+    def getPermutation(self, n: int, k: int) -> str:
+
+        s = [i for i in  range(n+1)]
+        self.cnt = 0
+        self.res = []
+        def dfs(tmp):
+            if len(tmp) == n:
+                self.cnt += 1
+                if self.cnt == k:
+                    self.res = tmp
+                    return  -1
+                else:
+                    return
+                    #print(tmp)
+            else:
+                for i in range(1,n+1):
+                    if s[i] not in memo:
+                        memo.add(s[i])
+                        #print("memo",memo)
+                        t= dfs(tmp+[s[i]])
+                        if t == -1:
+                            return  -1
+                        memo.remove(s[i])
+
+
+        memo = set()
+        tmp = []
+        dfs(tmp)
+        return  ''.join([str(i) for i in
+                         self.res])
+
+
+    
+    ##数学玩法，实际上就是阶乘数量是固定，根据规律从左到右，依次确定各个位置上的数组
+    class Solution:
+    def getPermutation(self, n: int, k: int) -> str:
+        factorial = [1]
+        for i in range(1, n):   # 依次球阶乘
+            factorial.append(factorial[-1] * i)
+        
+        k -= 1  # 调整终点，偏于计算
+        ans = list()
+        valid = [1] * (n + 1)   # 一开始全是有效位
+        for i in range(1, n + 1):
+            order = k // factorial[n - i] + 1  #整除+1看轮数
+            for j in range(1, n + 1):
+                order -= valid[j]   #  从小到大依次减
+                if order == 0:
+                    ans.append(str(j))
+                    valid[j] = 0   # 取了这一位，就无效了
+                    break
+            k %= factorial[n - i]  # 取余，拿到剩下部分的轮数
+
+        return "".join(ans)
+```
+
+
+
 
 
 
@@ -2747,7 +2810,56 @@ class Solution:
    
    ```
 
-   
+
+#### 8 [1406. 石子游戏 III](https://leetcode-cn.com/problems/stone-game-iii/)
+
+```python
+from typing import List
+
+# 自己做出来的，按照专题来做，确实是一个好方法
+class Solution:
+    def stoneGameIII(self, stoneValue: List[int]) -> str:
+
+        s=[0]*len(stoneValue)
+        n =len(stoneValue)
+
+
+        s[n-1] = stoneValue[n-1]
+        for i in range(n-2,-1,-1):
+            s[i] = s[i+1] + stoneValue[i]
+        #print(s)
+        # 特殊边界，特殊处理
+        if n <= 1:
+            if stoneValue[-1] >0:
+                return 'Alice'
+            elif stoneValue[-1] <0:
+                return 'Bob'
+            else:
+                return "Tie"
+        
+
+
+
+
+        dp = [0]*n
+        dp[n-1] =stoneValue[n-1]
+        dp[n-2] =max(stoneValue[n-2],s[n-2])
+        dp[n-3] = max(s[n-3], s[n-3]-dp[n-2],s[n-3]-dp[n-1])
+        for i in range(n-4,-1,-1):
+            dp[i] = s[i]-min(dp[i+1], dp[i+2], dp[i+3])
+        mesure = 2*dp[0]
+
+        #print(mesure)
+        if s[0] == mesure:
+            return "Tie"
+        elif s[0]<mesure:
+            return 'Alice'
+        else:
+            return 'Bob'
+
+```
+
+
 
 
 
