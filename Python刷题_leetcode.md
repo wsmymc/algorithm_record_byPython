@@ -1356,7 +1356,22 @@
     
     ```
 
-    
+
+#### 54 [1534. 统计好三元组](https://leetcode-cn.com/problems/count-good-triplets/)
+
+```python
+class Solution:
+    def countGoodTriplets(self, arr: List[int], a: int, b: int, c: int) -> int: 
+        n = len(arr)
+        cnt = 0
+        for i in range(n):
+            for j in range(i + 1, n):
+                for k in range(j + 1, n):
+                    if abs(arr[i] - arr[j]) <= a and abs(arr[j] - arr[k]) <= b and abs(arr[i] - arr[k]) <= c:
+                        cnt += 1
+        return cnt
+
+```
 
 
 
@@ -2551,6 +2566,56 @@ class Solution:
 https://leetcode-cn.com/problems/top-k-frequent-elements/solution/leetcode347onfu-za-du-bu-fen-si-xiang-ji-dui-jie-f/
 ```
 
+#### 23. [1314. 矩阵区域和](https://leetcode-cn.com/problems/matrix-block-sum/)
+
+```python
+# 思路很好想，面积累计，然后根据坐标，右下角减左边、右边，加左上（因为多减了一次）。
+# 不过想边界的时候能够准确点，写代码的时候不要写错。就很好了
+class Solution:
+    def matrixBlockSum(self, mat: List[List[int]], K: int) -> List[List[int]]:
+        m = len(mat)
+        n= len(mat[0])
+        grid = [[0]*n for _ in range(m)]
+        grid[0][0] =mat[0][0]
+        for i in range(1,n):          
+            grid[0][i] = mat[0][i] +grid[0][i-1]
+         
+    
+        for i in range(1,m):
+ 
+            grid[i][0] = mat[i][0] +grid[i-1][0]
+     
+        for i in range(1,m):
+            for j in range(1,n):
+                grid[i][j] = mat[i][j] + grid[i-1][j]+grid[i][j-1]-grid[i-1][j-1]
+        #print(grid)
+        res = [[0]*n for _ in range(m)]
+        for i in range(m):
+            for j in range(n):
+                L_U_x = i - K
+                L_U_y = j-K
+                R_D_x = min(m-1,i+K)
+                R_D_y = min(n-1,j+K)
+                total = grid[R_D_x][R_D_y]
+                l,u,patch =0,0,0
+                if L_U_y -1 <0:
+                    l=0
+                else:
+                    l = grid[R_D_x][L_U_y -1]
+                if L_U_x -1 <0:
+                    u =0
+                else:
+                    #print(L_U_x-1,R_D_x)
+                    u = grid[L_U_x-1][R_D_y]
+                if l!= 0 and u !=0:
+                    patch = grid[L_U_x-1][L_U_y-1]
+                #print(i,j,total,l,u,patch)
+                res[i][j]= total-l-u+patch
+        return res
+
+
+```
+
 
 
 
@@ -2879,6 +2944,24 @@ class Solution:
         else:
             return 'Bob'
 
+```
+
+#### 9. [1510. 石子游戏 IV](https://leetcode-cn.com/problems/stone-game-iv/)
+
+```python
+class Solution:
+    def winnerSquareGame(self, n: int) -> bool:
+        dp = [0]*(n+1)
+        # 初始化
+        dp[0] = 0
+        dp[1] =1
+        for i in range(n+1):
+            j = 1
+            if(dp[i]!= 1):# 当dp[i]  不为1，失败的话，一切，i+j^2,就对对手而言是必胜的。因为只用取走j^2,就好
+                while j*j + i<=n:  # 基于i，向后递推就好
+                    dp[j*j+i]=1
+                    j +=1
+        return dp[n] == 1
 ```
 
 
