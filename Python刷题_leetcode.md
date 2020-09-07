@@ -2529,6 +2529,28 @@ class Solution:
         return "".join(ans)
 ```
 
+#### 22 [347. 前 K 个高频元素](https://leetcode-cn.com/problems/top-k-frequent-elements/)
+
+```python
+## hash + 排序
+class Solution:
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        _hash = {}
+        for i in nums:
+            _hash[i] = _hash.get(i,0)+1
+        
+
+        #利用排序的手法，比较精巧，需要熟悉：sorted（可迭代对象，关键字，是否倒置），x直达可迭代对象中的元素，先以x[1]排序，再以x[0]排序
+        top_frq = sorted(_hash.items(),key = lambda x:(x[1],x[0]), reverse = True)
+
+
+        # 取前k个：
+        return [top_frq[i][0] for i in range(k)]
+    
+# 更多解法：
+https://leetcode-cn.com/problems/top-k-frequent-elements/solution/leetcode347onfu-za-du-bu-fen-si-xiang-ji-dui-jie-f/
+```
+
 
 
 
