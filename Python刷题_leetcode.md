@@ -77,9 +77,9 @@
 
 11. https://docs.python.org/zh-cn/3/library/collections.html(容器数据类型)
 
-    * | [`deque`](https://docs.python.org/zh-cn/3/library/collections.html#collections.deque) | 类似列表(list)的容器，实现了在两端快速添加(append)和弹出(pop) |
+    * |                                                              | 相关用法点击链接                                             |
       | ------------------------------------------------------------ | ------------------------------------------------------------ |
-      |                                                              | 相关用法点击链接                                             |
+      | [`deque`](https://docs.python.org/zh-cn/3/library/collections.html#collections.deque) | 类似列表(list)的容器，实现了在两端快速添加(append)和弹出(pop) |
 
 12. ```python
      from scipy.special import perm,comb，factorial
