@@ -2616,6 +2616,35 @@ class Solution:
 
 ```
 
+#### 24. [77. 组合](https://leetcode-cn.com/problems/combinations/)
+
+```python
+
+# 之前做过的，谈不上什么收获，无非在复习一下递归回溯法。
+# 有用的是对比之前的java 代码。能够对python的特点加深体会。
+# self.v   就像java的private 变量，私有变量。然后，想像Java一样调用外部函数，用self修饰就好，最后python的for循环确实不太好用。sad
+# 还有，可以用全切片的方式避开引用变量会被反复操作的限制，因为会返回一个值一样但指针一样的对象
+class Solution:
+    def combine(self, n: int, k: int) -> List[List[int]]:
+        self.res = []
+        if n <=0 or k>n or k<=0:
+            return self.res
+        tmp = []
+        self.get(n,k,1,tmp)
+        return self.res
+
+    def get(self,n,k,start,tmp):
+        if len(tmp) == k:
+            self.res.append(tmp[:])  ## 全切片
+            return
+        end = n-(k-len(tmp))+2   # 最好提前计算好，毕竟py的for 不太好用。
+        for i in range(start,end):
+            tmp.append(i)
+            self.get(n,k,i+1,tmp)
+            tmp.pop()
+
+```
+
 
 
 
