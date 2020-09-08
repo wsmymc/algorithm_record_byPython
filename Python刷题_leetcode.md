@@ -1373,6 +1373,48 @@ class Solution:
 
 ```
 
+#### 55 . [762. 二进制表示中质数个计算置位](https://leetcode-cn.com/problems/prime-number-of-set-bits-in-binary-representation/)
+
+```python
+# 由于数有上限，所以二进制有长度上线，进而只会有有限个素数可能，都不是，那就是合数
+# bin(x).count('1')  统计一个数二进制下1的个数
+
+class Solution:
+    def countPrimeSetBits(self, L: int, R: int) -> int: 
+        primes = {2, 3, 5, 7, 11, 13, 17, 19}
+        return sum(bin(x).count('1') in primes for x in range(L, R+1))  # 如果in primes,才会被sum。算是pythonic写法
+```
+
+#### 56.[811. 子域名访问计数](https://leetcode-cn.com/problems/subdomain-visit-count/)
+
+```python
+# 纯字符串操作，最多加上哈希映射
+class Solution(object):
+    def subdomainVisits(self, cpdomains):
+        """
+        :type cpdomains: List[str]
+        :rtype: List[str]
+        """
+        res = {}
+        for item in cpdomains:
+            num,domain=item.split()# 先分割域名与访问次数
+            num = int(num)
+            domain_split = domain.split('.')
+
+            for i in range(len(domain_split)-1,-1,-1):
+                domain = '.'.join(domain_split[i:])# 再逐级分割域名，从后往前合并
+
+                if domain not in res:
+                    res[domain] = num
+                else:
+                    res[domain] += num
+        
+        return ['{} {}'.format(val,key)  for key,val in res.items()]
+
+
+
+```
+
 
 
 
