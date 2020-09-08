@@ -1356,7 +1356,22 @@
     
     ```
 
-    
+
+#### 54 [1534. 统计好三元组](https://leetcode-cn.com/problems/count-good-triplets/)
+
+```python
+class Solution:
+    def countGoodTriplets(self, arr: List[int], a: int, b: int, c: int) -> int: 
+        n = len(arr)
+        cnt = 0
+        for i in range(n):
+            for j in range(i + 1, n):
+                for k in range(j + 1, n):
+                    if abs(arr[i] - arr[j]) <= a and abs(arr[j] - arr[k]) <= b and abs(arr[i] - arr[k]) <= c:
+                        cnt += 1
+        return cnt
+
+```
 
 
 
@@ -2369,17 +2384,266 @@
 
     
 
+#### 20 [877. 石子游戏](https://leetcode-cn.com/problems/stone-game/)
+
+```python
+class Solution:
+    def stoneGame(self, piles: List[int]) -> bool:
+        return True  # 最透彻的解法，因为是2n，先手。这样掌握了以后是否只取0,2，2n-2；还是1,3,2n-1。那个总和大取哪个，所以必赢
+ 
+
+# dp做法，和预测赢家思路想通
+class Solution:
+    def stoneGame(self, piles: List[int]) -> bool:
+        n = len(piles)
+        dp = [[0]*n for i in range(n)]
+        for i in range(n):
+            dp[i][i]=piles[i]
+  
+        for i in range(n-2,-1,-1):
+            for j in range(i+1,n):
+                dp[i][j] = max(piles[i]-dp[i+1][j],piles[j]-dp[i][j-1])
+        return dp[0][-1] >0
+    
+```
 
 
 
+#### 21  [1140. 石子游戏 II](https://leetcode-cn.com/problems/stone-game-ii/)
+
+```python
+# 记忆化搜索法，为了简便计算，使用了后缀和
+class Solution:
+    def stoneGameII(self, piles: List[int]) -> int:
+        n, _map = len(piles), dict()
+
+        #需要用到后缀和
+        s = [0]*(n+1)
+        for i in range(n-1,-1,-1):
+            s[i] = s[i+1] + piles[i]
+
+        # dfs ,dfs(i,m) 表示从i开始，向后最多能取m堆石子的最大值
+        def dfs(i,m):
+            # 已经遇到过
+            if (i,m) in _map:
+                return _map[(i,m)]
+            # 超标
+            if i>= n:
+                return 0
+            if i+m*2  >= n:
+                return s[i]
+            
+
+            # 遍历可以取得堆数，暴力深搜
+            enum = 0
+            for j in range(1,m*2+1):
+                enum = max(enum,s[i]- dfs(i+j,max(j,m)))
+            
+
+            # 记忆化
+            _map[(i,m)] = enum
+            return enum
+        return dfs(0,1)
+
+    
+    
+    
+    
+    # 动态规划玩法，除了用dp来记忆，没什么不同，也是类似从后向前推，也是在做决策的时候需要遍历可能，找到最大值
+class Solution:
+    def stoneGameII(self, piles: List[int]) -> int:
+        n = len(piles)
+        last_sum = [0]* (n+1)
+
+
+        # 还是需要后缀和节省时间
+        for i in range(n-1,-1,-1):
+            last_sum[i] = piles[i] + last_sum[i+1]
+        
+
+        # 动态数组
+        dp = [[0]* n for i in range(n)]
+        # 这里的动态规划，需要从后向前推
+        for i in range(n-1,-1,-1):
+            for M in range(1,n):
+                # 如果覆盖，全量拿去
+                if (i + 2*M) >= n:
+                    dp[i][M] = last_sum[i]
+                    #再做一点剪枝，一次超过，后面的都超过
+                    for t in range(M,n):
+                        dp[i][t] = last_sum[i]
+                    break
+                else:
+                    #如果没有覆盖，那就遍历，j为1~2m中的所有可能，dp[i+j][max(j,M)]为对方在我选定之后能娶到的最大值，后缀和剪去，然后找差值最大的，就是我能选到的，最优
+                    for j in range(1, 2*M+1):
+                        dp[i][M] =max(dp[i][M],last_sum[i]-dp[i+j][max(j,M)])
+        return dp[0][1]
+
+```
 
 
 
+#### 21 [60. 第k个排列](https://leetcode-cn.com/problems/permutation-sequence/)
+
+```python
+# 记忆化递归,还需要剪枝
+class Solution:
+    def getPermutation(self, n: int, k: int) -> str:
+
+        s = [i for i in  range(n+1)]
+        self.cnt = 0
+        self.res = []
+        def dfs(tmp):
+            if len(tmp) == n:
+                self.cnt += 1
+                if self.cnt == k:
+                    self.res = tmp
+                    return  -1
+                else:
+                    return
+                    #print(tmp)
+            else:
+                for i in range(1,n+1):
+                    if s[i] not in memo:
+                        memo.add(s[i])
+                        #print("memo",memo)
+                        t= dfs(tmp+[s[i]])
+                        if t == -1:
+                            return  -1
+                        memo.remove(s[i])
 
 
+        memo = set()
+        tmp = []
+        dfs(tmp)
+        return  ''.join([str(i) for i in
+                         self.res])
 
 
+    
+    ##数学玩法，实际上就是阶乘数量是固定，根据规律从左到右，依次确定各个位置上的数组
+    class Solution:
+    def getPermutation(self, n: int, k: int) -> str:
+        factorial = [1]
+        for i in range(1, n):   # 依次球阶乘
+            factorial.append(factorial[-1] * i)
+        
+        k -= 1  # 调整终点，偏于计算
+        ans = list()
+        valid = [1] * (n + 1)   # 一开始全是有效位
+        for i in range(1, n + 1):
+            order = k // factorial[n - i] + 1  #整除+1看轮数
+            for j in range(1, n + 1):
+                order -= valid[j]   #  从小到大依次减
+                if order == 0:
+                    ans.append(str(j))
+                    valid[j] = 0   # 取了这一位，就无效了
+                    break
+            k %= factorial[n - i]  # 取余，拿到剩下部分的轮数
 
+        return "".join(ans)
+```
+
+#### 22 [347. 前 K 个高频元素](https://leetcode-cn.com/problems/top-k-frequent-elements/)
+
+```python
+## hash + 排序
+class Solution:
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        _hash = {}
+        for i in nums:
+            _hash[i] = _hash.get(i,0)+1
+        
+
+        #利用排序的手法，比较精巧，需要熟悉：sorted（可迭代对象，关键字，是否倒置），x直达可迭代对象中的元素，先以x[1]排序，再以x[0]排序
+        top_frq = sorted(_hash.items(),key = lambda x:(x[1],x[0]), reverse = True)
+
+
+        # 取前k个：
+        return [top_frq[i][0] for i in range(k)]
+    
+# 更多解法：
+https://leetcode-cn.com/problems/top-k-frequent-elements/solution/leetcode347onfu-za-du-bu-fen-si-xiang-ji-dui-jie-f/
+```
+
+#### 23. [1314. 矩阵区域和](https://leetcode-cn.com/problems/matrix-block-sum/)
+
+```python
+# 思路很好想，面积累计，然后根据坐标，右下角减左边、右边，加左上（因为多减了一次）。
+# 不过想边界的时候能够准确点，写代码的时候不要写错。就很好了
+class Solution:
+    def matrixBlockSum(self, mat: List[List[int]], K: int) -> List[List[int]]:
+        m = len(mat)
+        n= len(mat[0])
+        grid = [[0]*n for _ in range(m)]
+        grid[0][0] =mat[0][0]
+        for i in range(1,n):          
+            grid[0][i] = mat[0][i] +grid[0][i-1]
+         
+    
+        for i in range(1,m):
+ 
+            grid[i][0] = mat[i][0] +grid[i-1][0]
+     
+        for i in range(1,m):
+            for j in range(1,n):
+                grid[i][j] = mat[i][j] + grid[i-1][j]+grid[i][j-1]-grid[i-1][j-1]
+        #print(grid)
+        res = [[0]*n for _ in range(m)]
+        for i in range(m):
+            for j in range(n):
+                L_U_x = i - K
+                L_U_y = j-K
+                R_D_x = min(m-1,i+K)
+                R_D_y = min(n-1,j+K)
+                total = grid[R_D_x][R_D_y]
+                l,u,patch =0,0,0
+                if L_U_y -1 <0:
+                    l=0
+                else:
+                    l = grid[R_D_x][L_U_y -1]
+                if L_U_x -1 <0:
+                    u =0
+                else:
+                    #print(L_U_x-1,R_D_x)
+                    u = grid[L_U_x-1][R_D_y]
+                if l!= 0 and u !=0:
+                    patch = grid[L_U_x-1][L_U_y-1]
+                #print(i,j,total,l,u,patch)
+                res[i][j]= total-l-u+patch
+        return res
+
+
+```
+
+#### 24. [77. 组合](https://leetcode-cn.com/problems/combinations/)
+
+```python
+
+# 之前做过的，谈不上什么收获，无非在复习一下递归回溯法。
+# 有用的是对比之前的java 代码。能够对python的特点加深体会。
+# self.v   就像java的private 变量，私有变量。然后，想像Java一样调用外部函数，用self修饰就好，最后python的for循环确实不太好用。sad
+# 还有，可以用全切片的方式避开引用变量会被反复操作的限制，因为会返回一个值一样但指针一样的对象
+class Solution:
+    def combine(self, n: int, k: int) -> List[List[int]]:
+        self.res = []
+        if n <=0 or k>n or k<=0:
+            return self.res
+        tmp = []
+        self.get(n,k,1,tmp)
+        return self.res
+
+    def get(self,n,k,start,tmp):
+        if len(tmp) == k:
+            self.res.append(tmp[:])  ## 全切片
+            return
+        end = n-(k-len(tmp))+2   # 最好提前计算好，毕竟py的for 不太好用。
+        for i in range(start,end):
+            tmp.append(i)
+            self.get(n,k,i+1,tmp)
+            tmp.pop()
+
+```
 
 
 
@@ -2662,7 +2926,74 @@
    
    ```
 
-   
+
+#### 8 [1406. 石子游戏 III](https://leetcode-cn.com/problems/stone-game-iii/)
+
+```python
+from typing import List
+
+# 自己做出来的，按照专题来做，确实是一个好方法
+class Solution:
+    def stoneGameIII(self, stoneValue: List[int]) -> str:
+
+        s=[0]*len(stoneValue)
+        n =len(stoneValue)
+
+
+        s[n-1] = stoneValue[n-1]
+        for i in range(n-2,-1,-1):
+            s[i] = s[i+1] + stoneValue[i]
+        #print(s)
+        # 特殊边界，特殊处理
+        if n <= 1:
+            if stoneValue[-1] >0:
+                return 'Alice'
+            elif stoneValue[-1] <0:
+                return 'Bob'
+            else:
+                return "Tie"
+        
+
+
+
+
+        dp = [0]*n
+        dp[n-1] =stoneValue[n-1]
+        dp[n-2] =max(stoneValue[n-2],s[n-2])
+        dp[n-3] = max(s[n-3], s[n-3]-dp[n-2],s[n-3]-dp[n-1])
+        for i in range(n-4,-1,-1):
+            dp[i] = s[i]-min(dp[i+1], dp[i+2], dp[i+3])
+        mesure = 2*dp[0]
+
+        #print(mesure)
+        if s[0] == mesure:
+            return "Tie"
+        elif s[0]<mesure:
+            return 'Alice'
+        else:
+            return 'Bob'
+
+```
+
+#### 9. [1510. 石子游戏 IV](https://leetcode-cn.com/problems/stone-game-iv/)
+
+```python
+class Solution:
+    def winnerSquareGame(self, n: int) -> bool:
+        dp = [0]*(n+1)
+        # 初始化
+        dp[0] = 0
+        dp[1] =1
+        for i in range(n+1):
+            j = 1
+            if(dp[i]!= 1):# 当dp[i]  不为1，失败的话，一切，i+j^2,就对对手而言是必胜的。因为只用取走j^2,就好
+                while j*j + i<=n:  # 基于i，向后递推就好
+                    dp[j*j+i]=1
+                    j +=1
+        return dp[n] == 1
+```
+
+
 
 
 
