@@ -2687,6 +2687,28 @@ class Solution:
 
 ```
 
+#### 25. [39. 组合总和](https://leetcode-cn.com/problems/combination-sum/)
+
+```python
+class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        candidates.sort()
+        n = len(candidates)
+        res = []
+        def backtrace(i,tmp_sum,tmp):
+            if tmp_sum > target or i ==n:  # 和值超标，或者是走到队尾
+                return 
+            if tmp_sum == target:
+                res.append(tmp)
+                return
+            for j in range(i,n):
+                if tmp_sum + candidates[i] >target:  # 算是剪枝，因为前面的排序
+                    return
+                backtrace(j,tmp_sum + candidates[j],tmp+[candidates[j]])
+        backtrace(0,0,[])
+        return res
+```
+
 
 
 
