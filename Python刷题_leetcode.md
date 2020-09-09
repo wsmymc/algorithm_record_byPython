@@ -94,7 +94,16 @@
         '''
     ```
 
-    
+
+####  13 . 复制一个列表
+
+```python
+char.copy()   # 函数方式
+list[:]   #切片方式
+
+
+# char.isalpha()  判断是否为字母
+```
 
 
 
@@ -1413,6 +1422,50 @@ class Solution(object):
 
 
 
+```
+
+####    57. [748. 最短完整词](https://leetcode-cn.com/problems/shortest-completing-word/)
+
+```python
+class Solution:
+    def shortestCompletingWord(self, licensePlate: str, words: List[str]) -> str:
+        char = [i.lower()  for i in licensePlate  if i.isalpha()]   # isalpha(),应该是判断是否为字母
+        words=sorted(words, key=lambda x:len(x))   # 排序这里我算是用会了
+
+        for word in words:
+            l= char.copy()  # 每次拷贝一个用来使用，有就提出，直到列表为空，说明找到了
+            for i in word:
+                if i in l:
+                    l.remove(i)
+                    
+                if not l:
+                    return word
+
+```
+
+
+
+   ####  58. [1260. 二维网格迁移](https://leetcode-cn.com/problems/shift-2d-grid/)
+
+```python
+# 模拟法可以做，但是太拉跨
+# 应该有取余的方法
+def shiftGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
+    new_grid = [[0] * len(grid[0]) for _ in range(len(grid))]
+    num_rows = len(grid)
+    num_cols = len(grid[0])
+    for row in range(num_rows):
+        for col in range(num_cols):
+            new_col = (col + k) % num_cols   # 对列的求余
+            wrap_around_count = (col + k) // num_cols   #  看看走了多少行
+            new_row = (row + wrap_around_count) % num_rows  # 对行的求余
+            new_grid[new_row][new_col] = grid[row][col]
+    return new_grid
+
+作者：LeetCode
+链接：https://leetcode-cn.com/problems/shift-2d-grid/solution/er-wei-wang-ge-qian-yi-by-leetcode/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
 
