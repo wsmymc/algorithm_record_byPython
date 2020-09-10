@@ -2762,6 +2762,99 @@ class Solution:
         return res
 ```
 
+#### 26. [40. 组合总和 II](https://leetcode-cn.com/problems/combination-sum-ii/)
+
+```python
+class Solution:
+    def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
+        candidates.sort()
+        n = len(candidates)
+        self.res = []
+        #s = set()    # 原本是用来剪枝的
+        def backtrace(idx, tmp,target):
+            if idx > n or target <0:  # 递归结束条件
+                return 
+            elif target == 0:
+                #if tuple(tmp) in s:
+                    #return
+                self.res.append(tmp[:])
+                #s.add(tuple(tmp))
+                return 
+            pre = -1
+            for i in range(idx,n):
+                if candidates[i] == pre:   # 代替set剪枝，效果更好
+                    continue
+                pre = candidates[i]
+                tmp.append(candidates[i])
+                backtrace(i+1,tmp,target-candidates[i])
+                tmp.pop()
+        backtrace(0,[],target)
+        return self.res
+
+
+```
+
+#### 27. [1277. 统计全为 1 的正方形子矩阵](https://leetcode-cn.com/problems/count-square-submatrices-with-all-ones/)
+
+```python
+class Solution:
+    def countSquares(self, matrix: List[List[int]]) -> int:
+        
+        m = len(matrix)
+        if not matrix or m == 0:
+            return -1
+        n = len(matrix[0])
+        _sum = 0
+        for i in range(m):
+            _sum += matrix[i][0]
+        for j in range(1,n):  # 0,0不能加两次
+            _sum += matrix[0][j]
+        
+        for i in range(1,m):
+            for j in range(1,n):
+                if matrix[i][j] == 1:
+                    matrix[i][j] = min(matrix[i][j-1], matrix[i-1][j],matrix[i-1][j-1]) + 1
+                    _sum += matrix[i][j]
+        #print(matrix)
+        return _sum
+```
+
+#### 28. [95. 不同的二叉搜索树 II](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/)（**）
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+# 不是自己想出来的，对构造一个树的概念有点懵，抄袭官方题解。不断生成子树，向上归并成一个完整的树
+# 既然是递归，就要;1,设立递归出口，2.相信函数能给到想要的结果，不要深究递归细节
+class Solution:
+    def generateTrees(self, n: int) -> List[TreeNode]:
+        def generateTrees(start,end):
+            if start > end:
+                return [None]   # 需要返回列表类型，None在结果里表现为null
+            allTrees = []
+            for i in range(start,end+1):
+                leftTrees = generateTrees(start,i-1)  # 从start  到 i-1 生成的所有左子树集
+                rightTrees = generateTrees(i+1, end)   # 右子树集
+
+                for l in leftTrees:
+                    for r in rightTrees:
+                        root = TreeNode(i)
+                        root.left = l
+                        root.right = r
+                        allTrees.append(root)   # 每一级的allTrees是不一样的，这里的整个树的集合对于递归的上一级而言，只是一个子树集
+            return allTrees
+        return generateTrees(1,n) if n else []
+    
+    
+    
+  ## 还有dp解法，待补全。
+   
+```
+
 
 
 
