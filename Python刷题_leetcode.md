@@ -2855,6 +2855,50 @@ class Solution:
    
 ```
 
+#### 29. [216. 组合总和 III](https://leetcode-cn.com/problems/combination-sum-iii/)
+
+```python
+## 简单的递归回溯，没问题。注意不要细节出错
+class Solution:
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        self.res = []
+        s = [i for i in range(1,10)]
+        #print(s)
+        def dfs(tmp,target,idx):
+            #print(tmp)
+            if target <0 or len(tmp)> k:
+                return 
+            if target == 0 and len(tmp)==k:
+                self.res.append(tmp[:])
+            for i in range(idx,9):
+                tmp.append(s[i])
+                dfs(tmp,target-s[i],i+1)
+                tmp.pop()
+        dfs([],n,0)
+        return self.res
+
+```
+
+#### 30.  [120. 三角形最小路径和](https://leetcode-cn.com/problems/triangle/)
+
+```python
+# 转移方程是：f(i,j)=min(f(i+1,j),f(i+1,j+1))+triangle[i][j]
+# 注意j，上下关连的j 是j，j+1
+# 然后可以n*n递归，不过这里因为每次使用一便，所以可以重复使用一个dp
+class Solution:
+    def minimumTotal(self, triangle: List[List[int]]) -> int:
+        n = len(triangle)
+        dp = [0] * n 
+        dp[0] = triangle[0][0]
+        for i in range(1, n):
+            # dp[i] 和 dp[0] 都是只有一个可能，所以需要特殊处理，去区别在于，dp[0]可能会被用到，所以放在后面，不能提前覆写
+            dp[i] = dp[i-1] + triangle[i][i]
+            for j in range(i-1,0,-1):
+                dp[j] = min(dp[j-1],dp[j]) + triangle[i][j]
+            dp[0] += triangle[i][0]
+        return min(dp)
+```
+
 
 
 
