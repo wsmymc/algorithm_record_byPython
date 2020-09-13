@@ -1488,266 +1488,264 @@ def shiftGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
 
   
 
-1. #### [207. 课程表](https://leetcode-cn.com/problems/course-schedule/)
+#### 1. [207. 课程表](https://leetcode-cn.com/problems/course-schedule/)
 
-   ```python
-   class Solution:
-       def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
-           '''拓扑排序解法'''
-           #课表长度
-           clen=len(prerequisites)
-   
-           if clen==0:
-               return True
-           
-           # 入度数组初始化
-           in_degrees=[0]*numCourses
-   
-           # 临接表
-          # adj=[set()]*numCourses  引用类型不能用连乘的玩法，因为引用的是同一个
-       	[set() for _ in range(numCourses)]
-   
-           # 想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们: [0,1]
-           # [0,1] 表示 1 在先，0 在后
-           # 注意：邻接表存放的是后继 successor 结点的集合
-           for second, first in prerequisites:
-               in_degrees[second] +=1
-               adj[first].add(second)
-   
-           #遍历，讲入度为0的入队（开始拓扑消除）
-           res=[]
-           queue=[]
-           for i in range(numCourses):
-               if in_degrees[i]==0:
-                   queue.append(i)
-           cnt=0
-           while queue:
-               top=queue.pop(0)
-               cnt +=1
-   
-               for successor in adj[top]:
-                   in_degrees[successor]-=1
-                   if in_degrees[successor]==0:
-                       queue.append(successor)
-           
-   
-           return cnt == numCourses
-   ```
+```python
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        '''拓扑排序解法'''
+        #课表长度
+        clen=len(prerequisites)
 
-2. #### [43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
+        if clen==0:
+            return True
+        
+        # 入度数组初始化
+        in_degrees=[0]*numCourses
 
-   ```python
-   class Solution:
-       def multiply(self, num1: str, num2: str) -> str:
-           if num1 == "0" or num2 == "0":
-               return "0"
-           
-   
-           res="0"
-   
-           m, n = len(num1), len(num2)
-   
-           for i in range(n-1, -1, -1):
-               add = 0
-               y = int(num2[i])
-               curr = ["0"]*(n-i-1)  #计算需要填充多少0,先填进去
-               for j in range(m-1, -1, -1):
-                   product = int(num1[j])*y+add   # 要考虑到进位情况
-                   curr.append(str(product%10))   #余数先填进去
-                   add=product//10                #查看是否进位
-               if add > 0:
-                   curr.append(str(add))          # 如果存在进位情况，就把进位填充进去，注意着是在内循环外部，说明是num2中的一个数，乘完了所有num1，后的最终进位。
-               curr="".join(curr[::-1])          #从后向前，不断翻转位置
-               res = self.addString(res, curr)
-   
-           return res
-   
-   
-   
-   
-       def addString(self, num1:str, num2:str) -> str:   # 乘完的每一行相加
-           i, j = len(num1)-1, len(num2)-1
-           add = 0
-           res = list()
-           while i >=0 or j>=0 or add!=0:
-               x=int(num1[i])   if  i>=0 else 0      # if else 的简易写法
-               y=int(num2[j])   if j>=0 else 0
-               result = x + y +add
-               res.append(str(result%10))
-               add = result // 10
-               i -= 1
-               j -= 1
-           return "".join(res[::-1])
-   
-   
-   
-   ```
+        # 临接表
+       # adj=[set()]*numCourses  引用类型不能用连乘的玩法，因为引用的是同一个
+    	[set() for _ in range(numCourses)]
 
+        # 想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们: [0,1]
+        # [0,1] 表示 1 在先，0 在后
+        # 注意：邻接表存放的是后继 successor 结点的集合
+        for second, first in prerequisites:
+            in_degrees[second] +=1
+            adj[first].add(second)
 
-3. #### [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+        #遍历，讲入度为0的入队（开始拓扑消除）
+        res=[]
+        queue=[]
+        for i in range(numCourses):
+            if in_degrees[i]==0:
+                queue.append(i)
+        cnt=0
+        while queue:
+            top=queue.pop(0)
+            cnt +=1
 
-   ```python
-   # Definition for singly-linked list.
-   # class ListNode:
-   #     def __init__(self, val=0, next=None):
-   #         self.val = val
-   #         self.next = next
-   # Definition for a binary tree node.
-   # class TreeNode:
-   #     def __init__(self, val=0, left=None, right=None):
-   #         self.val = val
-   #         self.left = left
-   #         self.right = right
-   class Solution:
-       def sortedListToBST(self, head: ListNode) -> TreeNode:
-           def getMedian(left: ListNode, right: ListNode) -> ListNode:
-               fast = slow = left
-               while fast != right and fast.next != right:   # 快慢指针
-                   fast = fast.next.next
-                   slow = slow.next
-               return slow
-           
-           def buildTree(left: ListNode, right: ListNode) -> TreeNode:
-               if left == right:
-                   return None
-               mid = getMedian(left, right)
-               root = TreeNode(mid.val)
-               root.left = buildTree(left, mid)  # 这里的左右端点使用节点表示
-               root.right = buildTree(mid.next, right)
-               return root
-           
-           return buildTree(head, None)  # 最右端是None很合理
-       
-       
-       
-       
-       
-       ## 另一种解法：仅供参考。这里利用中序遍历，特性，从头到尾依次放置节点
-       class Solution:
-       def sortedListToBST(self, head: ListNode) -> TreeNode:
-           def getLength(head: ListNode) -> int:
-               ret = 0
-               while head:
-                   ret += 1
-                   head = head.next
-               return ret
-           
-           def buildTree(left: int, right: int) -> TreeNode:
-               if left > right:
-                   return None
-               mid = (left + right + 1) // 2
-               root = TreeNode()
-               root.left = buildTree(left, mid - 1)
-               nonlocal head
-               root.val = head.val  
-               head = head.next   # 每次节点确定好后，跳到下一节点
-               root.right = buildTree(mid + 1, right)
-               return root
-           
-           length = getLength(head)  # 先统计一边长度，知道长度，基本就确定了平衡树的结构，剩下的，就是依次添值和关系
-           return buildTree(0, length - 1)  # 这里的l，r实际上是用来确定位置的参数，即分割左右子树，自身不决定树的值
-   
-   作者：LeetCode-Solution
-   链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
-   来源：力扣（LeetCode）
-   著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-   ```
+            for successor in adj[top]:
+                in_degrees[successor]-=1
+                if in_degrees[successor]==0:
+                    queue.append(successor)
+        
 
-   
+        return cnt == numCourses
+```
 
+#### 2. 43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
 
-3. #### [剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+```python
+class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+        if num1 == "0" or num2 == "0":
+            return "0"
+        
 
-   ```python
-   class Solution:
-       def __init__(self):
-           self.res=0
-       def sumNums(self, n: int) -> int:
-           n > 1 and self.sumNums(n - 1)  # 如果n-1小于等于1，这一步就会返回，截止
-           print("n:",n)
-           self.res += n
-           return self.res
-   ## 常见的逻辑运算符有三种，即 “与 \&\&&& ”，“或 ||∣∣ ”，“非 !! ” ；而其有重要的短路效应，如下所示：
-   
-   
-   if(A && B)  // 若 A 为 false ，则 B 的判断不会执行（即短路），直接判定 A && B 为 false
-   
-   if(A || B) // 若 A 为 true ，则 B 的判断不会执行（即短路），直接判定 
-   
-   # 相当放在后面的递归函数不被执行了，执行下一行，但是因为没有递归，所以到此为之
-   ```
+        res="0"
+
+        m, n = len(num1), len(num2)
+
+        for i in range(n-1, -1, -1):
+            add = 0
+            y = int(num2[i])
+            curr = ["0"]*(n-i-1)  #计算需要填充多少0,先填进去
+            for j in range(m-1, -1, -1):
+                product = int(num1[j])*y+add   # 要考虑到进位情况
+                curr.append(str(product%10))   #余数先填进去
+                add=product//10                #查看是否进位
+            if add > 0:
+                curr.append(str(add))          # 如果存在进位情况，就把进位填充进去，注意着是在内循环外部，说明是num2中的一个数，乘完了所有num1，后的最终进位。
+            curr="".join(curr[::-1])          #从后向前，不断翻转位置
+            res = self.addString(res, curr)
+
+        return res
 
 
 
 
-4. [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+    def addString(self, num1:str, num2:str) -> str:   # 乘完的每一行相加
+        i, j = len(num1)-1, len(num2)-1
+        add = 0
+        res = list()
+        while i >=0 or j>=0 or add!=0:
+            x=int(num1[i])   if  i>=0 else 0      # if else 的简易写法
+            y=int(num2[j])   if j>=0 else 0
+            result = x + y +add
+            res.append(str(result%10))
+            add = result // 10
+            i -= 1
+            j -= 1
+        return "".join(res[::-1])
 
-   ```python
-   # Definition for singly-linked list.
-   # class ListNode:
-   #     def __init__(self, val=0, next=None):
-   #         self.val = val
-   #         self.next = next
-   # Definition for a binary tree node.
-   # class TreeNode:
-   #     def __init__(self, val=0, left=None, right=None):
-   #         self.val = val
-   #         self.left = left
-   #         self.right = right
-   class Solution:
-       def sortedListToBST(self, head: ListNode) -> TreeNode:
-           def getMedian(left: ListNode, right: ListNode) -> ListNode:
-               fast = slow = left
-               while fast != right and fast.next != right:   # 快慢指针
-                   fast = fast.next.next
-                   slow = slow.next
-               return slow
-           
-           def buildTree(left: ListNode, right: ListNode) -> TreeNode:
-               if left == right:
-                   return None
-               mid = getMedian(left, right)
-               root = TreeNode(mid.val)
-               root.left = buildTree(left, mid)  # 这里的左右端点使用节点表示
-               root.right = buildTree(mid.next, right)
-               return root
-           
-           return buildTree(head, None)  # 最右端是None很合理
-       
-       
-       
-       
-       
-       ## 另一种解法：仅供参考。这里利用中序遍历，特性，从头到尾依次放置节点
-       class Solution:
-       def sortedListToBST(self, head: ListNode) -> TreeNode:
-           def getLength(head: ListNode) -> int:
-               ret = 0
-               while head:
-                   ret += 1
-                   head = head.next
-               return ret
-           
-           def buildTree(left: int, right: int) -> TreeNode:
-               if left > right:
-                   return None
-               mid = (left + right + 1) // 2
-               root = TreeNode()
-               root.left = buildTree(left, mid - 1)
-               nonlocal head
-               root.val = head.val  
-               head = head.next   # 每次节点确定好后，跳到下一节点
-               root.right = buildTree(mid + 1, right)
-               return root
-           
-           length = getLength(head)  # 先统计一边长度，知道长度，基本就确定了平衡树的结构，剩下的，就是依次添值和关系
-           return buildTree(0, length - 1)  # 这里的l，r实际上是用来确定位置的参数，即分割左右子树，自身不决定树的值
-   
-   作者：LeetCode-Solution
-   链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
-   来源：力扣（LeetCode）
-   著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-   ```
+
+
+```
+
+#### 3. [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def sortedListToBST(self, head: ListNode) -> TreeNode:
+        def getMedian(left: ListNode, right: ListNode) -> ListNode:
+            fast = slow = left
+            while fast != right and fast.next != right:   # 快慢指针
+                fast = fast.next.next
+                slow = slow.next
+            return slow
+        
+        def buildTree(left: ListNode, right: ListNode) -> TreeNode:
+            if left == right:
+                return None
+            mid = getMedian(left, right)
+            root = TreeNode(mid.val)
+            root.left = buildTree(left, mid)  # 这里的左右端点使用节点表示
+            root.right = buildTree(mid.next, right)
+            return root
+        
+        return buildTree(head, None)  # 最右端是None很合理
+    
+    
+    
+    
+    
+    ## 另一种解法：仅供参考。这里利用中序遍历，特性，从头到尾依次放置节点
+    class Solution:
+    def sortedListToBST(self, head: ListNode) -> TreeNode:
+        def getLength(head: ListNode) -> int:
+            ret = 0
+            while head:
+                ret += 1
+                head = head.next
+            return ret
+        
+        def buildTree(left: int, right: int) -> TreeNode:
+            if left > right:
+                return None
+            mid = (left + right + 1) // 2
+            root = TreeNode()
+            root.left = buildTree(left, mid - 1)
+            nonlocal head
+            root.val = head.val  
+            head = head.next   # 每次节点确定好后，跳到下一节点
+            root.right = buildTree(mid + 1, right)
+            return root
+        
+        length = getLength(head)  # 先统计一边长度，知道长度，基本就确定了平衡树的结构，剩下的，就是依次添值和关系
+        return buildTree(0, length - 1)  # 这里的l，r实际上是用来确定位置的参数，即分割左右子树，自身不决定树的值
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+
+
+#### 4. 剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+
+```python
+class Solution:
+    def __init__(self):
+        self.res=0
+    def sumNums(self, n: int) -> int:
+        n > 1 and self.sumNums(n - 1)  # 如果n-1小于等于1，这一步就会返回，截止
+        print("n:",n)
+        self.res += n
+        return self.res
+## 常见的逻辑运算符有三种，即 “与 \&\&&& ”，“或 ||∣∣ ”，“非 !! ” ；而其有重要的短路效应，如下所示：
+
+
+if(A && B)  // 若 A 为 false ，则 B 的判断不会执行（即短路），直接判定 A && B 为 false
+
+if(A || B) // 若 A 为 true ，则 B 的判断不会执行（即短路），直接判定 
+
+# 相当放在后面的递归函数不被执行了，执行下一行，但是因为没有递归，所以到此为之
+```
+
+
+
+5. [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def sortedListToBST(self, head: ListNode) -> TreeNode:
+        def getMedian(left: ListNode, right: ListNode) -> ListNode:
+            fast = slow = left
+            while fast != right and fast.next != right:   # 快慢指针
+                fast = fast.next.next
+                slow = slow.next
+            return slow
+        
+        def buildTree(left: ListNode, right: ListNode) -> TreeNode:
+            if left == right:
+                return None
+            mid = getMedian(left, right)
+            root = TreeNode(mid.val)
+            root.left = buildTree(left, mid)  # 这里的左右端点使用节点表示
+            root.right = buildTree(mid.next, right)
+            return root
+        
+        return buildTree(head, None)  # 最右端是None很合理
+    
+    
+    
+    
+    
+    ## 另一种解法：仅供参考。这里利用中序遍历，特性，从头到尾依次放置节点
+    class Solution:
+    def sortedListToBST(self, head: ListNode) -> TreeNode:
+        def getLength(head: ListNode) -> int:
+            ret = 0
+            while head:
+                ret += 1
+                head = head.next
+            return ret
+        
+        def buildTree(left: int, right: int) -> TreeNode:
+            if left > right:
+                return None
+            mid = (left + right + 1) // 2
+            root = TreeNode()
+            root.left = buildTree(left, mid - 1)
+            nonlocal head
+            root.val = head.val  
+            head = head.next   # 每次节点确定好后，跳到下一节点
+            root.right = buildTree(mid + 1, right)
+            return root
+        
+        length = getLength(head)  # 先统计一边长度，知道长度，基本就确定了平衡树的结构，剩下的，就是依次添值和关系
+        return buildTree(0, length - 1)  # 这里的l，r实际上是用来确定位置的参数，即分割左右子树，自身不决定树的值
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/solution/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 5. [1325. 删除给定值的叶子节点](https://leetcode-cn.com/problems/delete-leaves-with-a-given-value/)
 
@@ -1769,322 +1767,322 @@ def shiftGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
            return root
    ```
 
+#### 6. [647. 回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)
 
-6. #### [647. 回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)
+```python
+class Solution:
+    def countSubstrings(self, s: str) -> int:
+        L = len(s)
+        cnt = 0
+        # 以某一个元素为中心的奇数长度的回文串的情况
+        for center in range(L):  # 一中心位置作为指标
+            left = right = center
+            while left >= 0 and right < L and s[left] == s[right]:
+                cnt += 1
+                left -= 1
+                right += 1
+        # 以某对元素为中心的偶数长度的回文串的情况
+        for left in range(L - 1):    #以中心两个中左边的作为指标
+            right = left + 1         # left+1 间接确定右边核心
+            while left >= 0 and right < L and s[left] == s[right]:
+                cnt += 1
+                left -= 1
+                right += 1
 
-   ```python
-   class Solution:
-       def countSubstrings(self, s: str) -> int:
-           L = len(s)
-           cnt = 0
-           # 以某一个元素为中心的奇数长度的回文串的情况
-           for center in range(L):  # 一中心位置作为指标
-               left = right = center
-               while left >= 0 and right < L and s[left] == s[right]:
-                   cnt += 1
-                   left -= 1
-                   right += 1
-           # 以某对元素为中心的偶数长度的回文串的情况
-           for left in range(L - 1):    #以中心两个中左边的作为指标
-               right = left + 1         # left+1 间接确定右边核心
-               while left >= 0 and right < L and s[left] == s[right]:
-                   cnt += 1
-                   left -= 1
-                   right += 1
-   
-           return cnt
-   # 这是相对比较巧妙的中心扩散法，分成就不同情况，以不同字符串开始作为中心，不断扩散，知道不成为回文后停止，每次计数。枚举中心，O（n），每次回文中心拓展，O（n）.time complexity  是 n squared
-   
-   
-   
-   
-   
-   
-   # 下面是动态规划解法，相比之下并不高效，但是有助于锻炼动态规划思维
-   class Solution:
-       def countSubstrings(self, s: str) -> int:
-           """
-           （1）思路：动态规划
-                   我们以dp[i][j]表示区间[i, j]之间的子串是否为回文子串，这样可以思考这样三种情况的回文子串：
-                       - 子串长度为1，例如 a 一定为回文子串，即 i=j 的情况
-                       - 子串长度为2，且字符相同，例如 aa 一定为回文自传，即 s[i] = s[j] and j-i = 1
-                       - 子串长度大于2，符合 abcba 形式的为回文子串，根据回文子串的定义，那么 abcba 去掉两边字符，仍为回文
-                       子串，即bcb，转换成方程形式即 dp[i][j] = dp[i+1][j-1] and j-i > 1 and s[i] = s[j]
-                   剩下的均为不符合条件，即非回文子串。
-   
-           （2）复杂度：
-               - 时间复杂度：O（N^2）
-               - 空间复杂度：O（N^2）
-           """
-           # 处理特殊情况
-           str_len = len(s)
-           if str_len == 0 or s is None:
-               return 0
-           # 定义变量储存结果
-           res = 0
-           # 定义和初始化dp数组
-           dp = [[False for _ in range(str_len)] for _ in range(str_len)]
-           # 直接先给对角线赋值为True，防止出现 dp[i][j] = dp[i + 1][j - 1] 时，前值没有，例如，i=0，j=2的时候
-           for i in range(str_len):
-               dp[i][i] = True
-           # 遍历字符串，更新dp数组
-           # 注意，由于状态转义方程第三种情况是 dp[i][j] = dp[i + 1][j - 1] ，dp取决于 i+1的状态，但是正常遍历
-           # 我们肯定是先有了i的状态才能有i+1的 状态，所以，此处我们遍历以 j 为主
-           for j in range(str_len):
-               # 因为对角线已经赋初始值，所以直接从i+1开始遍历
-               for i in range(0, j):
-                   # 第一种情况，子串长度为1，例如 a 一定为回文子串，因为已经处理了对角线
-                   # 这里可以注释
-                   if j - i == 0:
-                       dp[i][j] = True
-                   # 第二种和第三种可以合并，因为对于s[i]=s[j],中间加一个字符是没有影响的，即aba肯定也是回文子串
-                   # 所以可以合并为 j-i >= 1 and s[i] == s[j]
-   
-                   # 第二种情况，子串长度为2，且字符相同，例如 aa 一定为回文自传，即 s[i] = s[j] and j-i = 1
-                   elif j - i == 1:
-                       if s[i] == s[j]:
-                           dp[i][j] = True
-                   # 第三种情况，子串长度大于2，符合 abcba 形式的为回文子串否则不是，即dp[i][j]取决于dp[i + 1][j - 1] 是否
-                   # 是回文子串
-                   else:
-                       if s[i] == s[j]:
-                           dp[i][j] = dp[i + 1][j - 1]
-           # 遍历dp数组，数True的个数
-           for i in range(str_len):
-               for j in range(i, str_len):
-                   if dp[i][j] is True:
-                       res += 1
-           return res
-   
-   ```
+        return cnt
+# 这是相对比较巧妙的中心扩散法，分成就不同情况，以不同字符串开始作为中心，不断扩散，知道不成为回文后停止，每次计数。枚举中心，O（n），每次回文中心拓展，O（n）.time complexity  是 n squared
 
-7. #### [529. 扫雷游戏](https://leetcode-cn.com/problems/minesweeper/)
 
-   ```python
-   class Solution:
-       def updateBoard(self, board: List[List[str]], click: List[int]) -> List[List[str]]:
-           if not board or not board[0]: return board
-   
-           rows, cols = len(board), len(board[0])
-           if not (0 <= click[0] < rows and 0 <= click[1] < cols):
-               return board
-           
-           if board[click[0]][click[1]] == 'M':
-               board[click[0]][click[1]] = 'X'
-               return board
-           
-   
-           def _dfs(i,j):   # 因为这里没有新建borad，所以整个solution中用的都是同一个board
-               #如果不是E，就返回。这里就是规避B和M
-               if  not (0 <= i < rows and 0 <= j < cols and board[i][j] != 'E'):
-                   return
-               # 制作移动方向，总共八个
-               directions = [(0, 1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (1, 0), (1, -1), (1, 1)]
-               mine_num = 0  # 地雷计数
-               for d in directions:
-                   if 0 <= (i + d[0]) < rows and 0 <= (j + d[1]) < cols and board[i + d[0]][j + d[1]] == 'M':
-                       mine_num += 1  # 统计合法的移动范围内的隐藏地雷
-   
-   
-               # 如果有雷，标记数量；如果没有，标记为B，并且递归周围
-               if mine_num > 0:
-                   board[i][j] = str(mine_num)
-               else:
-                   board[i][j] = 'B'
-                   for d in directions:
-                       _dfs(i+d[0],j+d[1])
-               return
-   
-   
-          # _dfs(click[0],click[1])
-          # 也可以使用变动参数的形式
-           _dfs(*click)
-           return board
-   ```
 
-8. #### [910. 最小差值 II](https://leetcode-cn.com/problems/smallest-range-ii/)
 
-   ```python
-   class Solution:
-       def smallestRangeII(self, A: List[int], K: int) -> int:
-   
-           # 实际上就是先排序，然后以一个位置开始分割，前一部分加，后一部分减，只用比较端点就好，0~i：+k，i+1~-1 ：-K。这样只用比较这四个的最大最小值，然后在循环中不断更新
-           A.sort()
-           mi, ma = A[0], A[-1]
-           res = ma - mi
-           for i in range(len(A)-1):
-               res = min(res, max(A[i]+K,ma-K)-min(mi+K, A[i+1]-K))
-           return res
-   ```
 
-9. #### [861. 翻转矩阵后的得分](https://leetcode-cn.com/problems/score-after-flipping-matrix/)
 
-   ```python
-   class Solution:
-       '''不要被题目吓到，这么想：每行都是一个二进制数。因此：
-           自左到右，每一位的值:2^n,这个n是总列数-1-当前列，因此未必需要横着求和
-           也可以竖着求和：每一列代表的值是由列数确定，统计有多少个1，相乘即可。
-           这里注意，因为越高位的1越有价值，贪心算法，先使最左一列全为1，然后统计
-           各列1的个数（这里是统计不同的个数，然后取大的，因为可以一列翻转，使相同的更多的为1），乘以各自的因子，最后累加即可
-       '''
-       def matrixScore(self, A: List[List[int]]) -> int:
-           rows, cols = len(A), len(A[0])
-           res = 0
-           for col in range(cols):
-               c =0
-               for row in range(rows):
-                   c += A[row][col]^A[row][0]  #这里有一点特殊，其他列是和A[row][0]比较获取自己列的异同数量，第一列是和自己比较，此时
-               res += max(c, rows-c)*2**(cols-1-col)
-       
-   
-           return res
-   
-   
-   ```
+# 下面是动态规划解法，相比之下并不高效，但是有助于锻炼动态规划思维
+class Solution:
+    def countSubstrings(self, s: str) -> int:
+        """
+        （1）思路：动态规划
+                我们以dp[i][j]表示区间[i, j]之间的子串是否为回文子串，这样可以思考这样三种情况的回文子串：
+                    - 子串长度为1，例如 a 一定为回文子串，即 i=j 的情况
+                    - 子串长度为2，且字符相同，例如 aa 一定为回文自传，即 s[i] = s[j] and j-i = 1
+                    - 子串长度大于2，符合 abcba 形式的为回文子串，根据回文子串的定义，那么 abcba 去掉两边字符，仍为回文
+                    子串，即bcb，转换成方程形式即 dp[i][j] = dp[i+1][j-1] and j-i > 1 and s[i] = s[j]
+                剩下的均为不符合条件，即非回文子串。
 
-10. #### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
+        （2）复杂度：
+            - 时间复杂度：O（N^2）
+            - 空间复杂度：O（N^2）
+        """
+        # 处理特殊情况
+        str_len = len(s)
+        if str_len == 0 or s is None:
+            return 0
+        # 定义变量储存结果
+        res = 0
+        # 定义和初始化dp数组
+        dp = [[False for _ in range(str_len)] for _ in range(str_len)]
+        # 直接先给对角线赋值为True，防止出现 dp[i][j] = dp[i + 1][j - 1] 时，前值没有，例如，i=0，j=2的时候
+        for i in range(str_len):
+            dp[i][i] = True
+        # 遍历字符串，更新dp数组
+        # 注意，由于状态转义方程第三种情况是 dp[i][j] = dp[i + 1][j - 1] ，dp取决于 i+1的状态，但是正常遍历
+        # 我们肯定是先有了i的状态才能有i+1的 状态，所以，此处我们遍历以 j 为主
+        for j in range(str_len):
+            # 因为对角线已经赋初始值，所以直接从i+1开始遍历
+            for i in range(0, j):
+                # 第一种情况，子串长度为1，例如 a 一定为回文子串，因为已经处理了对角线
+                # 这里可以注释
+                if j - i == 0:
+                    dp[i][j] = True
+                # 第二种和第三种可以合并，因为对于s[i]=s[j],中间加一个字符是没有影响的，即aba肯定也是回文子串
+                # 所以可以合并为 j-i >= 1 and s[i] == s[j]
 
-    ```python
-    ## 自己写的，手生，花了些时间，这种问题，首要方法是递归回溯
-    #有一点:
-    '''
-    list.append()是原地变化，list+[]是生成一个新的值。'''
-    from typing import List
-    import time
-    
-    class Solution:
-        def findSubsequences(self, nums: List[int]) -> List[List[int]]:
-            set_=set()  # 对结果的去重
-            def dfs(l,r,tmp):
-                #print(type(tmp))
-                #print(l)
-                if l == r:
-                    return
-                s1=set()    # 一次循环对一个位置，不允许重复，这里放在去重
-                for i in range(l,r):
-                    if nums[i] in s1:
-                        continue
-                    elif len(tmp)==0:
-                        tmp.append(nums[i])
-                        # print(tmp)
-    
-                        dfs(i + 1, r, tmp)  # 递归
-                        tmp.pop()
-                        continue            #这一块是回溯
-                    elif  nums[i] >= tmp[-1]:
-    
-                        tmp.append(nums[i])    # list.append()也是和list.sort()一样，没有返回值，在原地址修改
-    
-                        #print(tmp)
-    
-                        set_.add(tuple(tmp))
-                        dfs(i+1,r,tmp)   # 递归搜索
-                        tmp.pop()     # 
-                        continue     # 这里是回溯
-                    else:
-                        pass
-    
-    
-    
-            r = []
-    
-            dfs(0, len(nums), [])
-            res =[]
-            for j in set_:
-                res.append(j)
-            return res
-    
-        
-        
-        ## 更见简单的书写，思路一致，这里写的明显更漂亮
-    class Solution:
-        def findSubsequences(self, nums: List[int]) -> List[List[int]]:
-            res = []
-    
-            def dfs(nums: List[int], tmp: List[int]) -> None:
-                if len(tmp) > 1:
-                    res.append(tmp)
-                curPres = set()   # 这里实际上已经保证不会有重复值了
-                for inx, i in enumerate(nums):
-                    if i in curPres:
-                        continue
-                    if not tmp or i >= tmp[-1]:
-                        curPres.add(i)
-                        dfs(nums[inx+1:], tmp+[i])  # 下一次才判定
-    
-            dfs(nums, [])
-            return res
-    
-    
-        
-        
-        
-        # 参考上面的进行修改 ，明细思路
-    from typing import List
-    import time
-    
-    class Solution:
-        def findSubsequences(self, nums: List[int]) -> List[List[int]]:
-            set_=set()
-            res = []
-            def dfs(l,r,tmp):
-                if len(tmp)>1:
-                    res.append(tmp)
-                if l ==r:
-                    return
-                s1=set()
-                for i in range(l,r):
-                    if nums[i] not in s1 and (l==0 or nums[i]>=tmp[-1]):
-                        s1.add(nums[i])
-                        t = tmp+[nums[i]]      #不能用tmp，因为循环中的tmp不能变
-    
-                        print(tmp)
-                        dfs(i + 1, r, t)
-    
-    
-    
-            dfs(0, len(nums), [])
-    
-            return res
-    
-    ```
-
-11. #### [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
-
-    ```python
-    # 简单的递归回溯，手生，注意一点，这里split不能分割成字符数组，要用list，也可以直接用str[i]
-    # 另外一点：递归是recur，递归回溯是backtrack，这里搞错了。然后是，每次判定是否添加到结果中，是在每次递归开始，否则扔到下次递归，这样写起来漂亮一点。
-    class Solution:
-        def letterCombinations(self, digits: str) -> List[str]:
-            if not digits :
-                return []
-            #s = digits.split()
-    
-            dic = {
-                '2': ['a', 'b', 'c'],
-                '3': ['d', 'e', 'f'],
-                '4': ['g', 'h', 'i'],
-                '5': ['j', 'k', 'l'],
-                '6': ['m', 'n', 'o'],
-                '7': ['p', 'q', 'r','s'],
-                '8': ['t', 'u', 'v'],
-                '9': ['w','x', 'y', 'z'],
-            }
-            res = []
-            tmp = []
-            def recur(i):
-                if i == len(digits):
-                    #print(tmp)
-                    res.append(("".join(tmp)))
+                # 第二种情况，子串长度为2，且字符相同，例如 aa 一定为回文自传，即 s[i] = s[j] and j-i = 1
+                elif j - i == 1:
+                    if s[i] == s[j]:
+                        dp[i][j] = True
+                # 第三种情况，子串长度大于2，符合 abcba 形式的为回文子串否则不是，即dp[i][j]取决于dp[i + 1][j - 1] 是否
+                # 是回文子串
                 else:
-                    for c in dic[str(digits[i])]:
-                        tmp.append(c)
-                        recur(i+1)
-                        tmp.pop()
-            recur(0)
-            return res
+                    if s[i] == s[j]:
+                        dp[i][j] = dp[i + 1][j - 1]
+        # 遍历dp数组，数True的个数
+        for i in range(str_len):
+            for j in range(i, str_len):
+                if dp[i][j] is True:
+                    res += 1
+        return res
+
+```
+
+#### 7. [529. 扫雷游戏](https://leetcode-cn.com/problems/minesweeper/)
+
+```python
+class Solution:
+    def updateBoard(self, board: List[List[str]], click: List[int]) -> List[List[str]]:
+        if not board or not board[0]: return board
+
+        rows, cols = len(board), len(board[0])
+        if not (0 <= click[0] < rows and 0 <= click[1] < cols):
+            return board
+        
+        if board[click[0]][click[1]] == 'M':
+            board[click[0]][click[1]] = 'X'
+            return board
+        
+
+        def _dfs(i,j):   # 因为这里没有新建borad，所以整个solution中用的都是同一个board
+            #如果不是E，就返回。这里就是规避B和M
+            if  not (0 <= i < rows and 0 <= j < cols and board[i][j] != 'E'):
+                return
+            # 制作移动方向，总共八个
+            directions = [(0, 1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (1, 0), (1, -1), (1, 1)]
+            mine_num = 0  # 地雷计数
+            for d in directions:
+                if 0 <= (i + d[0]) < rows and 0 <= (j + d[1]) < cols and board[i + d[0]][j + d[1]] == 'M':
+                    mine_num += 1  # 统计合法的移动范围内的隐藏地雷
+
+
+            # 如果有雷，标记数量；如果没有，标记为B，并且递归周围
+            if mine_num > 0:
+                board[i][j] = str(mine_num)
+            else:
+                board[i][j] = 'B'
+                for d in directions:
+                    _dfs(i+d[0],j+d[1])
+            return
+
+
+       # _dfs(click[0],click[1])
+       # 也可以使用变动参数的形式
+        _dfs(*click)
+        return board
+```
+
+#### 8. [910. 最小差值 II](https://leetcode-cn.com/problems/smallest-range-ii/)
+
+```python
+class Solution:
+    def smallestRangeII(self, A: List[int], K: int) -> int:
+
+        # 实际上就是先排序，然后以一个位置开始分割，前一部分加，后一部分减，只用比较端点就好，0~i：+k，i+1~-1 ：-K。这样只用比较这四个的最大最小值，然后在循环中不断更新
+        A.sort()
+        mi, ma = A[0], A[-1]
+        res = ma - mi
+        for i in range(len(A)-1):
+            res = min(res, max(A[i]+K,ma-K)-min(mi+K, A[i+1]-K))
+        return res
+```
+
+#### 9. 861. 翻转矩阵后的得分](https://leetcode-cn.com/problems/score-after-flipping-matrix/)
+
+```python
+class Solution:
+    '''不要被题目吓到，这么想：每行都是一个二进制数。因此：
+        自左到右，每一位的值:2^n,这个n是总列数-1-当前列，因此未必需要横着求和
+        也可以竖着求和：每一列代表的值是由列数确定，统计有多少个1，相乘即可。
+        这里注意，因为越高位的1越有价值，贪心算法，先使最左一列全为1，然后统计
+        各列1的个数（这里是统计不同的个数，然后取大的，因为可以一列翻转，使相同的更多的为1），乘以各自的因子，最后累加即可
+    '''
+    def matrixScore(self, A: List[List[int]]) -> int:
+        rows, cols = len(A), len(A[0])
+        res = 0
+        for col in range(cols):
+            c =0
+            for row in range(rows):
+                c += A[row][col]^A[row][0]  #这里有一点特殊，其他列是和A[row][0]比较获取自己列的异同数量，第一列是和自己比较，此时
+            res += max(c, rows-c)*2**(cols-1-col)
     
-    ```
+
+        return res
+
+
+```
+
+
+1. #### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
+
+   ```python
+   ## 自己写的，手生，花了些时间，这种问题，首要方法是递归回溯
+   #有一点:
+   '''
+   list.append()是原地变化，list+[]是生成一个新的值。'''
+   from typing import List
+   import time
+   
+   class Solution:
+       def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+           set_=set()  # 对结果的去重
+           def dfs(l,r,tmp):
+               #print(type(tmp))
+               #print(l)
+               if l == r:
+                   return
+               s1=set()    # 一次循环对一个位置，不允许重复，这里放在去重
+               for i in range(l,r):
+                   if nums[i] in s1:
+                       continue
+                   elif len(tmp)==0:
+                       tmp.append(nums[i])
+                       # print(tmp)
+   
+                       dfs(i + 1, r, tmp)  # 递归
+                       tmp.pop()
+                       continue            #这一块是回溯
+                   elif  nums[i] >= tmp[-1]:
+   
+                       tmp.append(nums[i])    # list.append()也是和list.sort()一样，没有返回值，在原地址修改
+   
+                       #print(tmp)
+   
+                       set_.add(tuple(tmp))
+                       dfs(i+1,r,tmp)   # 递归搜索
+                       tmp.pop()     # 
+                       continue     # 这里是回溯
+                   else:
+                       pass
+   
+   
+   
+           r = []
+   
+           dfs(0, len(nums), [])
+           res =[]
+           for j in set_:
+               res.append(j)
+           return res
+   
+       
+       
+       ## 更见简单的书写，思路一致，这里写的明显更漂亮
+   class Solution:
+       def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+           res = []
+   
+           def dfs(nums: List[int], tmp: List[int]) -> None:
+               if len(tmp) > 1:
+                   res.append(tmp)
+               curPres = set()   # 这里实际上已经保证不会有重复值了
+               for inx, i in enumerate(nums):
+                   if i in curPres:
+                       continue
+                   if not tmp or i >= tmp[-1]:
+                       curPres.add(i)
+                       dfs(nums[inx+1:], tmp+[i])  # 下一次才判定
+   
+           dfs(nums, [])
+           return res
+   
+   
+       
+       
+       
+       # 参考上面的进行修改 ，明细思路
+   from typing import List
+   import time
+   
+   class Solution:
+       def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+           set_=set()
+           res = []
+           def dfs(l,r,tmp):
+               if len(tmp)>1:
+                   res.append(tmp)
+               if l ==r:
+                   return
+               s1=set()
+               for i in range(l,r):
+                   if nums[i] not in s1 and (l==0 or nums[i]>=tmp[-1]):
+                       s1.add(nums[i])
+                       t = tmp+[nums[i]]      #不能用tmp，因为循环中的tmp不能变
+   
+                       print(tmp)
+                       dfs(i + 1, r, t)
+   
+   
+   
+           dfs(0, len(nums), [])
+   
+           return res
+   
+   ```
+
+   #### 10.  [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+
+   ```python
+   # 简单的递归回溯，手生，注意一点，这里split不能分割成字符数组，要用list，也可以直接用str[i]
+   # 另外一点：递归是recur，递归回溯是backtrack，这里搞错了。然后是，每次判定是否添加到结果中，是在每次递归开始，否则扔到下次递归，这样写起来漂亮一点。
+   class Solution:
+       def letterCombinations(self, digits: str) -> List[str]:
+           if not digits :
+               return []
+           #s = digits.split()
+   
+           dic = {
+               '2': ['a', 'b', 'c'],
+               '3': ['d', 'e', 'f'],
+               '4': ['g', 'h', 'i'],
+               '5': ['j', 'k', 'l'],
+               '6': ['m', 'n', 'o'],
+               '7': ['p', 'q', 'r','s'],
+               '8': ['t', 'u', 'v'],
+               '9': ['w','x', 'y', 'z'],
+           }
+           res = []
+           tmp = []
+           def recur(i):
+               if i == len(digits):
+                   #print(tmp)
+                   res.append(("".join(tmp)))
+               else:
+                   for c in dic[str(digits[i])]:
+                       tmp.append(c)
+                       recur(i+1)
+                       tmp.pop()
+           recur(0)
+           return res
+   
+   ```
 
 12. #### [1552. 两球之间的磁力](https://leetcode-cn.com/problems/magnetic-force-between-two-balls/)
 
@@ -2415,7 +2413,7 @@ def shiftGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
             return max(n-min(right),max(left))
     ```
 
-18. #### [486. 预测赢家](https://leetcode-cn.com/problems/predict-the-winner/)
+    #### 18. [486. 预测赢家](https://leetcode-cn.com/problems/predict-the-winner/)
 
     ```python
     # 动态规划解法
@@ -2441,7 +2439,7 @@ def shiftGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
             return dp[0][n-1] >= 0
     ```
 
-19. #### [剑指 Offer 20. 表示数值的字符串](https://leetcode-cn.com/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof/)
+    #### 19. [剑指 Offer 20. 表示数值的字符串](https://leetcode-cn.com/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof/)
 
     ```python
     # 正统玩法是有限自动机，不过我没有学过编译原理，看题解有些懵。然后照抄了下面的题解，思路比较正常化。基本思路就是枚举各种情况，巧妙在于通过标志位来指代各种情况
@@ -2897,6 +2895,40 @@ class Solution:
                 dp[j] = min(dp[j-1],dp[j]) + triangle[i][j]
             dp[0] += triangle[i][0]
         return min(dp)
+```
+
+#### 31. [79. 单词搜索](https://leetcode-cn.com/problems/word-search/)
+
+```python
+# 递归回溯解法
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        moves = [(0,1),(1,0),(-1,0),(0,-1)]
+
+        def check (i,j,k):  # 递归回溯
+            if board[i][j] != word[k]:  # 剪枝不符合的字符
+                return False
+            if k== len(word)-1:  # 剪枝 ，，超过长度
+                return True
+            visited.add((i,j))
+            result = False
+            for x,y in moves:
+                new_x ,new_y = i+x,j+y
+                if 0 <= new_x <len(board) and 0<= new_y<len(board[0]):  # 合法范围 ，python里面，这里貌似可以用连续的大小比较符
+                    if (new_x,new_y) not in visited:   # 剪枝 ，重复统计
+                        if check(new_x,new_y,k+1):
+                            # return True  ，这样也可以，甚至更快
+                            result = True  # 因为要回溯，所以这里不能直接return
+                            break
+            visited.remove((i,j))
+            return result
+        m,n = len(board),len(board[0])
+        visited = set()  # 这里用作剪枝
+        for i in range(m):
+            for j in range(n):
+                if check(i,j,0):
+                    return True
+        return False
 ```
 
 
