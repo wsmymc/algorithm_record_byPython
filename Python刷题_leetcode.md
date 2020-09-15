@@ -105,6 +105,29 @@ list[:]   #切片方式
 # char.isalpha()  判断是否为字母
 ```
 
+#### 14. 并查集模板
+
+```python
+class UF:
+    def __init__(self,n):
+        self.parents = defaultdict(int)   # 有默认值的字典
+        for i in range(n):
+            self.parents[i] = i  # 一开始每个集合是自己的父集合
+        
+    def find(self,x):
+        while x!= self.parents[x]:
+            x = self.parents[x]  # 一直找祖宗
+        return x
+    
+    def connect(self, p,q):
+        return self.find(p) == self.find(q)
+    
+    def union(self,p,q):
+        if self.find(p) == self.find(q):
+            return
+        self.parents[self.find(p)] = self.find(q)
+```
+
 
 
 ## easy
@@ -1466,6 +1489,24 @@ def shiftGrid(self, grid: List[List[int]], k: int) -> List[List[int]]:
 链接：https://leetcode-cn.com/problems/shift-2d-grid/solution/er-wei-wang-ge-qian-yi-by-leetcode/
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 59 [1475. 商品折扣后的最终价格](https://leetcode-cn.com/problems/final-prices-with-a-special-discount-in-a-shop/)
+
+```python
+class Solution:
+    # 正常模拟的方法太慢，单调栈比较好
+    def finalPrices(self, prices: List[int]) -> List[int]:
+        # 这里的栈，用来统计坐标，每次触发条件，就把栈内指向的坐标中的值减去对应的数
+        stack, result = [], [i for i in prices]
+        for i in range(len(prices)):
+            # 当stack非空且stack栈顶元素在prices对应的值大于prices[i]时触发while循环
+            while stack and prices[stack[-1]] >= prices[i]:  # 有大于的
+                result[stack[-1]] -= prices[i] # 将stack中所有对应在prices的满足价格条件的值都减去prices[i]
+                stack.pop() # 弹出栈顶元素
+            stack.append(i) # 储存索引
+        return result   
+
 ```
 
 
@@ -2929,6 +2970,94 @@ class Solution:
                 if check(i,j,0):
                     return True
         return False
+```
+
+####  32 [1583. 统计不开心的朋友](https://leetcode-cn.com/problems/count-unhappy-friends/)
+
+```python
+from typing import List
+
+#  难得是读懂题，题目读懂了，根据条件自然就得到答案了
+class Solution:
+    def unhappyFriends(self, n: int, preferences: List[List[int]], pairs: List[List[int]]) -> int:
+        l = len(pairs)
+        if l< 2:
+            return 0
+        dic = {}
+        res =0
+
+        for pair in pairs:
+            dic[pair[0]] = pair[1]
+            dic[pair[1]] = pair[0]
+
+        #print(dic)
+        for i in range(n):
+            d = dic.get(i)
+            idx = preferences[i].index(d)
+            if idx == 0:
+                continue
+            else:
+                for j in range(0,idx):
+                    test = preferences[i][j]
+                    if preferences[test].index(dic.get(test)) >preferences[test].index(i):
+                        #print("i,",i,"j",test)
+                        res += 1
+                        break
+        return res
+```
+
+#### 33 [1584. 连接所有点的最小费用](https://leetcode-cn.com/problems/min-cost-to-connect-all-points/)
+
+```python
+# 三重循环来做不是不行，只是，超时了，说明方法对
+class Solution:
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        # 方法是克鲁斯卡尔，实现方式是并查集，说明并查集迟早要学
+        # 又说明，嘴上要说的将来做，实际上最好是当下做，否则又要吃亏
+        '''
+        kruskal算法原理：对边权值从小到大排序，从最小边开始选择，
+        不与已选择的边构成回路就要，否则就不要。
+        用并查集实现，排序后，每次加入一条边，若此边的两个顶点的祖先节点相同，
+        说明加入这条边会构成回路。所以要舍弃这条边。
+        '''
+        if not points or len(points) == 1:
+            return 0
+        dic = defaultdict(int)  # 默认的字典，应该是from collections import defaultdict
+        for i in range(len(points)):   # n^2 复杂度，统计所有可能变的权值，点：权值
+            for j in range(i+1, len(points)):
+                dic[(i, j)] = abs(points[i][0]-points[j][0]) + abs(points[i][1]-points[j][1])
+        res = sorted(dic.items(),key = lambda x: x[1])     # 将权值从小到大排序
+        sum_ = 0
+        uf =UF(len(points))
+        tmp =0 
+        for i in range(len(res)):  # 开始克鲁斯卡尔挑选，从最小变开始挑，不能形成回路
+            point,value = res[i]
+            x,y=point
+            if uf.find(x) != uf.find(y):  # 判断是否是回路
+                tmp += 1
+                sum_ += value
+                if tmp == len(points) -1:  # n-1条变圆满了
+                    return sum_
+                uf.union(x,y)
+
+class UF:
+    def __init__(self,n):
+        self.parents = defaultdict(int)   # 有默认值的字典
+        for i in range(n):
+            self.parents[i] = i  # 一开始每个集合是自己的父集合
+        
+    def find(self,x):
+        while x!= self.parents[x]:
+            x = self.parents[x]  # 一直找祖宗
+        return x
+    
+    def connect(self, p,q):
+        return self.find(p) == self.find(q)
+    
+    def union(self,p,q):
+        if self.find(p) == self.find(q):
+            return
+        self.parents[self.find(p)] = self.find(q)
 ```
 
 
