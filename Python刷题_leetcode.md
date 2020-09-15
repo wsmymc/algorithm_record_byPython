@@ -1575,7 +1575,7 @@ class Solution:
         return cnt == numCourses
 ```
 
-#### 2. 43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
+#### 2. [43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
 
 ```python
 class Solution:
@@ -1695,7 +1695,7 @@ class Solution:
 
 
 
-#### 4. 剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+#### 4. [剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
 
 ```python
 class Solution:
@@ -1955,7 +1955,7 @@ class Solution:
         return res
 ```
 
-#### 9. 861. 翻转矩阵后的得分](https://leetcode-cn.com/problems/score-after-flipping-matrix/)
+#### 9. [861. 翻转矩阵后的得分](https://leetcode-cn.com/problems/score-after-flipping-matrix/)
 
 ```python
 class Solution:
@@ -3408,9 +3408,11 @@ class Solution:
         return dp[n] == 1
 ```
 
+#### 10. [37. 解数独](https://leetcode-cn.com/problems/sudoku-solver/)
 
 
 
+ 
 
 
 
