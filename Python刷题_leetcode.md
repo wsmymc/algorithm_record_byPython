@@ -3410,6 +3410,77 @@ class Solution:
 
 #### 10. [37. 解数独](https://leetcode-cn.com/problems/sudoku-solver/)
 
+```python
+# 思路是递归回溯，但是由于是这里的九宫格不太好处理，需要特殊的三维数组表示，
+# 其次，是数字和下标的错位以及，需要统计所有空格的位置，然后根据哪些数已经有了，哪些数没有在每个空格上遍历1——9，递归，然后如果失败就回溯，直到填满所有空格，就可返回
+
+class Solution:
+    def solveSudoku(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        def dfs(pos):
+            nonlocal valid  # 自由变量，不受递归约束
+            if pos == len(space):
+                valid = True
+                return
+
+            i,j = space[pos]  # 拆包
+            for digit in range(9):
+                if valid:
+                    return
+                if  row[i][digit] == col[j][digit] == block[i//3][j//3][digit] == False:  # 确认为可行数字
+                    row[i][digit] = col[j][digit] = block[i//3][j//3][digit] = True
+                    board[i][j] = str(digit+1)  # 坐标和数字之间有错位
+                    dfs(pos+1)  # 递归
+                    row[i][digit] = col[j][digit] = block[i//3][j//3][digit] = False  # 回溯
+                
+
+        row = [[False]*9 for _ in range(9)]
+        col = [[False]* 9 for _ in range(9)]
+        block = [[[False]*9 for i in range(3)] for j in range(3)]   # 注意是三维数组，第一位表示九宫格9位，二三维表示大的3*3矩阵
+        valid = False
+        space = []
+
+        for i in range(9):
+            for j in range(9):
+                if board[i][j] == '.':
+                    space.append((i,j))  # 记录空位位置，从上到下，从左到右
+                else:#非空，根据数字，将各个标记位置为True
+                    tmp = int(board[i][j])-1 #数字转换为坐标
+                    row[i][tmp] = col[j][tmp] = block[i//3][j//3][tmp] = True
+
+        dfs(0)  # 开始递归回溯
+        
+        
+ ## 参考题解
+https://leetcode-cn.com/problems/sudoku-solver/solution/jie-shu-du-by-leetcode-solution/
+```
+
+#### 11 [1585. 检查字符串是否可以通过排序子字符串得到另一个字符串](https://leetcode-cn.com/problems/check-if-string-is-transformable-with-substring-sort-operations/)
+
+```python
+class Solution:
+    def isTransformable(self, s: str, t: str) -> bool:
+        n = len(s)
+        pos = {i: collections.deque() for i in range(10)}
+        for i, digit in enumerate(s):
+            pos[int(digit)].append(i)
+        
+        for i, digit in enumerate(t):
+            d = int(digit)
+            if not pos[d]:
+                return False
+            if any(pos[j] and pos[j][0] < pos[d][0] for j in range(d)):
+                return False
+            pos[d].popleft()
+        
+        return True
+## 参考题解
+```
+
+
+
 
 
  
