@@ -1509,6 +1509,76 @@ class Solution:
 
 ```
 
+#### 60 [27. 移除元素](https://leetcode-cn.com/problems/remove-element/)
+
+```python
+## 双指针
+class Solution:
+    def removeElement(self, nums: List[int], val: int) -> int:
+        n = len(nums)
+        t = 0
+        for i in nums:
+            if i != val:
+                nums[t] = i
+                t +=1
+
+        return t
+```
+
+#### 61 [28. 实现 strStr()](https://leetcode-cn.com/problems/implement-strstr/)
+
+```python
+## 滑动窗口解法，几个while用的很好
+class Solution:
+    def strStr(self, haystack: str, needle: str) -> int:
+        L, n = len(needle), len(haystack)
+        if L == 0:
+            return 0
+
+        pn = 0
+        while pn < n - L + 1:
+            # find the position of the first needle character
+            # in the haystack string
+            while pn < n - L + 1 and haystack[pn] != needle[0]:  # 找到第一个首字母相同的
+                pn += 1
+            
+            # compute the max match string
+            curr_len = pL = 0
+            while pL < L and pn < n and haystack[pn] == needle[pL]:  # 开始匹配，
+                pn += 1
+                pL += 1
+                curr_len += 1
+            
+            # if the whole needle string is found,
+            # return its start position
+            if curr_len == L:  # 如果走到最后那就可以返回
+                return pn - L
+            
+            # otherwise, backtrack
+            pn = pn - curr_len + 1  # 如果不行，那就将要比较的指针向后挪移
+            
+        return -1
+```
+
+#### 61 [38. 外观数列](https://leetcode-cn.com/problems/count-and-say/)
+
+```python
+## 递归问题递归做，字符串就应操作
+class Solution:
+    def countAndSay(self, n: int) -> str:
+        if n == 1:
+            return '1'
+        s = self.countAndSay(n-1)
+        
+        i, res = 0, ''
+        for j, c in enumerate(s):
+            if c != s[i]:
+                res += str(j-i) + s[i]
+                i = j
+        res += str(len(s) - i) + s[-1]  # 最后一个元素莫忘统计
+        return res
+```
+
 
 
 
