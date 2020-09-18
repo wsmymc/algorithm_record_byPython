@@ -128,6 +128,16 @@ class UF:
         self.parents[self.find(p)] = self.find(q)
 ```
 
+#### 15. 最大值
+
+```python
+   import sys  #将预设值为最大整数，需要这么用
+   _maxInt = sys.maxsize
+_minInt = -sys.maxsize -1
+   _maxFloat = sys.float('inf')
+    _minfloat = sys.float('-inf')
+```
+
 
 
 ## easy
@@ -3248,6 +3258,41 @@ class Solution:
                 return edges[i-1]
         return []
             
+```
+
+#### 35. [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/)
+
+```python
+# 全排列问题，无非就是
+'''
+1. 排序
+2. 递归回溯
+3. 针对性去重
+'''
+class Solution:
+    def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        n = len(nums)
+        res = []
+        used = [False] * n
+        def _backtrace(tmp,used,nums,idx):
+            if idx == n:
+                res.append(tmp[:])
+                return 
+            import sys  #将预设值为最大整数，需要这么用
+            lastused = sys.maxsize
+            for i in range(n):
+                if not used[i] and nums[i] != lastused:
+                    used[i] = True
+                    #print(tmp,used)
+                    _backtrace(tmp+[nums[i]],used,nums,idx+1)
+                    used[i] =False
+                    lastused = nums[i]
+        _backtrace([],used,nums, 0)
+        return res
+            
+
+        
 ```
 
 
