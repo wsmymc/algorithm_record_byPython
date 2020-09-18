@@ -3549,6 +3549,52 @@ class Solution:
 ## 参考题解
 ```
 
+#### 12. [685. 冗余连接 II](https://leetcode-cn.com/problems/redundant-connection-ii/)
+
+```python
+class UnionFind: # 构建并查集
+    def __init__(self, n):
+        self.ancestor = defaultdict(int)
+        for i in range(n):
+            self.ancestor[i] = i
+    
+    def union(self, index1: int, index2: int):
+        if self.find(index1) == self.find(index2):
+            return
+        self.ancestor[self.find(index1)] = self.find(index2)
+    
+    def find(self, index: int) -> int:
+        if self.ancestor[index] != index:
+            self.ancestor[index] = self.find(self.ancestor[index])
+        return self.ancestor[index]
+
+class Solution:
+    def findRedundantDirectedConnection(self, edges: List[List[int]]) -> List[int]:
+        nodesCount = len(edges)
+        uf = UnionFind(nodesCount + 1)  # 初始化并查集
+        parent = list(range(nodesCount + 1))
+        conflict = -1  # 统计冲突所在的位置
+        cycle = -1   # 统计环路所在的位置
+        for i, (node1, node2) in enumerate(edges):
+            if parent[node2] != node2:  # 因为是数，除非之前动过这个节点，否则应该是指向自身，不同说明你被动过。即算上本次循环中的，有两个父节点
+                conflict = i
+            else:
+                parent[node2] = node1  # 否则指定父节点，并检测是否有环路
+                if uf.find(node1) == uf.find(node2):
+                    cycle = i
+                else:
+                    uf.union(node1, node2)
+
+        if conflict < 0:# 如果没有冲突，根据题意，就一定有环，直接拿cycle作为索引就好
+            return [edges[cycle][0], edges[cycle][1]]
+        else:  # 如果有冲突
+            conflictEdge = edges[conflict]
+            if cycle >= 0:# 既有冲突又有环，此时去掉该边目的节点的父节点和自身的一条边
+                return [parent[conflictEdge[1]], conflictEdge[1]]
+            else: # 只有冲突，将产生冲突的边去掉
+                return [conflictEdge[0], conflictEdge[1]]
+```
+
 
 
 
