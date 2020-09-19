@@ -1589,6 +1589,69 @@ class Solution:
         return res
 ```
 
+#### 62 [404. 左叶子之和](https://leetcode-cn.com/problems/sum-of-left-leaves/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+## dfs
+# not 什么时候加要分清
+class Solution:
+    def sumOfLeftLeaves(self, root: TreeNode) -> int:
+        def dfs(node):
+            res =0
+           
+            if node.left:
+                tmp = node.left
+                if not tmp.left and not tmp.right:
+                    res += tmp.val
+                else:
+                    res += dfs(tmp)
+            #print(res)
+            if node.right:
+                tmp = node.right
+                print(tmp.left)
+                if  tmp.left or  tmp.right:
+                    #print('==========')
+                    res += dfs(tmp)
+            #print(res)
+            return res
+        return dfs(root) if root else 0
+  
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+# bfs真的，代码细节要注意！！！！
+class Solution:
+    def sumOfLeftLeaves(self, root: TreeNode) -> int:
+        if not root:
+           return 0
+        isleaf = lambda node : not node.left and not node.right
+        q= collections.deque([root])
+        res = 0
+        while q:
+            node = q.popleft()
+            if node.left:
+                if isleaf(node.left):
+                    res += node.left.val
+                else:
+                    q.append(node.left)
+            if node.right:
+                if not isleaf(node.right):
+                    q.append(node.right)
+        return res
+        
+```
+
 
 
 
