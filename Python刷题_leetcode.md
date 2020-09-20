@@ -128,6 +128,16 @@ class UF:
         self.parents[self.find(p)] = self.find(q)
 ```
 
+#### 15. 最大值
+
+```python
+   import sys  #将预设值为最大整数，需要这么用
+   _maxInt = sys.maxsize
+_minInt = -sys.maxsize -1
+   _maxFloat = sys.float('inf')
+    _minfloat = sys.float('-inf')
+```
+
 
 
 ## easy
@@ -1577,6 +1587,69 @@ class Solution:
                 i = j
         res += str(len(s) - i) + s[-1]  # 最后一个元素莫忘统计
         return res
+```
+
+#### 62 [404. 左叶子之和](https://leetcode-cn.com/problems/sum-of-left-leaves/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+## dfs
+# not 什么时候加要分清
+class Solution:
+    def sumOfLeftLeaves(self, root: TreeNode) -> int:
+        def dfs(node):
+            res =0
+           
+            if node.left:
+                tmp = node.left
+                if not tmp.left and not tmp.right:
+                    res += tmp.val
+                else:
+                    res += dfs(tmp)
+            #print(res)
+            if node.right:
+                tmp = node.right
+                print(tmp.left)
+                if  tmp.left or  tmp.right:
+                    #print('==========')
+                    res += dfs(tmp)
+            #print(res)
+            return res
+        return dfs(root) if root else 0
+  
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+# bfs真的，代码细节要注意！！！！
+class Solution:
+    def sumOfLeftLeaves(self, root: TreeNode) -> int:
+        if not root:
+           return 0
+        isleaf = lambda node : not node.left and not node.right
+        q= collections.deque([root])
+        res = 0
+        while q:
+            node = q.popleft()
+            if node.left:
+                if isleaf(node.left):
+                    res += node.left.val
+                else:
+                    q.append(node.left)
+            if node.right:
+                if not isleaf(node.right):
+                    q.append(node.right)
+        return res
+        
 ```
 
 
@@ -3130,6 +3203,162 @@ class UF:
         self.parents[self.find(p)] = self.find(q)
 ```
 
+
+
+#### 34. [684. 冗余连接](https://leetcode-cn.com/problems/redundant-connection/)
+
+```python
+## 最普遍的方法是并查集，先来试试看
+
+class Solution:
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        n = len(edges)
+        a = UF(n+1)
+        for pair in edges:
+            if a.connect(pair[0],pair[1]):
+                return pair
+            else:
+                a.union(pair[0],pair[1])
+
+
+class UF:
+    # 常用的并查集模板，最好背下来
+    from collections import defaultdict
+    def __init__(self,n):
+        '''初始化'''
+        self.parents = defaultdict(int)
+        for i in range(n):
+            self.parents[i] = i
+
+    def find(self,x):  # 寻找祖宗节点
+        while x != self.parents[x]:
+            x = self.parents[x]
+        return x
+
+    def connect(self,p,q):   # 判断是否是一个集合
+        return self.find(p) == self.find(q)
+    
+    def union(self,p,q):   # 合并节点
+        if self.find(p) == self.find(q):
+            return
+        self.parents[self.find(p)] = self.find(q)
+
+        
+## 比较少见的dfs方法，首先建立邻接表，然后因为答案是最后，所以要倒序遍历
+# 每次将邻接表里的两个端点截取，如果用dfs还能够走到两个点回合，那就说明有回路，即可返回
+class Solution:
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        if not edges or len(edges) == 0 or len(edges[0]) == 0:
+            return []
+        n = len(edges)
+
+        from collections import defaultdict
+        dic = defaultdict(set)
+        for edge in edges:# 邻接表
+            dic[edge[0]].add(edge[1])
+            dic[edge[1]].add(edge[0])
+
+        def _dfs(dic, x, y, used):  # 注意x可以变，y是终点，不能变
+            if x == y:
+                return True
+            used[x] =True
+            for i in dic[x]:
+                if not used[i]:
+                    if _dfs(dic, i, y, used):
+                        return True
+            
+            return False
+        #print(dic)
+        for i in range(n-1,-1,-1):
+            #print('=================')
+            #print(edges[i][0])
+            dic[edges[i][0]].remove(edges[i][1])  # 每次循环都要剪掉这一条边
+            dic[edges[i][1]].remove(edges[i][0])
+            used = [False]*(n+1)
+            if _dfs(dic,edges[i][1], edges[i][0], used): # dfs
+                edges[i].sort
+                return edges[i]
+            
+        return []
+
+    
+    
+# 拓扑排序，建立入度表，把入度为1的进入对列，出队列，减入度，循环往复
+class Solution:
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        n = len(edges)
+        #print(n)
+        inDegree = [0]*(n+1)
+        from collections import defaultdict
+        dic= defaultdict(set)
+        for e in edges:
+            inDegree[e[0]] +=1
+            inDegree[e[1]] += 1
+
+            dic[e[0]].add(e[1])
+            dic[e[1]].add(e[0])
+        print(inDegree)
+
+        from collections import deque
+        q = deque()
+        for i in range(1,n+1):
+            if inDegree[i] == 1:
+                q.append(i)
+        #print(q)
+        while q:
+            num = q.popleft()
+            for j in dic[num]:
+                inDegree[j] -= 1
+                if inDegree[j] == 1:
+                    q.append(j)
+        
+        #print(inDegree)
+        #print(inDegree[edges[24][0]],inDegree[edges[24][1]])
+        #print(edges[24])
+
+        for i in range(n,0,-1):
+            #print(i-1)
+            #print(inDegree[edges[24][0]],inDegree[edges[24][1]])
+            if inDegree[edges[i-1][0]] > 1 and inDegree[edges[i-1][1]] >1:
+                return edges[i-1]
+        return []
+            
+```
+
+#### 35. [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/)
+
+```python
+# 全排列问题，无非就是
+'''
+1. 排序
+2. 递归回溯
+3. 针对性去重
+'''
+class Solution:
+    def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        n = len(nums)
+        res = []
+        used = [False] * n
+        def _backtrace(tmp,used,nums,idx):
+            if idx == n:
+                res.append(tmp[:])
+                return 
+            import sys  #将预设值为最大整数，需要这么用
+            lastused = sys.maxsize
+            for i in range(n):
+                if not used[i] and nums[i] != lastused:
+                    used[i] = True
+                    #print(tmp,used)
+                    _backtrace(tmp+[nums[i]],used,nums,idx+1)
+                    used[i] =False
+                    lastused = nums[i]
+        _backtrace([],used,nums, 0)
+        return res
+            
+
+        
+```
 
 
 

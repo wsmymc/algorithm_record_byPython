@@ -572,3 +572,48 @@ class Solution:
 # 看题解主流是并查集的玩法，我这种使用集合计算的反而在少数。enmmm，确实要学习了。不过今天还有别的事，暂先放下
 ```
 
+
+
+
+
+#### 2020力扣秋季个人赛
+
+#### 1. 速算机器人（极简单，不计）
+
+#### 2. 早餐组合
+
+```python
+from typing import List
+
+# 一开始被超时折腾死，后面才想到保存上一次走过的指针，每次从上一循失败后做微调，即可压缩时间复杂度
+class Solution:
+    def breakfastNumber(self, staple: List[int], drinks: List[int], x: int) -> int:
+        self.res = 0
+        pin = 1000000007
+        staple.sort()
+        drinks.sort()
+        r = len(staple)-1
+        l = 0
+        for i in range(r,-1,-1):
+            #print("l",l)
+            #print("i",i)
+            for j in  range(l,len(drinks)):
+                if staple[i]>=x:
+                    #print('1')
+                    break
+                if drinks[j]>=x:
+                    #print('2')
+                    return self.res
+                if staple[i]+drinks[j]>x:
+                    #print('4')
+
+                    l = j
+                    break
+
+                if j == len(drinks)-1:
+
+                    if staple[i]+drinks[j] <=x:
+                        self.res = (self.res +(j+1)%pin*(i+1)%pin)%pin
+                        return self.res
+```
+
