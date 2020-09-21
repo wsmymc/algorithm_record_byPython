@@ -138,6 +138,14 @@ _minInt = -sys.maxsize -1
     _minfloat = sys.float('-inf')
 ```
 
+#### 16 字符串操作集合
+
+```python
+cnt = text.count(' ')   # count直接统计字符串里的字符次数
+n = text.split()        # split在默认的情况下，以所有空字符分割，指空格、tab、换行，也可以指定分割字符
+space, last = divmod(cnt,len(n)-1)  # 内建函数，直接获得数的商、余数
+```
+
 
 
 ## easy

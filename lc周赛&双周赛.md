@@ -572,11 +572,7 @@ class Solution:
 # 看题解主流是并查集的玩法，我这种使用集合计算的反而在少数。enmmm，确实要学习了。不过今天还有别的事，暂先放下
 ```
 
-
-
-
-
-#### 2020力扣秋季个人赛
+##  2020力扣秋季个人赛
 
 #### 1. 速算机器人（极简单，不计）
 
@@ -615,5 +611,160 @@ class Solution:
                     if staple[i]+drinks[j] <=x:
                         self.res = (self.res +(j+1)%pin*(i+1)%pin)%pin
                         return self.res
+```
+
+
+
+
+
+
+
+## 207周赛
+
+#### 1 [5519. 重新排列单词间的空格](https://leetcode-cn.com/problems/rearrange-spaces-between-words/)
+
+```python
+## 自己写的，很狗屎，逻辑一样，毕竟是简单题，但是实现起来步骤冗余，没有利用到python的简洁特性
+
+class Solution:
+    def reorderSpaces(self, text: str) -> str:
+        cnt1 = 0
+        cnt2 = 0
+        res = []
+        tmp = []
+        for i in range(len(text)):
+            if text[i] == ' ':
+                cnt1 += 1
+            else:
+                if i == 0 or text[i-1] == ' ':
+                    cnt2 +=1
+        i = 0
+        #print(cnt1,cnt
+        if cnt1 == 0:
+            return text
+        while i<len(text):
+            #print(tmp)
+            if text[i] != ' ':
+                tmp.append(text[i])
+                if i == len(text)-1:
+                    res.append(''.join(tmp))
+            else:
+                if tmp:
+                    res.append(''.join(tmp))
+                    tmp = []
+                else:
+                    pass
+            i += 1
+        cnt3 = len(res)-1
+        if cnt3 == 0:
+            return res[0]+' '*cnt1
+        print(cnt3)
+        skip = ' '*(cnt1//cnt3)
+        t = res[0]
+        #print(res)
+        for i in range(1,len(res)):
+            t += skip + res[i]
+        t += ' '*(cnt1%cnt3)
+        #print(t)
+        return  t
+# 更加python的写法
+  class Solution:
+    def reorderSpaces(self, text: str) -> str:
+        cnt = text.count(' ')   # count直接统计字符串里的字符
+        n = text.split()        # split在默认的情况下，以所有空字符分割，指空格、tab、换行
+        if len(n) == 1:  # 只有一个单词的情况
+            return text.strip() + ' '*cnt
+        space, last = divmod(cnt,len(n)-1)  # 内建函数，直接获得数的商、余数
+        return (' '*space).join(n)+' '*last  
+    
+```
+
+#### 2. [5520. 拆分字符串使唯一子字符串的数目最大](https://leetcode-cn.com/problems/split-a-string-into-the-max-number-of-unique-substrings/)
+
+```python
+## 很简单的递归回溯，问题在于，模板不熟练，再加上循环的边界有些不清晰，反复调试bug浪费了太多时间，这一题差不多花了45分钟，超标太多了
+class Solution:
+    def maxUniqueSplit(self, s: str) -> int:
+        _res = 1
+        n = len(s)
+        _s = set()
+        #print(_s)
+        def _backtrace(_s,idx,res):
+            nonlocal  _res
+            #print(_s,'idx',idx)
+            if n-idx+len(_s) <= _res:  # 新加入的剪枝，如果在当前条件下，即便将剩下的单个字符分割，结果仍旧比不上已有的值，就不用再递归下去了
+                return
+            if idx >= n:
+                #print('jiesuan')
+                _res = max(_res,len(_s))
+            for i in range(idx+1,n+1): # 要成功取到最后一位，需要首尾都向后挪一位
+                t = s[idx:i]
+                #print(idx,i,t)
+                #print('t',t,t not in _s)
+                t= ''.join(t)
+
+                if t not in _s:
+                   # print(_s,t)
+                    _s.add(t)
+                    #print('记入', _s, t)
+                    _backtrace(_s,i,res)
+                    _s.remove(t)
+
+        _backtrace(_s,0,1)
+        return _res
+
+
+```
+
+#### 3. [5521. 矩阵的最大非负积](https://leetcode-cn.com/problems/maximum-non-negative-product-in-a-matrix/)
+
+```python
+# 做出来了，但是费时太久，等到比赛结束才调试成功。
+# 1. 很多模板不熟练，题目稍微变一下，就知道怎么做了
+# 2. 敲代码要仔细，既要看清自己到底敲对字符没有，还要想明白细节的逻辑到底对不对。
+
+from typing import List
+
+
+class Solution:
+    def maxProductPath(self, grid: List[List[int]]) -> int:
+        if not grid or grid[0] == 0:
+            return -1
+        row = len(grid)
+        col = len(grid[0])
+
+        dp = [[-1]*col for _ in range(2)]
+        for i in range(1,col):
+            grid[0][i] *= grid[0][i-1]
+        for i in range(1,row):
+            grid[i][0] *= grid[i-1][0]
+        if row ==1 or col ==1:
+            return grid[row-1][col-1] if grid[row-1][col-1]>=0 else -1
+        #print(grid)
+        for i in range(1,row):
+            for j in range(1,col):
+                #print('j', j)
+                a,b,c,d =0,0,0,0
+                if i == 1 :
+                    a=b=grid[0][j]
+                else:
+                    a= dp[0][j]
+                    #print('a',a)
+                    b=dp[1][j]
+                    #print('b',b)
+
+                if j == 1:
+                    c =d=grid[i][0]
+                else:
+                    c = dp[0][j-1]
+                    d = dp[1][j-1]
+                    #print(c,d)
+
+
+                dp[0][j] =max(a*grid[i][j],b*grid[i][j],c*grid[i][j],d*grid[i][j])
+                dp[1][j] =min(a*grid[i][j],b*grid[i][j],c*grid[i][j],d*grid[i][j])
+                #print(dp,a,b,c,d)
+        return dp[0][col-1]%(10**9+7) if dp[0][col-1]>=0 else -1
+
 ```
 
