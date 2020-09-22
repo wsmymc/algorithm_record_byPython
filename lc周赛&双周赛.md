@@ -768,3 +768,93 @@ class Solution:
 
 ```
 
+#### [1595. 连通两组点的最小成本](https://leetcode-cn.com/problems/minimum-cost-to-connect-two-groups-of-points/)（没搞懂！！）
+
+```python
+class Solution:
+    # 状态压缩dp没有接触过的概念，本质上就是用二进制来代替集合，进而减少dp的维度
+    def connectTwoGroups(self, cost: List[List[int]]) -> int:
+        @lru_cache(None)
+        def dp(i,state):
+            nonlocal m 
+            if i < 0:  # 到头
+                if state == 0:  # 点全部连接完
+                    return 0
+                else:   # 没有连接完
+                    return float('inf')
+            
+            res = float('inf')
+            x = 1
+            for j in range(m):
+                if state & x > 0:  # 该点已经被连接了，那就要考保留该点的连接，跳过，还是不跳过
+                    res = min(res, cost[i][j] + dp(i,state^x), cost[i][j] + dp(i-1, state^x))
+                else:  # 该点没有被连接 ，那就要按照连接走
+                    res = min(res, cost[i][j] + dp(i-1, state ))
+                
+                x <<= 1
+            return res
+        
+        n = len(cost)
+        m = len(cost[0])
+        state = (1<<m)-1 # 这样二进制有m+1位，且除最高位外全是1
+        
+        return dp(n-1,state)  # 从后向前开始统计
+
+```
+
+
+
+
+
+
+
+
+
+## 35 双周赛
+
+####1 
+
+#### 2  [1589. 所有排列中的最大和](https://leetcode-cn.com/problems/maximum-sum-obtained-of-any-permutation/)
+
+```python
+class Solution:
+    # 差分数组解法，又是没有接触过的知识点
+    # 就是原来数组i位置上的元素和i-1位置上的元素作差，就是差分数组 i的值
+    # 实质上记录的是变动值，然后从前向后累加，就是所有操作做完以后原数组实际的值
+    def maxSumRangeQuery(self, nums: List[int], requests: List[List[int]]) -> int:
+        n=len(nums)
+        arr=[0]*(n+1)
+        for l,r in requests:
+            arr[l]+=1
+            arr[r+1]-=1
+        for i in range(1,n):
+            arr[i]+=arr[i-1]
+        arr.sort(reverse=True)
+        nums.sort(reverse=True)
+        return sum(map((lambda x,y:x*y),arr,nums))%(10**9+7)   # map的玩法还是有意思，要学习
+
+```
+
+#### 3 [1590. 使数组和能被 P 整除](https://leetcode-cn.com/problems/make-sum-divisible-by-p/)
+
+```python
+class Solution:
+    # 同余定理即是如果两个数字a，b除以target的余数相等，则这两个数字的差(a - b)能被target整除。
+    # 利用前缀和取余得到相对应的index。这里的“相对应”指的是余数差正好为数组和对p取得余数，这样当我们去掉这两个对应indices之间的子数组，我们将得到一个被p整除的数组。
+
+    def minSubarray(self, nums: List[int], p: int) -> int:
+        m = sum(nums)%p   # 先求余数
+        if m == 0: return 0
+        pre = 0
+        dic = {0: -1}
+        res = float('inf')  # 先初始化一个极大值
+        for i, num in enumerate(nums):
+            pre += num   # 前缀求和
+            cur = pre%p  # 提前求余作为剪枝
+            dic[cur] = i  # 存放字典待用
+            if cur + p * int(cur < m) - m in dic:    # cur + p * int(cur < m) - m  指的是cur + p -m  或者cur -m  具体看cur、m的大小关系。这两个数 %p  都是 cur 而且是正的
+                res = min(res, i - dic[cur + p * int(cur < m) - m])
+        return res if res < len(nums) else -1
+
+```
+
