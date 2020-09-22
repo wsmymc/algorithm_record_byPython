@@ -146,6 +146,14 @@ n = text.split()        # split在默认的情况下，以所有空字符分割�
 space, last = divmod(cnt,len(n)-1)  # 内建函数，直接获得数的商、余数
 ```
 
+#### 17 set.discard(value)
+
+```python
+discard() #方法用于移除指定的集合元素。
+
+#该方法不同于 remove() 方法，因为 remove() 方法在移除一个不存在的元素时会发生错误，而 discard() 方法不会。
+```
+
 
 
 ## easy
@@ -3764,7 +3772,7 @@ class Solution:
 https://leetcode-cn.com/problems/sudoku-solver/solution/jie-shu-du-by-leetcode-solution/
 ```
 
-#### 11 [1585. 检查字符串是否可以通过排序子字符串得到另一个字符串](https://leetcode-cn.com/problems/check-if-string-is-transformable-with-substring-sort-operations/)
+#### 11 [1585. 检查字符串是否可以通过排序子字符串得到另一个字符串](https://leetcode-cn.com/problems/check-if-string-is-transformable-with-substring-sort-operations/)(未弄明白)
 
 ```python
 class Solution:
@@ -3832,7 +3840,50 @@ class Solution:
                 return [conflictEdge[0], conflictEdge[1]]
 ```
 
+#### 23 . [968. 监控二叉树](https://leetcode-cn.com/problems/binary-tree-cameras/)
 
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+# 树状dp没接触过，如果遇到这题一定会懵逼。参考题解，给出题解，汗……
+class Solution:
+    def minCameraCover(self, root: TreeNode) -> int:
+        """
+        节点总共有三种状态：
+        0：不被监控
+        1：自身没有摄像头，但是被监控
+        2：自身就有摄像头
+
+        空节点：考虑到叶子节点需要被监控，而且空节点不能放摄像头，所以要么是被监控（叶子节点上有摄像头），要么就不被监控（叶子节点的父节点上有摄像头）。至于空节点有摄像头，可以返回一个极大值，表示不可能事件
+        """
+        @lru_cache(None)
+        def dp(p,state):# 树状dp就要用dfs，bfs等树遍历方式
+            if not p:
+                if state == 2:
+                    # 空节点有监控，不可能  
+                    return float('inf')       
+                else:
+                    # 不管是不是被监控，空节点这里不需要摄像头，返回0
+                    return 0               
+            if state == 0:
+                # 表示不被监控，但是既然可以递归到这里，说明实际上是被上级监控
+                return dp(p.left, 1) + dp(p.right, 1)
+            elif state == 1:  
+                # 当前节点是被监控，表示是被下级监控，因此下级至少一个是2
+                return min((
+                    dp(p.left, 1) + dp(p.right, 2),
+                    dp(p.left, 2) + dp(p.right, 1),
+                    dp(p.left, 2) + dp(p.right, 2),
+                ))
+            else:  # state == 2，所有左右子树的的根节点可以有各种状态
+                return 1 + min((dp(p.left, 0), dp(p.left, 1), dp(p.left, 2))) + min((dp(p.right, 0), dp(p.right, 1), dp(p.right, 2)))
+
+        return min(dp(root, 1), dp(root, 2))
+```
 
 
 
