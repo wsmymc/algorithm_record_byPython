@@ -1668,6 +1668,46 @@ class Solution:
         
 ```
 
+#### 63 [893. 特殊等价字符串组](https://leetcode-cn.com/problems/groups-of-special-equivalent-strings/)
+
+```python
+# 别被题目迷惑，等价就说明单拉出来奇偶，然后排序，应该是相同的，从这点可以辨别出来是否等价
+class Solution:
+    def numSpecialEquivGroups(self, A: List[str]) -> int:
+        res = set()
+        for sub in A:
+            sub = ''.join(sorted(sub[::2]) + sorted(sub[1::2]))
+            res.add(sub)
+        return len(res)
+
+```
+
+#### 64 [897. 递增顺序查找树](https://leetcode-cn.com/problems/increasing-order-search-tree/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    # 设置一个全局变量，每次对全局变量操作右节点，并更新指向的位置
+    def increasingBST(self, root: TreeNode) -> TreeNode:
+        self.x = ans = TreeNode(0)
+
+        def dfs(node):
+            if node:
+                dfs(node.left)# 中序递归，所以逻辑处理放在中间
+                t=TreeNode(node.val)
+                self.x.right=t
+                self.x=t
+                dfs(node.right)
+        dfs(root)
+        return ans.right
+```
+
 
 
 
