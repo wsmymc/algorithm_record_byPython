@@ -3376,6 +3376,24 @@ class Solution:
         
 ```
 
+#### 36. [910. 最小差值 II](https://leetcode-cn.com/problems/smallest-range-ii/)
+
+```python
+class Solution:
+    def smallestRangeII(self, A: List[int], K: int) -> int:
+        # 本质上就是先排序，然后划分断点，两两比较，求最小值
+        A.sort()
+        mi, ma = A[0], A[-1]
+        N = len(A)
+        ans = ma - mi
+        for i in range(N-1):
+            a, b = A[i], A[i+1]
+            val = max(a+K, ma-K) - min(mi+K, b-K)
+            if val < ans:
+                ans = val
+        return ans
+```
+
 
 
 
@@ -3840,7 +3858,7 @@ class Solution:
                 return [conflictEdge[0], conflictEdge[1]]
 ```
 
-#### 23 . [968. 监控二叉树](https://leetcode-cn.com/problems/binary-tree-cameras/)
+#### 13 . [968. 监控二叉树](https://leetcode-cn.com/problems/binary-tree-cameras/)
 
 ```python
 # Definition for a binary tree node.
@@ -3883,6 +3901,50 @@ class Solution:
                 return 1 + min((dp(p.left, 0), dp(p.left, 1), dp(p.left, 2))) + min((dp(p.right, 0), dp(p.right, 1), dp(p.right, 2)))
 
         return min(dp(root, 1), dp(root, 2))
+```
+
+####  14 [1591. 奇怪的打印机 II](https://leetcode-cn.com/problems/strange-printer-ii/)
+
+```python
+# 另一种方法是拓扑排序，实质上还是先找到最原始的包含关系，
+# 我们枚举所有的颜色，求出这个颜色的最大矩形
+# 枚举出这个矩形内的所有其他颜色，建立图
+# 用拓扑排序判断是否有环（差别只在这里）
+class Solution:
+    def isPrintable(self, targetGrid: List[List[int]]) -> bool:
+        dic = {}
+        m = len(targetGrid)
+        n = len(targetGrid[0])
+        # 遍历各个点，计算出每个矩阵的范围
+        for i in range(m):
+            for j in range(n):
+                cur = targetGrid[i][j]
+                if not cur in dic:
+                    # 如果没在字典中
+                    dic[cur] = [i, i, j, j]
+                else:
+                    dic[cur] = [min(i,dic[cur][0]), max(i,dic[cur][1]),
+                                min(j, dic[cur][2]), max(j, dic[cur][3])]
+        # 遍历每个数字的矩阵范围内包含的其他数字
+        dic2 = collections.defaultdict(set)
+        for k, v in dic.items():
+            for i in range(v[0],v[1]+1):
+                for j in range(v[2],v[3]+1):
+                    if targetGrid[i][j] != k:
+                        dic2[k].add(targetGrid[i][j])
+        # bfs判断是否有环
+        queue = [[k] for k in list(dic2.keys())]
+        while queue:
+            cur = queue.pop(0)
+            if cur[-1] in dic2:
+                for v in dic2[cur[-1]]:
+                    if not v in cur:
+                        queue.append(cur+[v])
+                    else:
+                        return False
+        return True
+            
+                
 ```
 
 
