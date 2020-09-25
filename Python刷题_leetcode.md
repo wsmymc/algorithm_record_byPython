@@ -1708,6 +1708,12 @@ class Solution:
         return ans.right
 ```
 
+#### 65 [501. 二叉搜索树中的众数](https://leetcode-cn.com/problems/find-mode-in-binary-search-tree/)
+
+```python
+
+```
+
 
 
 
@@ -3450,6 +3456,22 @@ class Solution:
                 root.right = self.buildTree(inorder[i+1:], postorder[i:-1])
                 break
         return root
+    
+# 另一种方法，递归思路大差不差，有趣的一点在于，没有重新构造新的列表，只是传递索引。所以速度上有优势
+class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> TreeNode:
+        dic = {}
+        for i, v in enumerate(inorder):
+            dic[v] = i
+        def build(start, end):
+            if start>end:
+                return 
+            root = TreeNode(postorder.pop())
+            idx = dic[root.val]
+            root.right = build(idx+1, end)
+            root.left = build(start, idx-1)
+            return root
+        return build(0,len(postorder)-1)
 ```
 
 
