@@ -3394,6 +3394,24 @@ class Solution:
         return ans
 ```
 
+#### 37  [106. 从中序与后序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+
+```python
+## 递归方式求解，能做，但是效率偏低
+
+class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> TreeNode:
+        if len(inorder) == 0 or len(postorder) == 0:
+            return None
+        root = TreeNode(postorder[len(postorder)-1])
+        for i in range(len(inorder)):
+            if inorder[i] == postorder[len(postorder) - 1]:
+                root.left = self.buildTree(inorder[:i], postorder[:i])
+                root.right = self.buildTree(inorder[i+1:], postorder[i:-1])
+                break
+        return root
+```
+
 
 
 
