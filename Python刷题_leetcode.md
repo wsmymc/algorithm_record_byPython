@@ -1738,6 +1738,38 @@ class Solution:
 
 ```
 
+#### 66. [1237. 找出给定方程的正整数解](https://leetcode-cn.com/problems/find-positive-integer-solution-for-a-given-equation/)
+
+```python
+# 双指针解法，体会一下
+class Solution:
+    def findSolution(self, customfunction: 'CustomFunction', z: int) -> List[List[int]]:
+        ans,x,y = [],1,1000
+        while x <= 1000 and y >= 1:
+            res = customfunction.f(x,y)
+            if res < z:
+                x += 1
+            elif res > z: 
+                y -= 1
+            if res == z:
+                ans.append([x,y])
+                x += 1
+                y -= 1
+        return ans
+
+
+```
+
+#### 67. [476. 数字的补数](https://leetcode-cn.com/problems/number-complement/)
+
+```python
+class Solution:
+    # 补数就等于2**（num转为2进制的长度） 减1 减num
+    def findComplement(self, num: int) -> int:
+        A = bin(num)[2:]
+        return 2**len(A) - 1 - num
+```
+
 
 
 
@@ -3579,6 +3611,97 @@ class Solution:
                 if M[i][j]:
                     uf.union(i, j)
         return uf.num
+
+```
+
+#### 40. [959. 由斜杠划分区域](https://leetcode-cn.com/problems/regions-cut-by-slashes/)
+
+```python
+## 利用二维索引作为Key，构造并查集，一旦成环，则并查集中有一个祖宗节点，反之亦然
+## 题目的意思实质上就是有多少个环就有多少个区域，具体原因，还没有搞清楚……手画一下可以搞明白，但是如果没有题解，我决计做不出来，太菜了。。。。。。
+
+class Solution:
+    def regionsBySlashes(self, grid: List[str]) -> int:
+        n = len(grid)
+
+        dic = {}
+        for i in range(n+1):
+            for j in range(n+1):
+                dic[(i,j)] = (i,j)
+
+        # 最外面的边是一个环
+        for x, y in dic:
+            if x == 0 or x == n or y == 0 or y == n:
+                dic[(x,y)] = (0,0)
+
+        def find(Y,a):
+            while Y[a] != a:
+                Y[a] = Y[Y[a]]
+                a = Y[a]
+            return (a)
+        cnt =1   # 目前只有一个环
+        for i in range(n):
+            for j in range(n):
+                if grid[i][j] == '\\':
+                     # 一旦产生了圈，则意味着产生了一个新的面，面数加 1 
+                    if find(dic,(i,j)) == find(dic,(i+1,j+1)):
+                        cnt +=1
+                    else:
+                        dic[find(dic, (i,j))] = find(dic,(i+1,j+1))
+                 # /会将点(i,j)右边和下边的点连起来
+                 # 把结果存起来，避免merge时再查找一遍
+                elif grid[i][j] == '/':
+                    if find(dic,(i+1,j)) == find(dic, (i,j+1)):
+                        cnt +=1
+                    else:
+                        dic[find(dic, (i+1,j))] = find(dic,(i,j+1))
+        return cnt
+    
+## 还有一种方法，没有再写，实际上就是类似孤岛问题，用dfs求解，然后关键在于需要先处理输入，把每个格子分成3*3的小格子， 用1 填充斜线的部分，用0填充剩余部分。根据dfs, 求出所有联通0的数目。
+# 下面是一个示例
+from typing import List
+
+
+class Solution:
+    def regionsBySlashes(self, grid: List[str]) -> int:
+        r = len(grid)
+        if r == 0:
+            return 0
+        g = [[0 for _ in range(3 * r)] for _ in range(3 * r)]
+
+        def dfs(i, j):
+            g[i][j] = 2
+            for x, y in [(i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)]:
+                if x == -1 or x == 3 * r or y == -1 or y == 3 * r or g[x][y] != 0:
+                    continue
+                dfs(x, y)
+
+        for i in range(r):
+            for j in range(r):
+                if grid[i][j] == "\\":
+                    g[i * 3][j * 3] = 1
+                    g[i * 3 + 1][j * 3 + 1] = 1
+                    g[i * 3 + 2][j * 3 + 2] = 1
+                elif grid[i][j] == "/":
+                    g[i * 3][j * 3 + 2] = 1
+                    g[i * 3 + 1][j * 3 + 1] = 1
+                    g[i * 3 + 2][j * 3] = 1
+
+        cnt = 0
+        for i in range(3 * r):
+            for j in range(3 * r):
+                if g[i][j] == 0:
+                    cnt += 1
+                    dfs(i, j)
+        return cnt
+
+
+
+
+作者：lucy-17
+链接：https://leetcode-cn.com/problems/regions-cut-by-slashes/solution/dfs-by-lucy-17-6/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
 
