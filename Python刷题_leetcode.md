@@ -1923,7 +1923,7 @@ if(A || B) // 若 A 为 true ，则 B 的判断不会执行（即短路），直
 
 
 
-5. [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
+#### 5. [109. 有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)
 
 ```python
 # Definition for singly-linked list.
@@ -2185,543 +2185,541 @@ class Solution:
 
 ```
 
+#### 10. [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
 
-1. #### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
+```python
+## 自己写的，手生，花了些时间，这种问题，首要方法是递归回溯
+#有一点:
+'''
+list.append()是原地变化，list+[]是生成一个新的值。'''
+from typing import List
+import time
 
-   ```python
-   ## 自己写的，手生，花了些时间，这种问题，首要方法是递归回溯
-   #有一点:
-   '''
-   list.append()是原地变化，list+[]是生成一个新的值。'''
-   from typing import List
-   import time
-   
-   class Solution:
-       def findSubsequences(self, nums: List[int]) -> List[List[int]]:
-           set_=set()  # 对结果的去重
-           def dfs(l,r,tmp):
-               #print(type(tmp))
-               #print(l)
-               if l == r:
-                   return
-               s1=set()    # 一次循环对一个位置，不允许重复，这里放在去重
-               for i in range(l,r):
-                   if nums[i] in s1:
-                       continue
-                   elif len(tmp)==0:
-                       tmp.append(nums[i])
-                       # print(tmp)
-   
-                       dfs(i + 1, r, tmp)  # 递归
-                       tmp.pop()
-                       continue            #这一块是回溯
-                   elif  nums[i] >= tmp[-1]:
-   
-                       tmp.append(nums[i])    # list.append()也是和list.sort()一样，没有返回值，在原地址修改
-   
-                       #print(tmp)
-   
-                       set_.add(tuple(tmp))
-                       dfs(i+1,r,tmp)   # 递归搜索
-                       tmp.pop()     # 
-                       continue     # 这里是回溯
-                   else:
-                       pass
-   
-   
-   
-           r = []
-   
-           dfs(0, len(nums), [])
-           res =[]
-           for j in set_:
-               res.append(j)
-           return res
-   
-       
-       
-       ## 更见简单的书写，思路一致，这里写的明显更漂亮
-   class Solution:
-       def findSubsequences(self, nums: List[int]) -> List[List[int]]:
-           res = []
-   
-           def dfs(nums: List[int], tmp: List[int]) -> None:
-               if len(tmp) > 1:
-                   res.append(tmp)
-               curPres = set()   # 这里实际上已经保证不会有重复值了
-               for inx, i in enumerate(nums):
-                   if i in curPres:
-                       continue
-                   if not tmp or i >= tmp[-1]:
-                       curPres.add(i)
-                       dfs(nums[inx+1:], tmp+[i])  # 下一次才判定
-   
-           dfs(nums, [])
-           return res
-   
-   
-       
-       
-       
-       # 参考上面的进行修改 ，明细思路
-   from typing import List
-   import time
-   
-   class Solution:
-       def findSubsequences(self, nums: List[int]) -> List[List[int]]:
-           set_=set()
-           res = []
-           def dfs(l,r,tmp):
-               if len(tmp)>1:
-                   res.append(tmp)
-               if l ==r:
-                   return
-               s1=set()
-               for i in range(l,r):
-                   if nums[i] not in s1 and (l==0 or nums[i]>=tmp[-1]):
-                       s1.add(nums[i])
-                       t = tmp+[nums[i]]      #不能用tmp，因为循环中的tmp不能变
-   
-                       print(tmp)
-                       dfs(i + 1, r, t)
-   
-   
-   
-           dfs(0, len(nums), [])
-   
-           return res
-   
-   ```
-
-   #### 10.  [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
-
-   ```python
-   # 简单的递归回溯，手生，注意一点，这里split不能分割成字符数组，要用list，也可以直接用str[i]
-   # 另外一点：递归是recur，递归回溯是backtrack，这里搞错了。然后是，每次判定是否添加到结果中，是在每次递归开始，否则扔到下次递归，这样写起来漂亮一点。
-   class Solution:
-       def letterCombinations(self, digits: str) -> List[str]:
-           if not digits :
-               return []
-           #s = digits.split()
-   
-           dic = {
-               '2': ['a', 'b', 'c'],
-               '3': ['d', 'e', 'f'],
-               '4': ['g', 'h', 'i'],
-               '5': ['j', 'k', 'l'],
-               '6': ['m', 'n', 'o'],
-               '7': ['p', 'q', 'r','s'],
-               '8': ['t', 'u', 'v'],
-               '9': ['w','x', 'y', 'z'],
-           }
-           res = []
-           tmp = []
-           def recur(i):
-               if i == len(digits):
-                   #print(tmp)
-                   res.append(("".join(tmp)))
-               else:
-                   for c in dic[str(digits[i])]:
-                       tmp.append(c)
-                       recur(i+1)
-                       tmp.pop()
-           recur(0)
-           return res
-   
-   ```
-
-12. #### [1552. 两球之间的磁力](https://leetcode-cn.com/problems/magnetic-force-between-two-balls/)
-
-    ```python
-    # 没见过的提醒，需要再熟悉。思路就是，挨个试，只是这里使用二分的方式确定平均边界，通过能按照这个边界放入球的数目，来判断死否成功，然后根据情况，调整min和max，间接更更新mid，实现对最终结果的逼近，知道min》max，脱离循环输出结果
-    from typing import List
-    
-    
-    class Solution:
-        def maxDistance(self, position: List[int], m: int) -> int:
-            position.sort()
-            min_ =max_=position[-1]-position[0]
-            res = 0
-            for i in range(1,len(position)):
-                min_=min(min_,position[i]-position[i-1])
-    
-    
-            def check_OK(dist):
-                last = position[0]
-                cnt =1
-                for i in range(1,len(position)):
-                    if position[i]-last >=dist:
-                        last = position[i]
-                        cnt +=1
-                return cnt >=m
-    
-    
-    
-    
-    
-            while min_ <= max_:
-                mid = (min_ + max_)>>1    #每次更新可能的mid，通过更新min和max实现
-                if check_OK(mid):  #如果cnt》=m，说明放得下
-                    res = max(res,mid)
-                    min_ = mid+1
-                else:
-                    max_ =mid -1
-            return res
-    
-    ```
-
-
-
-13. #### [1482. 制作 m 束花所需的最少天数](https://leetcode-cn.com/problems/minimum-number-of-days-to-make-m-bouquets/)
-
-    ```python
-    
-    class Solution:
-        def minDays(self, bloomDay: List[int], m: int, k: int) -> int:
-            # 这道题和磁力的题类型一种，不过那里二分，找的是距离，这里二分，找的是时间。搜索方法确定了
-    
-            # check是用来对核心条件做判定的，首先是有足够的相邻的话，能满足m朵的需求
-            # 这里利用滑动窗口
-            def check_OK(mid):
-                n = len(bloomDay)
-                l = r = 0  # 初始时，滑动窗口左右端都在头部
-                cnt = 0
-                while r < n: # 退出条件：遍历到头
-                    # 开始非连续
-                    if bloomDay[r]>mid:
-                        cnt += (r - l)//k
-                        l = r+1
-                        r = r+1
-                    else:
-                        r += 1
-                cnt += (r-l)//k  # 走到头后，还要再计算一段
-                return cnt >= m
-            
-                    # 另一种判定方式，直接用贪心去数
-            def check1(day):
-                curr = 0
-                total = 0
-                for i in range(len(bloomDay)):
-                    if(bloomDay[i] <= day):
-                        curr += 1
-                    else:
-                        total += curr // k;
-                        curr = 0;
-                total += curr // k
-                return total >= m
-            # 确定最开始的上下限
-            min_, max_ =min(bloomDay), max(bloomDay)
-            #res = -1
-            while min_ <= max_:
-                mid = (min_+max_)>>1
-                if check_OK(mid):  # 如果判定通过，时间可以减小
-                    #res = max(res,mid)
-                    max_ = mid-1
-                else: # 不通过，时间可以放大
-    
-                    min_ = mid+1
-            #return res
-            return min_ if check1(min_) else -1  #二分查找，直接检查左端点
-    ```
-    
-14. [332. 重新安排行程](https://leetcode-cn.com/problems/reconstruct-itinerary/)
-
-    ```python
-    import collections
-    from typing import List
-    
-    
-    class Solution:
-        def findItinerary(self, tickets: List[List[str]]) -> List[str]:
-            # 基本思路是：建立邻接表，对出度排序，然后用df，能走完，就返回True
-            d = collections.defaultdict(list)        # 设置玲姐表（dict），注意这里可以设置value的类型,不能用deque，因为需要排血，的确没有这个方法
-            for f, t in tickets:   # 这种写法，直接分割数组取数据
-                d[f] += [t]
-            for f in d:
-                d[f].sort()   # 倒排，方便后面按照字典序递归
-           # print("d:\n", d)
-            res = []
-            def dfs(f):
-                while(d[f]):
-    
-                    dfs(d[f].pop(0))
-                res.insert(0, f)  # 注意因为这里是递归，所以append的顺序是反着来的，所以这里头插
-    
-            dfs("JFK")
-    
-            return res
-    
-    
-        
-        # 其实有更好的欧拉路径方式，具体的方法有官方题解给出：
-        https://leetcode-cn.com/problems/reconstruct-itinerary/solution/zhong-xin-an-pai-xing-cheng-by-leetcode-solution/
-    import collections
-    import heapq
-    from typing import List
-    
-    # 欧拉路径解法，利用天然或者后续搜索过程中拆边造成的“死胡同”，依次递归
-    class Solution:
-        def findItinerary(self, tickets: List[List[str]]) -> List[str]:
-            dic = collections.defaultdict(list)
-            for f,t in tickets:
-                dic[f].append((t))         # 建立邻接表
-            for k in dic:
-                heapq.heapify(dic[k])      # 调整为优先级队列（这里保证了题目需要的最小字典序）    需要导入heapq模块
-    
-            def dfs(curr):
-                while dic[curr]:
-                    tmp = heapq.heappop(dic[curr])   # 按照字典序搜素，同时因为pop所以需要拆边
-                    dfs(tmp)                   # 递归解决
-                #知道没有出度，确定是某段结尾，加入栈
-                stack.append((curr))       # 递归返回后，说明此时curr已经出度为零，自己也成了死胡同，所以入栈
-    
-    
-            stack = list()
-            dfs("JFK")
-            return stack[::-1]   #因为递归，顺序是反的，所以这里要倒序输出
-    ```
-
-
-15. #### [5500. 乘积为正数的最长子数组长度](https://leetcode-cn.com/problems/maximum-length-of-subarray-with-positive-product/)
-
-    ```python
-    class Solution:
-        def getMaxLen(self, nums: List[int]) -> int:
-             # 怎么讲？没理解透题的意思，想直接用trick来做，但是如果没有测试用例错误提示，国际差的很远，即便有，实际上也没全做对
-            # 第一个思路比较简单，统计遇到的负数次数，遇到0时状态初始化:
-            # 和我自己的区别在于，如果出现了多个负值（奇数），需要舍弃遇到的第一个负数(我没有想到这点，直接扑街)
-    
-            neg_cnt = 0  # 同济负数、
-            _0_idx = -1    # 标记0的位置  ,一开始放在负一的位置，视为了0-（-1）=1，后续编码统一
-            flag = len(nums)   # 标记最左端0的位置
-            res = 0
-            for i,v in enumerate(nums):
-                if v == 0:
-                    # 初始化
-                    neg_cnt =0
-                    _0_idx = i
-                    flag = len(nums)
-                elif v<0:
-                    neg_cnt += 1
-                    flag = min(i,flag)
-    
-                if neg_cnt &1:# 每次一到奇数个负值就舍弃第一个负值（实际上长度和舍弃当前是一样的）
-                    res = max(res, i-flag)
-                else:
-                    res = max(res,i - _0_idx)
-            return res
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        # 还有一个正统的方式，直接使用递推，不过我数学不过关，只能自己看了
-        '''
-        定义两个数组 pos 和 neg
-    pos[i] 表示：以 nums[i] 结尾的最长乘积为正数的数组长度
-    neg[i] 表示：以 nums[i] 结尾的最长乘积为负数的数组长度
-    ————————————————————————————————
-    重要的是状态转移：
-    根据当前元素的正负性，来考虑 pos 和 neg 数组的更新。
-    ————————————————————————————————
-    
-    初始化 pos[0] 和 neg[0]
-    遍历数组，若当前元素为正，那么：
-    pos[i] 为 pos[i-1] + 1，
-    如果 neg[i-1] > 0，即：以 nums[i-1] 结尾，乘积为负的数组存在，那么 neg[i] 为 neg[i-1] + 1；否则，neg[i] 为 0（因为当前元素也为正，没有乘积为负的数组）
-    若当前元素为负，那么：
-    如果 neg[i-1] > 0，那么 pos[i] 为 neg[i-1] + 1，否则，pos[i] 为 0
-    neg[i] 为 pos[i-1] + 1
-    更新乘积为正数的数组最大长度 ans
-    
-    '''
-        class Solution:
-        def getMaxLen(self, nums: List[int]) -> int:
-            n = len(nums)
-            pos, neg = [0]*n,[0]*n  # dp列表
-            #初始化
-            if nums[0]>0:
-                pos[0] = 1
-            elif nums[0]<0:
-                neg[0] = 1
-            
-            res = pos[0]
-            for i, v in enumerate(nums):
-                if v >0:
-                    pos[i] = 1+pos[i-1]   # 自然累加
-                    neg[i] = 1+ neg[i-1] if neg[i-1]>0 else 0  # #只有前面有，这里才能有，否则如果前面没有负值，这里本神是正值，所以负数长度为0，最好画图理解
-                elif v <0:
-                    pos[i] = 1+neg[i-1]  if neg[i-1]>0 else 0   # 负负得正
-                    neg[i] = 1+ pos[i]     # 正* 负才为负
-                else:
-                    pass# 这时候应该都填0，不过这里因为初始化全部为0，不用再处理
-    
-            res = max(res,max(pos))
-            return res
-            
-    class Solution:
-        def getMaxLen(self, nums: List[int]) -> int:
-            n = len(nums)
-            pos, neg = [0]*n,[0]*n  # dp列表
-            #初始化
-            if nums[0]>0:
-                pos[0] = 1
-            elif nums[0]<0:
-                neg[0] = 1
-            # 动态规划，当前状态只依赖于前一个状态
-            res = pos[0]
-            for i, v in enumerate(nums):
-                if i==0:  # 这里将第一位特殊处理，因为已经初始化过了这里就不用了
+class Solution:
+    def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+        set_=set()  # 对结果的去重
+        def dfs(l,r,tmp):
+            #print(type(tmp))
+            #print(l)
+            if l == r:
+                return
+            s1=set()    # 一次循环对一个位置，不允许重复，这里放在去重
+            for i in range(l,r):
+                if nums[i] in s1:
                     continue
-    
-                if v >0:
-                    pos[i] = 1+pos[i-1]   # 自然累加
-                    neg[i] = 1+ neg[i-1] if neg[i-1]>0 else 0  # #只有前面有，这里才能有，否则如果前面没有负值，这里本神是正值，所以负数长度为0，最好画图理解
-                elif v <0:
-                    pos[i] = 1+neg[i-1]  if neg[i-1]>0 else 0   # 负负得正
-                    neg[i] = 1+ pos[i-1]     # 正* 负才为负
+                elif len(tmp)==0:
+                    tmp.append(nums[i])
+                    # print(tmp)
+
+                    dfs(i + 1, r, tmp)  # 递归
+                    tmp.pop()
+                    continue            #这一块是回溯
+                elif  nums[i] >= tmp[-1]:
+
+                    tmp.append(nums[i])    # list.append()也是和list.sort()一样，没有返回值，在原地址修改
+
+                    #print(tmp)
+
+                    set_.add(tuple(tmp))
+                    dfs(i+1,r,tmp)   # 递归搜索
+                    tmp.pop()     # 
+                    continue     # 这里是回溯
                 else:
-                    pass# 这时候应该都填0，不过这里因为初始化全部为0，不用再处理
-            print(pos)
-            print(neg)
-    
-            res = max(res,max(pos))
-            return res
-            
-    #要考虑边界条件条件
-    
-    ```
+                    pass
 
-16. #### [5501. 使陆地分离的最少天数](https://leetcode-cn.com/problems/minimum-number-of-days-to-disconnect-island/)(并查集方法待补充)
 
-    ```python
+
+        r = []
+
+        dfs(0, len(nums), [])
+        res =[]
+        for j in set_:
+            res.append(j)
+        return res
+
+    
+    
+    ## 更见简单的书写，思路一致，这里写的明显更漂亮
+class Solution:
+    def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+        res = []
+
+        def dfs(nums: List[int], tmp: List[int]) -> None:
+            if len(tmp) > 1:
+                res.append(tmp)
+            curPres = set()   # 这里实际上已经保证不会有重复值了
+            for inx, i in enumerate(nums):
+                if i in curPres:
+                    continue
+                if not tmp or i >= tmp[-1]:
+                    curPres.add(i)
+                    dfs(nums[inx+1:], tmp+[i])  # 下一次才判定
+
+        dfs(nums, [])
+        return res
+
+
+    
+    
+    
+    # 参考上面的进行修改 ，明细思路
+from typing import List
+import time
+
+class Solution:
+    def findSubsequences(self, nums: List[int]) -> List[List[int]]:
+        set_=set()
+        res = []
+        def dfs(l,r,tmp):
+            if len(tmp)>1:
+                res.append(tmp)
+            if l ==r:
+                return
+            s1=set()
+            for i in range(l,r):
+                if nums[i] not in s1 and (l==0 or nums[i]>=tmp[-1]):
+                    s1.add(nums[i])
+                    t = tmp+[nums[i]]      #不能用tmp，因为循环中的tmp不能变
+
+                    print(tmp)
+                    dfs(i + 1, r, t)
+
+
+
+        dfs(0, len(nums), [])
+
+        return res
+
+```
+
+#### 11.  [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+
+```python
+# 简单的递归回溯，手生，注意一点，这里split不能分割成字符数组，要用list，也可以直接用str[i]
+# 另外一点：递归是recur，递归回溯是backtrack，这里搞错了。然后是，每次判定是否添加到结果中，是在每次递归开始，否则扔到下次递归，这样写起来漂亮一点。
+class Solution:
+    def letterCombinations(self, digits: str) -> List[str]:
+        if not digits :
+            return []
+        #s = digits.split()
+
+        dic = {
+            '2': ['a', 'b', 'c'],
+            '3': ['d', 'e', 'f'],
+            '4': ['g', 'h', 'i'],
+            '5': ['j', 'k', 'l'],
+            '6': ['m', 'n', 'o'],
+            '7': ['p', 'q', 'r','s'],
+            '8': ['t', 'u', 'v'],
+            '9': ['w','x', 'y', 'z'],
+        }
+        res = []
+        tmp = []
+        def recur(i):
+            if i == len(digits):
+                #print(tmp)
+                res.append(("".join(tmp)))
+            else:
+                for c in dic[str(digits[i])]:
+                    tmp.append(c)
+                    recur(i+1)
+                    tmp.pop()
+        recur(0)
+        return res
+
+```
+
+####  12. [1552. 两球之间的磁力](https://leetcode-cn.com/problems/magnetic-force-between-two-balls/)
+
+```python
+# 没见过的提醒，需要再熟悉。思路就是，挨个试，只是这里使用二分的方式确定平均边界，通过能按照这个边界放入球的数目，来判断死否成功，然后根据情况，调整min和max，间接更更新mid，实现对最终结果的逼近，知道min》max，脱离循环输出结果
+from typing import List
+
+
+class Solution:
+    def maxDistance(self, position: List[int], m: int) -> int:
+        position.sort()
+        min_ =max_=position[-1]-position[0]
+        res = 0
+        for i in range(1,len(position)):
+            min_=min(min_,position[i]-position[i-1])
+
+
+        def check_OK(dist):
+            last = position[0]
+            cnt =1
+            for i in range(1,len(position)):
+                if position[i]-last >=dist:
+                    last = position[i]
+                    cnt +=1
+            return cnt >=m
+
+
+
+
+
+        while min_ <= max_:
+            mid = (min_ + max_)>>1    #每次更新可能的mid，通过更新min和max实现
+            if check_OK(mid):  #如果cnt》=m，说明放得下
+                res = max(res,mid)
+                min_ = mid+1
+            else:
+                max_ =mid -1
+        return res
+
+```
+
+
+
+#### 13 .[1482. 制作 m 束花所需的最少天数](https://leetcode-cn.com/problems/minimum-number-of-days-to-make-m-bouquets/)
+
+```python
+
+class Solution:
+    def minDays(self, bloomDay: List[int], m: int, k: int) -> int:
+        # 这道题和磁力的题类型一种，不过那里二分，找的是距离，这里二分，找的是时间。搜索方法确定了
+
+        # check是用来对核心条件做判定的，首先是有足够的相邻的话，能满足m朵的需求
+        # 这里利用滑动窗口
+        def check_OK(mid):
+            n = len(bloomDay)
+            l = r = 0  # 初始时，滑动窗口左右端都在头部
+            cnt = 0
+            while r < n: # 退出条件：遍历到头
+                # 开始非连续
+                if bloomDay[r]>mid:
+                    cnt += (r - l)//k
+                    l = r+1
+                    r = r+1
+                else:
+                    r += 1
+            cnt += (r-l)//k  # 走到头后，还要再计算一段
+            return cnt >= m
+        
+                # 另一种判定方式，直接用贪心去数
+        def check1(day):
+            curr = 0
+            total = 0
+            for i in range(len(bloomDay)):
+                if(bloomDay[i] <= day):
+                    curr += 1
+                else:
+                    total += curr // k;
+                    curr = 0;
+            total += curr // k
+            return total >= m
+        # 确定最开始的上下限
+        min_, max_ =min(bloomDay), max(bloomDay)
+        #res = -1
+        while min_ <= max_:
+            mid = (min_+max_)>>1
+            if check_OK(mid):  # 如果判定通过，时间可以减小
+                #res = max(res,mid)
+                max_ = mid-1
+            else: # 不通过，时间可以放大
+
+                min_ = mid+1
+        #return res
+        return min_ if check1(min_) else -1  #二分查找，直接检查左端点
+```
+
+#### 14. [332. 重新安排行程](https://leetcode-cn.com/problems/reconstruct-itinerary/)
+
+```python
+import collections
+from typing import List
+
+
+class Solution:
+    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+        # 基本思路是：建立邻接表，对出度排序，然后用df，能走完，就返回True
+        d = collections.defaultdict(list)        # 设置玲姐表（dict），注意这里可以设置value的类型,不能用deque，因为需要排血，的确没有这个方法
+        for f, t in tickets:   # 这种写法，直接分割数组取数据
+            d[f] += [t]
+        for f in d:
+            d[f].sort()   # 倒排，方便后面按照字典序递归
+       # print("d:\n", d)
+        res = []
+        def dfs(f):
+            while(d[f]):
+
+                dfs(d[f].pop(0))
+            res.insert(0, f)  # 注意因为这里是递归，所以append的顺序是反着来的，所以这里头插
+
+        dfs("JFK")
+
+        return res
+
+
+    
+    # 其实有更好的欧拉路径方式，具体的方法有官方题解给出：
+    https://leetcode-cn.com/problems/reconstruct-itinerary/solution/zhong-xin-an-pai-xing-cheng-by-leetcode-solution/
+import collections
+import heapq
+from typing import List
+
+# 欧拉路径解法，利用天然或者后续搜索过程中拆边造成的“死胡同”，依次递归
+class Solution:
+    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+        dic = collections.defaultdict(list)
+        for f,t in tickets:
+            dic[f].append((t))         # 建立邻接表
+        for k in dic:
+            heapq.heapify(dic[k])      # 调整为优先级队列（这里保证了题目需要的最小字典序）    需要导入heapq模块
+
+        def dfs(curr):
+            while dic[curr]:
+                tmp = heapq.heappop(dic[curr])   # 按照字典序搜素，同时因为pop所以需要拆边
+                dfs(tmp)                   # 递归解决
+            #知道没有出度，确定是某段结尾，加入栈
+            stack.append((curr))       # 递归返回后，说明此时curr已经出度为零，自己也成了死胡同，所以入栈
+
+
+        stack = list()
+        dfs("JFK")
+        return stack[::-1]   #因为递归，顺序是反的，所以这里要倒序输出
+```
+
+#### 15. [5500. 乘积为正数的最长子数组长度](https://leetcode-cn.com/problems/maximum-length-of-subarray-with-positive-product/)
+
+```python
+class Solution:
+    def getMaxLen(self, nums: List[int]) -> int:
+         # 怎么讲？没理解透题的意思，想直接用trick来做，但是如果没有测试用例错误提示，国际差的很远，即便有，实际上也没全做对
+        # 第一个思路比较简单，统计遇到的负数次数，遇到0时状态初始化:
+        # 和我自己的区别在于，如果出现了多个负值（奇数），需要舍弃遇到的第一个负数(我没有想到这点，直接扑街)
+
+        neg_cnt = 0  # 同济负数、
+        _0_idx = -1    # 标记0的位置  ,一开始放在负一的位置，视为了0-（-1）=1，后续编码统一
+        flag = len(nums)   # 标记最左端0的位置
+        res = 0
+        for i,v in enumerate(nums):
+            if v == 0:
+                # 初始化
+                neg_cnt =0
+                _0_idx = i
+                flag = len(nums)
+            elif v<0:
+                neg_cnt += 1
+                flag = min(i,flag)
+
+            if neg_cnt &1:# 每次一到奇数个负值就舍弃第一个负值（实际上长度和舍弃当前是一样的）
+                res = max(res, i-flag)
+            else:
+                res = max(res,i - _0_idx)
+        return res
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # 还有一个正统的方式，直接使用递推，不过我数学不过关，只能自己看了
+    '''
+    定义两个数组 pos 和 neg
+pos[i] 表示：以 nums[i] 结尾的最长乘积为正数的数组长度
+neg[i] 表示：以 nums[i] 结尾的最长乘积为负数的数组长度
+————————————————————————————————
+重要的是状态转移：
+根据当前元素的正负性，来考虑 pos 和 neg 数组的更新。
+————————————————————————————————
+
+初始化 pos[0] 和 neg[0]
+遍历数组，若当前元素为正，那么：
+pos[i] 为 pos[i-1] + 1，
+如果 neg[i-1] > 0，即：以 nums[i-1] 结尾，乘积为负的数组存在，那么 neg[i] 为 neg[i-1] + 1；否则，neg[i] 为 0（因为当前元素也为正，没有乘积为负的数组）
+若当前元素为负，那么：
+如果 neg[i-1] > 0，那么 pos[i] 为 neg[i-1] + 1，否则，pos[i] 为 0
+neg[i] 为 pos[i-1] + 1
+更新乘积为正数的数组最大长度 ans
+
+'''
     class Solution:
-        def minDays(self, grid: List[List[int]]) -> int:
-            # 实际上就是抽取一个角，所以最少天数只有三种可能：0，1，2
-            # 有两种方法，最传统的就是递归回溯，每次消除一个1，然后统计。另一种使并查集，不过我不会，需要学习
-            moves = [(0,1),(1,0),(-1,0),(0,-1)]   # 图常用的方向
-    
-            def dfs(x,y,visited):
-                for i, j in moves:
-                          
-                    if  (x+i) >= 0 and x+i <m and y+j >=0 and y+j <n and visited[x+i][y+j] == 0 and grid[i+x][y+j] ==1:
-                        visited[x+i][y+j] =1
-                        dfs(x+i,y+j,visited)
-                        
-    
-    
-            def count(grid):
-                cnt = 0
-                visited = [[0]*n for i in range(m)]   # 注意构造二维数组时，这里行列是反着来的，先确定列数，再乘行数。否则可能会数组越界
-                for i in range(m):
-                    for j in range(n):
-                        if visited[i][j] == 0 and grid[i][j]==1:
-                            visited[i][j]=1
-                            dfs(i,j,visited)
-                            cnt +=1
-                
-                return cnt
-    
-            
-    
-            m = len(grid)
-            n= len(grid[0])
-            island_cnt = count(grid)
-            if island_cnt == 0 or island_cnt >1:   # 题目中的条件定义，此时可以认为分离
-                return 0
+    def getMaxLen(self, nums: List[int]) -> int:
+        n = len(nums)
+        pos, neg = [0]*n,[0]*n  # dp列表
+        #初始化
+        if nums[0]>0:
+            pos[0] = 1
+        elif nums[0]<0:
+            neg[0] = 1
+        
+        res = pos[0]
+        for i, v in enumerate(nums):
+            if v >0:
+                pos[i] = 1+pos[i-1]   # 自然累加
+                neg[i] = 1+ neg[i-1] if neg[i-1]>0 else 0  # #只有前面有，这里才能有，否则如果前面没有负值，这里本神是正值，所以负数长度为0，最好画图理解
+            elif v <0:
+                pos[i] = 1+neg[i-1]  if neg[i-1]>0 else 0   # 负负得正
+                neg[i] = 1+ pos[i]     # 正* 负才为负
+            else:
+                pass# 这时候应该都填0，不过这里因为初始化全部为0，不用再处理
+
+        res = max(res,max(pos))
+        return res
+        
+class Solution:
+    def getMaxLen(self, nums: List[int]) -> int:
+        n = len(nums)
+        pos, neg = [0]*n,[0]*n  # dp列表
+        #初始化
+        if nums[0]>0:
+            pos[0] = 1
+        elif nums[0]<0:
+            neg[0] = 1
+        # 动态规划，当前状态只依赖于前一个状态
+        res = pos[0]
+        for i, v in enumerate(nums):
+            if i==0:  # 这里将第一位特殊处理，因为已经初始化过了这里就不用了
+                continue
+
+            if v >0:
+                pos[i] = 1+pos[i-1]   # 自然累加
+                neg[i] = 1+ neg[i-1] if neg[i-1]>0 else 0  # #只有前面有，这里才能有，否则如果前面没有负值，这里本神是正值，所以负数长度为0，最好画图理解
+            elif v <0:
+                pos[i] = 1+neg[i-1]  if neg[i-1]>0 else 0   # 负负得正
+                neg[i] = 1+ pos[i-1]     # 正* 负才为负
+            else:
+                pass# 这时候应该都填0，不过这里因为初始化全部为0，不用再处理
+        print(pos)
+        print(neg)
+
+        res = max(res,max(pos))
+        return res
+        
+#要考虑边界条件条件
+
+```
+
+#### 16. [5501. 使陆地分离的最少天数](https://leetcode-cn.com/problems/minimum-number-of-days-to-disconnect-island/)(并查集方法待补充)
+
+```python
+class Solution:
+    def minDays(self, grid: List[List[int]]) -> int:
+        # 实际上就是抽取一个角，所以最少天数只有三种可能：0，1，2
+        # 有两种方法，最传统的就是递归回溯，每次消除一个1，然后统计。另一种使并查集，不过我不会，需要学习
+        moves = [(0,1),(1,0),(-1,0),(0,-1)]   # 图常用的方向
+
+        def dfs(x,y,visited):
+            for i, j in moves:
+                      
+                if  (x+i) >= 0 and x+i <m and y+j >=0 and y+j <n and visited[x+i][y+j] == 0 and grid[i+x][y+j] ==1:
+                    visited[x+i][y+j] =1
+                    dfs(x+i,y+j,visited)
+                    
+
+
+        def count(grid):
+            cnt = 0
+            visited = [[0]*n for i in range(m)]   # 注意构造二维数组时，这里行列是反着来的，先确定列数，再乘行数。否则可能会数组越界
             for i in range(m):
                 for j in range(n):
-                    if grid[i][j]==1:
-                        grid[i][j]=0
-                        res= count(grid)
-                        if res ==0 or res >1:
-                            return 1
-                        grid[i][j]=1
-            return 2
-    
-    
-    ```
+                    if visited[i][j] == 0 and grid[i][j]==1:
+                        visited[i][j]=1
+                        dfs(i,j,visited)
+                        cnt +=1
+            
+            return cnt
 
-17. #### [1503. 所有蚂蚁掉下来前的最后一刻](https://leetcode-cn.com/problems/last-moment-before-all-ants-fall-out-of-a-plank/)
+        
 
-    ```python
-    class Solution:
-        def getLastMoment(self, n: int, left: List[int], right: List[int]) -> int:
-            # 不要想碰撞之后的身份转换，会被迷惑，实际上是蚂蚁走了对方的路。或者，理解成双方穿透，所以直接找最大值就好
-            # 本质上是一个脑筋急转弯问题
-            # 人工添加最大最小值，用来避免空列表的情况
-            left.append(0)
-            right.append(n)
-            return max(n-min(right),max(left))
-    ```
+        m = len(grid)
+        n= len(grid[0])
+        island_cnt = count(grid)
+        if island_cnt == 0 or island_cnt >1:   # 题目中的条件定义，此时可以认为分离
+            return 0
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j]==1:
+                    grid[i][j]=0
+                    res= count(grid)
+                    if res ==0 or res >1:
+                        return 1
+                    grid[i][j]=1
+        return 2
 
-    #### 18. [486. 预测赢家](https://leetcode-cn.com/problems/predict-the-winner/)
 
-    ```python
-    # 动态规划解法
-    # 代码看起来很简短，实际要考虑的东西很多：基本思路:
-    '''
-    一段长为i~j的数组，如果选i，则i+1~j是由对方选，如果选j，则i~j-1是对方选，假设都是最优解，则有dp[i][j],表示一个选手在面对i~j这一段中最优法下和对手的分差。由于有两种可能。i或者j，所以dp[i][j] = max(nums[i] - dp[i+1][j], nums[j]-dp[i][j-1])，其中内部的两个dp，是在对手的回合，他所能做到的最优分差，我们选择的数减去他的最最优，就是我们的最优选择。
-    这就是最优子结构。
-    然后当j<i,不存在，所以为0
-    i == j,则为nums[i]。 以上属于初始化步骤
-    这种动态规划，一般使用二维数组，因为可以分别用行列表示首尾的位置，然后我们需要有从初始化开始向上递推，直到0~n-1，所以决定了循环的方向。基本就是下面的解法了
-    
-    '''
-    class Solution:
-        def PredictTheWinner(self, nums: List[int]) -> bool:
-            dp = [[0]*len(nums) for _ in range(len(nums))]   # 二维数组
-    
-            for i in range(len(nums)):   # 初始化
-                dp[i][i]=nums[i]
-            n = len(nums)
-            for i in range(n-2,-1,-1):  #行，从下向上
-                for j in range(i+1,n):  # 列，从左到右
-                    dp[i][j] = max(nums[i] - dp[i+1][j], nums[j]-dp[i][j-1])
-            return dp[0][n-1] >= 0
-    ```
+```
 
-    #### 19. [剑指 Offer 20. 表示数值的字符串](https://leetcode-cn.com/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof/)
+#### 17. [1503. 所有蚂蚁掉下来前的最后一刻](https://leetcode-cn.com/problems/last-moment-before-all-ants-fall-out-of-a-plank/)
 
-    ```python
-    # 正统玩法是有限自动机，不过我没有学过编译原理，看题解有些懵。然后照抄了下面的题解，思路比较正常化。基本思路就是枚举各种情况，巧妙在于通过标志位来指代各种情况
-    
-    
-    class Solution:
-        def isNumber(self, s: str) -> bool:
-            if  not  s or len(s) == 0:
-                return False
-            isNum, isDot, ise_or_E = False,False, False   # 表示数字、小数点、e
-            s= s.strip()   # 这个需要接受，而不是在原本的基础上改变
-            for i in range(len(s)):
-                if s[i] >= '0' and s[i] <='9':
-    
-                    isNum = True
-                elif s[i] == '.':  
-                    if isDot or ise_or_E:
-                        return False   # 小数点之前不能再有小数点和e
-                    isDot = True
-                elif s[i] == 'e' or s[i] == 'E':
-                    if not isNum or ise_or_E:
-                        return False    # e前边不能出现e，但必须有数字
-                    ise_or_E = True
-                    isNum = False   # 用来重置，因为e后面从新开始.重置isNum，因为‘e’或'E'之后也必须接上整数，防止出现 123e或者123e+的非法情况
-                elif s[i] == '-' or s[i] == '+':
-                    if i != 0 and s[i-1] != 'e' and s[i-1] !='E':
-                        return False  #正负号只可能出现在第一个位置，或者出现在‘e’或'E'的后面一个位置
-                else:
-                    return False    #除了列出的情况，其他情况都不合法
-            return isNum  # 一定需要数字结尾，避免 1e这种情况
-    
-    ```
+```python
+class Solution:
+    def getLastMoment(self, n: int, left: List[int], right: List[int]) -> int:
+        # 不要想碰撞之后的身份转换，会被迷惑，实际上是蚂蚁走了对方的路。或者，理解成双方穿透，所以直接找最大值就好
+        # 本质上是一个脑筋急转弯问题
+        # 人工添加最大最小值，用来避免空列表的情况
+        left.append(0)
+        right.append(n)
+        return max(n-min(right),max(left))
+```
 
-    
+#### 18. [486. 预测赢家](https://leetcode-cn.com/problems/predict-the-winner/)
 
-    
+```python
+# 动态规划解法
+# 代码看起来很简短，实际要考虑的东西很多：基本思路:
+'''
+一段长为i~j的数组，如果选i，则i+1~j是由对方选，如果选j，则i~j-1是对方选，假设都是最优解，则有dp[i][j],表示一个选手在面对i~j这一段中最优法下和对手的分差。由于有两种可能。i或者j，所以dp[i][j] = max(nums[i] - dp[i+1][j], nums[j]-dp[i][j-1])，其中内部的两个dp，是在对手的回合，他所能做到的最优分差，我们选择的数减去他的最最优，就是我们的最优选择。
+这就是最优子结构。
+然后当j<i,不存在，所以为0
+i == j,则为nums[i]。 以上属于初始化步骤
+这种动态规划，一般使用二维数组，因为可以分别用行列表示首尾的位置，然后我们需要有从初始化开始向上递推，直到0~n-1，所以决定了循环的方向。基本就是下面的解法了
+
+'''
+class Solution:
+    def PredictTheWinner(self, nums: List[int]) -> bool:
+        dp = [[0]*len(nums) for _ in range(len(nums))]   # 二维数组
+
+        for i in range(len(nums)):   # 初始化
+            dp[i][i]=nums[i]
+        n = len(nums)
+        for i in range(n-2,-1,-1):  #行，从下向上
+            for j in range(i+1,n):  # 列，从左到右
+                dp[i][j] = max(nums[i] - dp[i+1][j], nums[j]-dp[i][j-1])
+        return dp[0][n-1] >= 0
+```
+
+#### 19. [剑指 Offer 20. 表示数值的字符串](https://leetcode-cn.com/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof/)
+
+```python
+# 正统玩法是有限自动机，不过我没有学过编译原理，看题解有些懵。然后照抄了下面的题解，思路比较正常化。基本思路就是枚举各种情况，巧妙在于通过标志位来指代各种情况
+
+
+class Solution:
+    def isNumber(self, s: str) -> bool:
+        if  not  s or len(s) == 0:
+            return False
+        isNum, isDot, ise_or_E = False,False, False   # 表示数字、小数点、e
+        s= s.strip()   # 这个需要接受，而不是在原本的基础上改变
+        for i in range(len(s)):
+            if s[i] >= '0' and s[i] <='9':
+
+                isNum = True
+            elif s[i] == '.':  
+                if isDot or ise_or_E:
+                    return False   # 小数点之前不能再有小数点和e
+                isDot = True
+            elif s[i] == 'e' or s[i] == 'E':
+                if not isNum or ise_or_E:
+                    return False    # e前边不能出现e，但必须有数字
+                ise_or_E = True
+                isNum = False   # 用来重置，因为e后面从新开始.重置isNum，因为‘e’或'E'之后也必须接上整数，防止出现 123e或者123e+的非法情况
+            elif s[i] == '-' or s[i] == '+':
+                if i != 0 and s[i-1] != 'e' and s[i-1] !='E':
+                    return False  #正负号只可能出现在第一个位置，或者出现在‘e’或'E'的后面一个位置
+            else:
+                return False    #除了列出的情况，其他情况都不合法
+        return isNum  # 一定需要数字结尾，避免 1e这种情况
+
+```
+
+
+
+
 
 #### 20 [877. 石子游戏](https://leetcode-cn.com/problems/stone-game/)
 
@@ -3472,6 +3470,37 @@ class Solution:
             root.left = build(start, idx-1)
             return root
         return build(0,len(postorder)-1)
+```
+
+#### 38 [113. 路径总和 II](https://leetcode-cn.com/problems/path-sum-ii/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def pathSum(self, root: TreeNode, sum: int) -> List[List[int]]:
+        ret = list()
+        path = list()
+        
+        def dfs(root: TreeNode, total: int):
+            if not root:
+                return
+            path.append(root.val)
+            total -= root.val
+            if not root.left and not root.right and total == 0:
+                ret.append(path[:])
+            dfs(root.left, total)
+            dfs(root.right, total)
+            path.pop()
+        total = sum
+        dfs(root, total)
+        return ret
+
 ```
 
 
