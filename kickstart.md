@@ -1,5 +1,8 @@
 ##  kickstart
 
+* 参考题解：
+* https://cp-wiki.vercel.app/tutorial/kick-start/2020E/#problem-b-high-buildings
+
 ## python 输入输出样例
 
 * python
@@ -413,6 +416,28 @@ In Sample Case #3, the sample output sets the height of each building such that 
 ```
 
 ```python
-
+# 比赛时没有考虑全面，应该将公共部分分成两份，中间夹杂AB都看不到的部分
+# 同时，应该考虐AB的大小关系，如果A>B那么输出结果的时候，需要倒着来，因为默认的方案是按照A<B考虑的
+# 说白了还是素质不够，经验少
+t = int(input())
+for case_num in range(1, t + 1):
+    n, a, b, c = map(int, input().split())
+    if a + b - c > n or (a == b and a == c and c < min(n, 2)):
+        print("Case #{}: IMPOSSIBLE".format(case_num))
+        continue
+    rev = False
+    if a > b:
+        tmp = a
+        a = b
+        b = tmp
+        rev = True
+    arrangement = [n - 1] * (a - c) + [n] + [1] * (n - (a + b - c)) + \
+        [n] * (c - 1) + [n - 1] * (b - c)
+    if rev:
+        arrangement = arrangement[::-1]
+    ans = ' '.join(map(str, arrangement))
+    print("Case #{}: {}".format(case_num, ans))
 ```
+
+
 
