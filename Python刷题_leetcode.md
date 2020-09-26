@@ -1708,9 +1708,33 @@ class Solution:
         return ans.right
 ```
 
-#### 65 [501. 二叉搜索树中的众数](https://leetcode-cn.com/problems/find-mode-in-binary-search-tree/)
+#### 65 [501. 二叉搜索树中的众数](https://leetcode-cn.com/problems/find-mode-in-binary-search-tree/)(理解解法，没有敲过)
 
 ```python
+class Solution:
+    def findMode(self, root: TreeNode) -> List[int]:
+        ans=[]
+        most=0
+        last=None
+        cnt=0
+
+        def inorder(node):
+            if not node: return 
+            nonlocal ans,most,last,cnt
+            if node.left: inorder(node.left)
+            if node.val==last:
+                cnt+=1
+            else: cnt=1
+            if cnt==most: ans.append(node.val)
+            elif cnt>most:
+                most=cnt
+                ans=[node.val]
+            last=node.val
+            if node.right: inorder(node.right)
+
+        inorder(root)
+        return ans
+
 
 ```
 
@@ -3500,6 +3524,61 @@ class Solution:
         total = sum
         dfs(root, total)
         return ret
+
+```
+
+#### 39 [547. 朋友圈](https://leetcode-cn.com/problems/friend-circles/)
+
+```python
+## dfs解法
+class Solution:
+    def findCircleNum(self, M: List[List[int]]) -> int:
+        n = len(M)
+        cnt = 0
+        visited = set()
+        def dfs(i):
+            for j in range(n):
+                if M[i][j] and j not in visited:
+                    visited.add(j)
+                    dfs(j)
+
+        for i in range(n):
+            if i not in visited:
+                cnt +=1
+                visited.add(i)
+                dfs(i)
+
+        return cnt
+    
+    
+  ## 并查集解法
+class Solution:
+    def findCircleNum(self, M: List[List[int]]) -> int:
+        class UnionFind(object):
+            def __init__(self, size):
+                self.p = [i for i in range(size + 1)]
+                self.num = size
+
+            def find(self, x:int):
+                # 路径压缩的并查集
+                if self.p[x] != x:
+                    self.p[x] = self.find(self.p[x])
+                return self.p[x]
+            
+            def union(self, a:int, b:int):
+                if self.find(a) != self.find(b):
+                    self.p[self.find(a)] = self.p[self.find(b)]
+                    self.num -= 1
+        
+        n = len(M)
+        if n == 1:
+            return 1
+        uf = UnionFind(n)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if M[i][j]:
+                    uf.union(i, j)
+        return uf.num
 
 ```
 
