@@ -3731,6 +3731,104 @@ class Solution:
 
 ```
 
+#### 41. [6. Z 字形变换](https://leetcode-cn.com/problems/zigzag-conversion/)
+
+```python
+class Solution:
+    def convert(self, s: str, numRows: int) -> str:
+        if numRows < 2:
+            return s
+        res = ["" for _ in range(numRows)]  # 构造几行空字符串
+        i, flag = 0, -1
+        for c in s:# 对s依次遍历
+            res[i] +=c
+            # 临界反转
+            if i == 0 or i == numRows-1:
+                flag = -flag
+            i += flag
+        return "".join(res)
+
+```
+
+#### 42 .[117. 填充每个节点的下一个右侧节点指针 II](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node-ii/)
+
+```python
+# 题解用BFS，我自己用层序遍历，大同小异
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val: int = 0, left: 'Node' = None, right: 'Node' = None, next: 'Node' = None):
+        self.val = val
+        self.left = left
+        self.right = right
+        self.next = next
+"""
+
+class Solution:
+    def connect(self, root: 'Node') -> 'Node':
+        if not root:
+            return 
+        q = deque()
+        q.append(root)
+        while q:
+            #print(q)
+            n = len(q)
+            if n <2:
+                t = q.popleft()
+                if t.left:
+                    q.append(t.left)
+                if t.right:
+                    q.append(t.right)
+                continue
+            t = q.popleft()
+            for i in range(n-1):
+                if t.left:
+                    q.append(t.left)
+                if t.right:
+                    q.append(t.right)
+                s = q.popleft()
+                t.next = s
+                t =s
+                #print(t.val,s.val)
+            if t.left:
+                q.append(t.left)
+            if t.right:
+                q.append(t.right)
+        return root
+
+## 如果需要使用O（1）空间的话，
+# 实际上事上下层转换，上次又next，所以直接由上层组织下层的next
+# 根因在于root不用链表，就可以构造好第二层next
+class Solution:
+    def connect(self, root: 'Node') -> 'Node':
+        if not root:
+            return
+        start = root # 从根节点开始
+        def _handle(p):
+            nonlocal last,next_start # 自由变量
+            if last:
+                # 如果有前一个节点，那就继续连接
+                last.next = p
+            if not next_start: 
+                # 如果下层的next_start,即横向链表开始为空，那就填充
+                next_start =p
+            # 更新前一个节点
+            last = p
+        while start:
+            last , next_start = None, None
+            p =start
+            while p :
+                #print(p.val)
+                if p.left:
+                    _handle(p.left)
+                if p.right:
+                    _handle(p.right)
+                p =p.next
+            start = next_start # 更新到下一层链表
+        return root
+
+```
+
 
 
 
