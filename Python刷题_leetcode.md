@@ -154,6 +154,82 @@ discard() #方法用于移除指定的集合元素。
 #该方法不同于 remove() 方法，因为 remove() 方法在移除一个不存在的元素时会发生错误，而 discard() 方法不会。
 ```
 
+#### 18. 二叉树遍历（迭代形式,java版）
+
+```java
+ /**
+     * 统一一下
+     * @param root
+     * @return
+     */
+    //前序
+    public static List<Integer> preOrder(TreeNode root){
+         List<Integer> list = new ArrayList();
+         Stack<TreeNode> stack = new Stack();
+         TreeNode cur = root;
+         while(cur!=null || !stack.isEmpty()){
+             //一直往左压入栈
+             while(cur!=null){
+                 list.add(cur.val);
+                 stack.push(cur);
+                 cur = cur.left;
+             }
+             cur = stack.pop();
+             cur = cur.right;
+         }
+         return list;
+    }
+
+    //中序
+    public List<Integer> inorderTraversal(TreeNode root) {
+        if(root == null){
+            return new ArrayList();
+        }
+        List<Integer> list = new ArrayList();
+        Stack<TreeNode> stack = new Stack();
+        TreeNode cur = root;
+        while(cur != null || !stack.isEmpty()){
+            while(cur!=null){
+                stack.push(cur);
+                cur = cur.left;
+            }
+            cur = stack.pop();
+            list.add(cur.val);
+            cur = cur.right;
+        }
+        return list;
+    }
+
+
+    //后序遍历，非递归
+    public static List<Integer> postOrder(TreeNode root){
+        Stack<TreeNode> stack = new Stack<>();
+        List<Integer> list = new ArrayList<>();
+        TreeNode cur = root;
+        TreeNode p = null;//用来记录上一节点
+        while(!stack.isEmpty() || cur != null){
+            while(cur != null){
+                stack.push(cur);
+                cur = cur.left;
+            }
+            cur = stack.peek();
+//            后序遍历的过程中在遍历完左子树跟右子树cur都会回到根结点。所以当前不管是从左子树还是右子树回到根结点都不应该再操作了，应该退回上层。
+//            如果是从右边再返回根结点，应该回到上层。
+            //主要就是判断出来的是不是右子树，是的话就可以把根节点=加入到list了
+            if(cur.right == null || cur.right == p){
+                list.add(cur.val);
+                stack.pop();
+                p = cur;
+                cur = null;
+            }else{
+                cur = cur.right;
+            }
+
+        }
+        return list;
+}
+```
+
 
 
 ## easy
@@ -3826,6 +3902,40 @@ class Solution:
                 p =p.next
             start = next_start # 更新到下一层链表
         return root
+
+```
+
+#### 43. [145. 二叉树的后序遍历](https://leetcode-cn.com/problems/binary-tree-postorder-traversal/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+# 迭代法
+class Solution:
+    def postorderTraversal(self, root: TreeNode) -> List[int]:
+        stk = []
+        res = []
+        pre, cur =None,root
+        while stk or cur:
+            while cur:
+                stk.append(cur)
+                cur =cur.left
+            cur = stk[-1]  #先观察，不能着急弹出
+            # 是叶子节点或者右边处理完了，就可以处理自己
+            if not cur.right or cur.right == pre:
+                    res.append(cur.val)
+                    stk.pop()
+                    pre = cur
+                    cur = None
+            # 否则处理右边
+            else:
+                cur = cur.right
+        return res
+                    
 
 ```
 
