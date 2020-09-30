@@ -3939,6 +3939,52 @@ class Solution:
 
 ```
 
+#### 44. [701. 二叉搜索树中的插入操作](https://leetcode-cn.com/problems/insert-into-a-binary-search-tree/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    # 简单的递归解法
+    def insertIntoBST(self, root: TreeNode, val: int) -> TreeNode:
+        if not root:
+        #   找到空位置，生成节点，并返回
+            return TreeNode(val)
+        # 否则，利用二叉搜索树性质，递归处理
+        if val< root.val:
+            root.left = self.insertIntoBST(root.left,val)
+        else:
+            root.right = self.insertIntoBST(root.right,val)
+        
+        return root
+```
+
+#### 45 [24. 两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def swapPairs(self, head: ListNode) -> ListNode:
+        # 几个指针不断后移是一种稳妥的方法，不过先后顺序的逻辑可能会消耗一点时间
+        # 所以相比较之下，递归的玩法可能更有技术含量一点
+        # 毕竟是链表递归
+        if not head or not head.next:
+            return head
+        _next = head.next
+        head.next = self.swapPairs(_next.next)
+        _next.next = head
+        return _next
+```
+
 
 
 
