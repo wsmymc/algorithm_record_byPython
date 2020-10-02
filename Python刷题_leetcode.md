@@ -230,6 +230,14 @@ discard() #方法用于移除指定的集合元素。
 }
 ```
 
+#### 19. 表示方块子集以及使用其索引
+
+```python
+# 特点：用这中方式，来表示方块性质的子集索引。这些天见到的三次了，需要注意以一下.i,j是整体举行的索引
+boxes = [{} for i in range(9)]
+box_index = (i // 3 ) * 3 + j // 3
+```
+
 
 
 ## easy
@@ -1870,6 +1878,25 @@ class Solution:
             return self.lowestCommonAncestor(root.right,p,q)
         else:# 如果一大一小，说明，就是这个
             return root
+```
+
+#### 69. [83. 删除排序链表中的重复元素](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list/)
+
+```python
+# 注意好边界条件
+class Solution:
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        node = head
+        while head and head.next:
+           # print(head.val, head.next.val)
+            while head.val == head.next.val:
+                if not head.next.next:
+                    head.next = None
+                    break 
+                head.next = head.next.next
+            head = head.next
+        return node
+
 ```
 
 
@@ -3983,6 +4010,285 @@ class Solution:
         head.next = self.swapPairs(_next.next)
         _next.next = head
         return _next
+```
+
+#### 46. [74. 搜索二维矩阵](https://leetcode-cn.com/problems/search-a-2d-matrix/)
+
+```python
+## 中间出错很多次
+# 边界条件[[]] 没有考虑到
+# 确定在哪一行时，应该用最大值作为指标，而不是最小的
+# 二分法一般时动左不动右
+class Solution:
+    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+        if not matrix or len(matrix) == 0 or  not len(matrix[0]):
+            return False
+        m, n = len(matrix), len(matrix[0])
+        u,d = m-1 ,0
+        while u>d:
+            mid= (u+d)>>1
+            #print('mid',mid)
+            if matrix[mid][n-1]<target:
+                d = mid+1
+            elif matrix[mid][n-1] == target:
+                return True
+            else:
+                u = mid
+        #print(d)
+
+        l ,r =0, n-1
+        while l<r:
+            mid = (l+r)>>1
+            if matrix[d][mid]<target:
+                l = mid +1
+            elif matrix[d][mid] == target:
+                return  True
+            else:
+                r =mid
+
+        return matrix[d][l] == target
+```
+
+#### 47 [80. 删除排序数组中的重复项 II](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array-ii/)
+
+```python
+# 没有什么难度问题，主要在于思考时需要注意边界条件
+# 然后是，比较不是和i比较，而是和在确认进入输出队列的最后一个比较t，用i的话，可能因为重复太然后有问题
+class Solution:
+    def removeDuplicates(self, nums: List[int]) -> int:
+        if not nums or not len(nums):
+            return -1
+        i = 0
+        cnt = 0
+        t = nums[0]
+        for z in range(1, len(nums)):
+            if nums[z] != t:
+                cnt = 1
+                i += 1
+                t = nums[i] = nums[z]
+
+                continue
+            else:
+                if cnt == 2:
+                    continue
+                else:
+                    cnt = 2
+                    i += 1
+                    t =  nums[i] = nums[z]
+
+        print(nums)
+        return i + 1
+
+
+```
+
+#### 48. [63. 不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)
+
+```python
+# 因为用1，表示障碍，所以直接用负数dp
+# 由于考虑不全面，需要一些边界（最傻逼的，入口有障碍）、初始化的边界有障碍………所以花了一点时间，进行应对边界调整
+class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:
+        if not obstacleGrid or not len(obstacleGrid) or not len(obstacleGrid[0]):
+            return 0
+        m, n =len(obstacleGrid), len(obstacleGrid[0])
+        dp = [[0]*n for _ in range(m)]
+        falg = False
+        for i in range(m):
+            if obstacleGrid[i][0] == 1:
+                falg = True
+                if i == 0:
+                    return 0
+                obstacleGrid[i][0] = 0
+            else:
+                if falg:continue
+                obstacleGrid[i][0] =-1
+        #print(obstacleGrid)
+        falg = False
+        for i in range(n):
+            if obstacleGrid[0][i] == 1:
+                falg = True
+                obstacleGrid[0][i] = 0
+            else:
+                if falg:continue
+                obstacleGrid[0][i] =-1
+        #print(obstacleGrid)
+        for i in range(1,m):
+            for j in range(1,n):
+                if obstacleGrid[i][j] == 1:
+                    obstacleGrid[i][j] = 0
+                    continue
+                else:
+                    obstacleGrid[i][j] = obstacleGrid[i][j-1] + obstacleGrid[i-1][j]
+        #print(obstacleGrid)
+        return  -obstacleGrid[m-1][n-1] if obstacleGrid[m-1][n-1]<0 else 0
+    
+    
+ 
+
+
+
+# 一个题解：先枚举特殊边界，再在外面包一层，统一处理，更简洁
+class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:
+        if len(obstacleGrid)==0:
+            return 0
+        if obstacleGrid==[[0]]:
+            return 1
+        if obstacleGrid==[[1]]:
+            return 0
+        if obstacleGrid[0][0]==1:
+            return 0 
+        m=len(obstacleGrid)
+        n=len(obstacleGrid[0])
+        dp=[[0 for _ in range(n+1)] for _ in range(m+1)]
+        for i in range(1,n+1):
+            for j in range(1,m+1):
+                if i==1 and j==1:
+                     dp[1][1]=1
+                     continue
+                if obstacleGrid[j-1][i-1]==0:
+                    dp[j][i]=dp[j-1][i]+dp[j][i-1]
+                else:
+                    dp[j][i]=0
+        return dp[-1][-
+
+作者：sheldonxin
+链接：https://leetcode-cn.com/problems/unique-paths-ii/solution/shi-pin-xiang-xi-jie-shi-by-sheldonxin/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 49. [73. 矩阵置零](https://leetcode-cn.com/problems/set-matrix-zeroes/)
+
+```python
+# 直接记录出现的行列： 遍历一遍记录，遍历第二遍根据标记0
+class Solution:
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+        """
+        Do not return anything, modify matrix in-place instead.
+        """
+        R = len(matrix)
+        C = len(matrix[0])
+        rows, cols = set(), set()
+
+        # Essentially, we mark the rows and columns that are to be made zero
+        for i in range(R):
+            for j in range(C):
+                if matrix[i][j] == 0:
+                    rows.add(i)
+                    cols.add(j)
+
+        # Iterate over the array once again and using the rows and cols sets, update the elements
+        for i in range(R):
+            for j in range(C):
+                if i in rows or j in cols:
+                    matrix[i][j] = 0
+
+# O(1)空间复杂度的玩法
+"""
+遍历整个矩阵，如果 cell[i][j] == 0 就将第 i 行和第 j 列的第一个元素标记。
+第一行和第一列的标记是相同的，都是 cell[0][0]，所以需要一个额外的变量告知第一列是否被标记，同时用 cell[0][0] 继续表示第一行的标记。
+然后，从第二行第二列的元素开始遍历，如果第 r 行或者第 c 列被标记了，那么就将 cell[r][c] 设为 0。这里第一行和第一列的作用就相当于方法一中的 row_set 和 column_set 。
+然后我们检查是否 cell[0][0] == 0 ，如果是则赋值第一行的元素为零。
+然后检查第一列是否被标记，如果是则赋值第一列的元素为零。
+"""
+
+class Solution(object):
+    def setZeroes(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: void Do not return anything, modify matrix in-place instead.
+        """
+        is_col = False
+        R = len(matrix)
+        C = len(matrix[0])
+        for i in range(R):
+            # Since first cell for both first row and first column is the same i.e. matrix[0][0]
+            # We can use an additional variable for either the first row/column.
+            # For this solution we are using an additional variable for the first column
+            # and using matrix[0][0] for the first row.
+            if matrix[i][0] == 0:
+                is_col = True
+            for j in range(1, C):
+                # If an element is zero, we set the first element of the corresponding row and column to 0
+                if matrix[i][j]  == 0:
+                    matrix[0][j] = 0
+                    matrix[i][0] = 0
+
+        # Iterate over the array once again and using the first row and first column, update the elements.
+        for i in range(1, R):
+            for j in range(1, C):
+                if not matrix[i][0] or not matrix[0][j]:
+                    matrix[i][j] = 0
+
+        # See if the first row needs to be set to zero as well
+        if matrix[0][0] == 0:
+            for j in range(C):
+                matrix[0][j] = 0
+
+作者：LeetCode
+链接：https://leetcode-cn.com/problems/set-matrix-zeroes/solution/ju-zhen-zhi-ling-by-leetcode/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 50.[71. 简化路径](https://leetcode-cn.com/problems/simplify-path/)
+
+```python
+class Solution:
+    def simplifyPath(self, path: str) -> str:
+        stk = []
+        path =path.split('/')  # 直接用split分割，极为干脆
+
+        for c in path:
+            # 分类讨论，根据两个/之间的内容
+            if c == '..':
+                if stk:
+                    stk.pop()
+            elif c and c != '.': # 有实际子目录
+                stk.append(c)
+            else:
+                # . 表示当前目录，///类似这样的多个实际上是一个，因此的可以不用操作。这两个都可以pass
+                pass
+        return "/"+"/".join(stk)
+```
+
+#### 51. [36. 有效的数独](https://leetcode-cn.com/problems/valid-sudoku/)
+
+```python
+# 没时间做，搬运题解
+# 思路：直接用数组记录某一子集数字出现的次数，每遍历一个数，如果》1,就可以返回False
+# 特点：boxes = [{} for i in range(9)]——box_index = (i // 3 ) * 3 + j // 3用这中方式，来表示方块性质的子集索引。这些天见到的三次了，需要注意以一下
+
+class Solution:
+    def isValidSudoku(self, board):
+        """
+        :type board: List[List[str]]
+        :rtype: bool
+        """
+        # init data
+        rows = [{} for i in range(9)]
+        columns = [{} for i in range(9)]
+        boxes = [{} for i in range(9)]
+        
+        # validate a board
+        for i in range(9):
+            for j in range(9):
+                num = board[i][j]
+                if num != '.':
+                    num = int(num)
+                    box_index = (i // 3 ) * 3 + j // 3
+                    
+                    # keep the current cell value
+                    rows[i][num] = rows[i].get(num, 0) + 1
+                    columns[j][num] = columns[j].get(num, 0) + 1
+                    boxes[box_index][num] = boxes[box_index].get(num, 0) + 1
+                    
+                    # check if this value has been already seen before
+                    if rows[i][num] > 1 or columns[j][num] > 1 or boxes[box_index][num] > 1:
+                        return False         
+        return True
 ```
 
 
