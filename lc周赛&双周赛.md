@@ -858,3 +858,46 @@ class Solution:
 
 ```
 
+
+
+
+
+
+
+
+
+## 209 周赛
+
+#### 3 .1610 可见点的最大数目
+
+```python
+class Solution:
+    def visiblePoints(self, points: List[List[int]], angle: int, location: List[int]) -> int:
+        # 思路都是调用api统一为度数，细节……
+        import math
+        rx ,ry =location
+        def get-degree(x,y):
+            return math.degree(math.atan2(y-ry,x-rx))
+            degrees = [get-degree(*p) for p in points if not (p[0]==rz and p[1]==ry)]  # 将所有的不与点重合的统计进去
+            same = len(points) - len(degrees)  #  重合的点
+            degrees.sort()  # 使用滑动窗口
+            print(degrees)
+
+            degrees += list(map(lambda a : a+360 ,degrees))
+            print(degrees)
+            l = 0
+            max_ = 0
+            n = len(degrees)
+            for idx , deg in enumerate(degrees):
+                if deg - degrees[l]<= angle:
+                    max_ = max(idx-l+1, max_)
+                else:
+                    while deg - degrees[l] >angle:
+                        l +=1
+            return max_+same
+
+
+
+
+```
+
