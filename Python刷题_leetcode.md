@@ -1905,6 +1905,28 @@ class Solution:
 
 ```
 
+#### 70.[118. 杨辉三角](https://leetcode-cn.com/problems/pascals-triangle/)
+
+```python
+# 纯模拟题
+class Solution:
+    def generate(self, numRows: int) -> List[List[int]]:
+        n = numRows
+        res = []
+        for i in range(n):
+            if i ==0:
+                res.append([1])
+                continue
+            tmp = [0]*(i+1)
+            tmp[0] = tmp[-1] = 1
+            last = res[-1]
+            for j in range(1,i):
+                tmp[j] = last[j-1] + last[j]
+            res.append(tmp[:])
+        return res
+            
+```
+
 
 
 
@@ -4553,6 +4575,75 @@ class Solution:
                 p1 += 1
 
 
+```
+
+#### 59. [91. 解码方法](https://leetcode-cn.com/problems/decode-ways/)
+
+```python
+# 先判断合不合法，然乎使用dp
+# 如果非0，继承上一个字符，然后看能够组合，如过可以，再加上上一个字符
+# 中途可以剪枝，如果是0且组合》=30 ，说明没有解码，直接返回零
+class Solution:
+    def numDecodings(self, s: str) -> int:
+        n = len(s)
+        dp = [0] * (n+1)  # 为了对应好好，这里用n+1
+        if s[0] == '0':
+            return 0
+        dp[0] = dp[1] =1  # 只用dp[1]就好，dp[0] 无所谓
+        for i in range(1,n):
+            if s[i]!= '0':
+                dp[i+1] = dp[i]
+            else:
+                if int(s[i-1]+s[i])>=30:
+                    return 0
+
+            num = int(s[i-1] +s[i])
+            if 10 <=num<= 26:
+                dp[i+1] += dp[i-1]
+        print(dp)
+        return dp[n]
+        
+
+
+```
+
+#### 60. [92. 反转链表 II](https://leetcode-cn.com/problems/reverse-linked-list-ii/)
+
+```python
+# 迭代法：
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    # 先找到需要操作的点，并记录前后两端的连接点
+    # 操作单独的端，用来连接
+    # m， n 是循环指标
+    def reverseBetween(self, head: ListNode, m: int, n: int) -> ListNode:
+        if not head:
+            return 
+        cur , pre = head, None
+        while m >1:  # 先找m个，并不断更新m.n
+            pre =cur 
+            cur =cur.next
+            m -=1
+            n -=1
+        tail, con = cur, pre  # 因为需要反转，所以这里的tail是m，用来连接后面的，con 的pre是前一段的最后一个
+        while n:
+            third = cur.next
+            cur .next =pre
+            pre = cur
+            cur = third
+            n -=1
+        # 这时， pre是反转段落的开头，cur是第三段的开头
+        if con:   # 这里是考虑如果从1 开始，那么 pre= con =None,所以需要讨论
+            con.next = pre
+        else:
+            head = pre
+        tail.next = cur
+        return head
 ```
 
 
