@@ -238,6 +238,12 @@ boxes = [{} for i in range(9)]
 box_index = (i // 3 ) * 3 + j // 3
 ```
 
+#### 20. 获取一个数的最低非零位
+
+```python
+b = a & (-a)
+```
+
 
 
 ## easy
@@ -4291,7 +4297,263 @@ class Solution:
         return True
 ```
 
+#### 52. [5518. 给定行和列的和求可行矩阵](https://leetcode-cn.com/problems/find-valid-matrix-given-row-and-column-sums/)
 
+```python
+## 最简单的贪心玩法，可惜没敢细想下去，傻逼到用dfs，玩砸了不说，还没考略到复杂度
+class Solution:
+    def restoreMatrix(self, rowSum: List[int], colSum: List[int]) -> List[List[int]]:
+        # 如果想试试贪心，就手动模拟一遍，不要不敢试
+        r=rowSum
+        c =colSum
+        m,n=len(r),len(c)
+        ans=[[0]*n for i in range(m)]
+        for j in range(n):
+            i=0
+            while c[j]>0:
+                t=min(c[j],r[i])
+                ans[i][j]=t
+                r[i]-=t
+                c[j]-=t
+                i+=1
+        return ans
+```
+
+#### 53. [2. 两数相加](https://leetcode-cn.com/problems/add-two-numbers/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def addTwoNumbers(self, l1: ListNode, l2: ListNode) -> ListNode:
+        pre = ListNode(-1)
+        cur =pre
+        carry= 0
+        while l1 or l2:
+            x= 0 if not l1 else l1.val
+            y = 0 if not l2 else l2.val
+            sum_ =x+y+carry
+            carry = sum_//10
+            sum_ = sum_%10
+            cur.next = ListNode(sum_)
+            cur = cur.next
+            if l1:
+                l1 = l1.next
+            if l2:
+                l2 =l2.next
+            
+        if carry == 1:
+            cur.next = ListNode(1)
+        return pre.next
+```
+
+#### 54 . [18. 四数之和](https://leetcode-cn.com/problems/4sum/)
+
+```python
+# 和三数之和差不多，多了一层循环而已，双指针都是要有的
+
+class Solution:
+    def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
+        q = []
+        if not nums or len(nums)<4:
+            return q
+
+        nums.sort()
+        n = len(nums)
+        for i in range(n-3):
+            #print('i',i)
+            if i >0  and nums[i] == nums[i-1]:  # 有重复数字、去重
+                continue
+            if sum(nums[i:i+4])>target:   # 先判断最小值是否达标，剪枝
+                break
+            if nums[i] + nums[-1]+nums[-2]+nums[-3] <target: # 在判断最大值是否超标、剪枝
+                continue
+            for j in range(i+1, n-2):
+                if j>i+1 and nums[j] == nums[j-1]: # 有重复数字、去重
+                    continue
+                if nums[i]+sum(nums[j:j+3])>target: # 先判断最小值是否达标，剪枝
+                    break
+                if nums[i] + nums[j]+nums[-1]+nums[-2] <target:# 在判断最大值是否超标、剪枝
+                    continue
+                l, r = j+1, n-1  # 后两个数用双指针确定，减少一重复杂度
+                while l <r:
+                    total = nums[i]+nums[j]+nums[l]+nums[r]
+                    if total == target:
+                        q.append([nums[i],nums[j],nums[l],nums[r]])
+                        while l <r and nums[l] == nums[l+1]:
+                            l +=1
+                        while l < r and nums[r] == nums[r-1]:
+                            r -=1
+                        r -=1   # 加上这个是为了避免死循环，想l<r 的临界条件变动，否则就卡在这里了
+                    elif total< target:
+                        l +=1
+                    else:
+                        r -=1
+        return q
+
+```
+
+#### 55. [86. 分隔链表](https://leetcode-cn.com/problems/partition-list/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+# 借助两个虚拟头结点，构造然后组合，倒是没什么难度
+class Solution:
+    def partition(self, head: ListNode, x: int) -> ListNode:
+        before = beforeHead = ListNode(0)
+        after = afterHead = ListNode(0)
+        while head:
+            if head.val < x:
+                before.next = head
+                before = before.next
+            else:
+                after.next = head
+                after = after.next
+            head = head.next
+
+        after.next = None
+        before.next = afterHead.next
+        return beforeHead.next
+
+
+```
+
+#### 56 . [81. 搜索旋转排序数组 II](https://leetcode-cn.com/problems/search-in-rotated-sorted-array-ii/)
+
+```python
+class Solution:
+    # 这道题四似曾相识
+    def search(self, nums: List[int], target: int) -> bool:
+        if not nums:
+            return False
+        left = 0
+        right = len(nums) - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] == target:
+                return True
+            # 左半段
+            if nums[mid] > nums[left]:  # mid 》 left 说明可以看看左边有没有问题
+                if nums[left] <= target <= nums[mid]:  # 如果能够包含target的话，看看里面
+                    right = mid - 1
+                else:
+                    left = mid + 1  # 否则，看看右边
+            # 不确定段，left++
+            elif nums[mid] == nums[left]:   # 如果相等的话，，稍微变动一下，
+                left += 1
+            # 右半段
+            elif nums[mid] < nums[left]:  # mid < left:说明右边比较有序，看看右边再分类讨论
+                if nums[mid] <= target <= nums[right]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+        return False
+
+```
+
+
+
+#### 57 .[82. 删除排序链表中的重复元素 II](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        dummy = pre = ListNode(0)
+        dummy.next = head            # 根据上式的赋值,改变dummy的结构也会改变pre
+        while head and head.next:
+            if head.val == head.next.val:
+                while head and head.next and head.val == head.next.val:
+                    head = head.next # 向后移动head指针
+                head = head.next     # 继续后移以去除重复出现过的数字
+                pre.next = head      # 此时head指向中间位置所代表的后序链表,通过pre指针将前序排序连接上,
+                # 此处对pre的操作破坏了链表的结构,由于dummy与pre指向同一链表,所以return dummy的值会发生变化(去重),
+                # 但dummy仍旧指向链表的开头ListNode(0)所以可以return到一开始的元素如0->1->2->3->3->4有
+                # 0->1->2->4,而pre为2->4
+            else:
+                head = head.next
+                pre = pre.next
+        return dummy.next # 如果输出pre.next的话 拿预期[1,2,5]的输出为例 只能得到[5]
+
+
+
+```
+
+#### 58. [75. 颜色分类](https://leetcode-cn.com/problems/sort-colors/)
+
+```python
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        if not nums or len(nums) == 0:
+            return
+        n = len(nums)
+        if n <= 3:
+            nums.sort()
+            return nums
+        f1 , f2, f2 = 0, 0, n-1
+        for i in range(n):
+            if nums[i] != 0:
+                f1 = f2 = i
+                break
+        for i in range(n-1,-1,-1):
+            if nums[i] != 2:
+                f3 = i
+                break
+        while f1 <= f3 and f2 <=f3:
+            if nums[f1] == 0:
+                t = nums[f1]
+                nums[f1] = nums[f2]
+                nums[f2] = t
+                f1 +=1
+                f2 +=1
+                continue
+            elif nums[f1] == 1:
+                f1 += 1
+                continue
+            else:
+                t = nums[f3]
+                nums[f3] =2
+                f3 -=1
+                while f3>f1 and nums[f3] ==2:
+                    f3 -=1
+                nums[f1] = t
+                #print(f1,f3)
+        
+        return nums
+
+# 还有另一种比较典型的双指针记录一下
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        n = len(nums)
+        p0 = p1 = 0  
+        for i in range(n):
+            if nums[i] == 1:  # 遇到1的时候转换
+                nums[i], nums[p1] = nums[p1], nums[i]
+                p1 += 1
+            elif nums[i] == 0:  # 遇到零的时候，交换
+                nums[i], nums[p0] = nums[p0], nums[i]
+                if p0 < p1:  # 遇到  0 的时候，之前的交换可能把01连续中断，所以需要再换回来。最好自己手画一边就明白了
+                    nums[i], nums[p1] = nums[p1], nums[i]
+                p0 += 1
+                p1 += 1
+
+
+```
 
 
 
@@ -4842,6 +5104,38 @@ class Solution:
         return True
             
                 
+```
+
+####  [1611. 使整数变为 0 的最少操作次数](https://leetcode-cn.com/problems/minimum-one-bit-operations-to-make-integers-zero/)
+
+```python
+##格雷码问题
+'''《从零开始的格雷码详解》
+https://leetcode-cn.com/problems/minimum-one-bit-operations-to-make-integers-zero/solution/xiang-jie-ge-lei-ma-by-simpleson/
+
+
+# 格雷码枚举
+def gray_iter(gray):
+    while(True):
+        yield gray
+        gray^=1
+        yield gray
+        gray^=(gray&-gray)<<1
+
+# 格雷码和二进制转换
+def gray_encode(bytenum):
+    return bytenum^(bytenum>>1)
+    
+# 解码
+def gray_decode(gray):
+        if not gray:return 0
+        head = 1<<int(math.log2(gray))
+        return head + gray_decode((gray^head)^(head>>1))
+'''
+class Solution:
+    def minimumOneBitOperations(self, n: int) -> int:
+        if not n:return 0
+        return n^self.minimumOneBitOperations(n>>1)
 ```
 
 

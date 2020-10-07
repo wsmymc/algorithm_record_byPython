@@ -42,3 +42,16 @@ https://www.cmsky.com/superspeed-sh/
 https://www.cmsky.com/superspeed-sh/
 
 https://doubibackup.com/8hzuha81.html
+
+
+
+
+
+
+
+## 宝塔页面--成都
+
+http://139.155.89.141:8888/5acda6ad
+
+username: vb1j24rn
+password: 2c3625fc
