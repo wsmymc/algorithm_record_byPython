@@ -244,6 +244,12 @@ box_index = (i // 3 ) * 3 + j // 3
 b = a & (-a)
 ```
 
+#### 21 . 判断是否是由字母或数字组成
+
+```python
+str.isalnum()
+```
+
 
 
 ## easy
@@ -1929,7 +1935,54 @@ class Solution:
 
 
 
+#### 71. [344. 反转字符串](https://leetcode-cn.com/problems/reverse-string/)
 
+```python
+class Solution:
+    def reverseString(self, s: List[str]) -> None:
+        """
+        Do not return anything, modify s in-place instead.
+        """
+        l, r = 0, len(s)-1
+        while l <=r:
+            s[l] ,s[r] = s[r],s[l]
+            l +=1
+            r -=1
+        return self
+```
+
+
+
+#### 72. [125. 验证回文串](https://leetcode-cn.com/problems/valid-palindrome/)
+
+```python
+class Solution:
+    # s.isalnum() 这个函数没见过
+    def isPalindrome(self, s: str) -> bool:
+        sgood = "".join(ch.lower() for ch in s if ch.isalnum())
+        return sgood == sgood[::-1]
+
+```
+
+#### 73 [119. 杨辉三角 II](https://leetcode-cn.com/problems/pascals-triangle-ii/)
+
+```python
+class Solution:
+    def getRow(self, rowIndex: int) -> List[int]:
+        n=rowIndex#取一个简单的名字
+        l=[1]#临时列表1
+        r=[]#返回值列表
+        for i in range(1,n+2):#i为层数，该层的数字数
+            l.append(0)#给临时列表的末尾加0防止越界
+            l.insert(0,0)#给临时列表的前端加0防止越界
+            r=[]#清空返回列表
+            for j in range(1,i+1):#递推每一个数字
+                r.append(l[j-1]+l[j])#递推式，这里j从1开始，所以这么写
+            l=r[:]#把新的列表（r）赋值给l
+        return r#完结撒花
+
+
+```
 
 
 
@@ -4644,6 +4697,55 @@ class Solution:
             head = pre
         tail.next = cur
         return head
+```
+
+#### 61. [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
+
+```python
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val: int = 0, left: 'Node' = None, right: 'Node' = None, next: 'Node' = None):
+        self.val = val
+        self.left = left
+        self.right = right
+        self.next = next
+"""
+# 比二简单，因为是完美的二叉树，层序的不想写了，没有技术含量。这个是和二差不多的用上层节点，推下层节点
+class Solution:
+    def connect(self, root: 'Node') -> 'Node':
+        if not root:
+            return root
+        
+        # Start with the root node. There are no next pointers
+        # that need to be set up on the first level
+        leftmost = root
+        
+        # Once we reach the final level, we are done
+        while leftmost.left:
+            
+            # Iterate the "linked list" starting from the head
+            # node and using the next pointers, establish the 
+            # corresponding links for the next level
+            head = leftmost
+            while head:
+                
+                # CONNECTION 1
+                head.left.next = head.right
+                
+                # CONNECTION 2
+                if head.next:
+                    head.right.next = head.next.left
+                
+                # Progress along the list (nodes on the current level)
+                head = head.next
+            
+            # Move onto the next level
+            leftmost = leftmost.left
+        
+        return root 
+
+
 ```
 
 
