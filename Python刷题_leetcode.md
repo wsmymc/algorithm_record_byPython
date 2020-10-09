@@ -4772,6 +4772,45 @@ class Solution:
 
 ```
 
+#### 62. [103. 二叉树的锯齿形层次遍历](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def zigzagLevelOrder(self, root: TreeNode) -> List[List[int]]:
+        res = []
+        if not root:
+            return res
+        flag = 1
+        q = []
+        q.append(root)
+        while q:
+            n = len(q)
+            tmp = []
+            for i in range(n):             
+                    t= q.pop(0)
+                    if t.left:
+                        q.append(t.left)
+                    if t.right:
+                        q.append(t.right)
+                    tmp.append(t.val)
+            if flag:
+                res.append(tmp)
+            else:
+                res.append(tmp[::-1])
+            flag = 1- flag
+            
+        return res
+                    
+
+```
+
 
 
 
