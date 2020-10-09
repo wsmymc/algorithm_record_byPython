@@ -1984,6 +1984,30 @@ class Solution:
 
 ```
 
+#### 73. [141. 环形链表](https://leetcode-cn.com/problems/linked-list-cycle/)
+
+```python
+# 哈希表是直观想法，不用写。快慢指针一时想不到，思路就是如果是环，快的一定会套圈慢的，如果相等，则确定是环
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def hasCycle(self, head: ListNode) -> bool:
+        if not head or not head.next:
+            return False
+        f ,s = head.next,head
+        while f != s:
+            if not f or not f.next:
+                return False
+            f = f.next.next
+            s= s.next
+        return True
+
+```
+
 
 
 
