@@ -2049,6 +2049,55 @@ class Solution:
         return res
 ```
 
+#### 75.[167. 两数之和 II - 输入有序数组](https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/)
+
+```python
+class Solution:
+    def twoSum(self, numbers: List[int], target: int) -> List[int]:
+        dic = {}
+        for i in range(len(numbers)):
+            if target-numbers[i] in dic:
+                return [dic[target-numbers[i]],i+1]
+            else:
+                dic[numbers[i]] = i+1
+# 递增，可能有特性没用到
+# 二层循环，内层使用二分，O（nlongn), O(1)
+class Solution:
+    def twoSum(self, numbers: List[int], target: int) -> List[int]:
+        n = len(numbers)
+        for i in range(n):
+            low, high = i + 1, n - 1
+            while low <= high:
+                mid = (low + high) // 2
+                if numbers[mid] == target - numbers[i]:
+                    return [i + 1, mid + 1]
+                elif numbers[mid] > target - numbers[i]:
+                    high = mid - 1
+                else:
+                    low = mid + 1
+        
+        return [-1, -1]
+# 双指针，min+ max可以认为是中间值了，之和大于，r--，小于l++，知道之和==target
+class Solution:
+    def twoSum(self, numbers: List[int], target: int) -> List[int]:
+        low, high = 0, len(numbers) - 1
+        while low < high:
+            total = numbers[low] + numbers[high]
+            if total == target:
+                return [low + 1, high + 1]
+            elif total < target:
+                low += 1
+            else:
+                high -= 1
+
+        return [-1, -1]
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/solution/liang-shu-zhi-he-ii-shu-ru-you-xu-shu-zu-by-leet-2/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 
@@ -4922,6 +4971,107 @@ class Solution:
             f= f.next
             s = s.next
 
+```
+
+#### 65. [131. 分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)
+
+```python
+# 递归回溯，模板题。掌握不行，费时间
+# 另有快捷，待续写
+
+class Solution:
+    def partition(self, s: str) -> List[List[str]]:
+        if not s or len(s)<2:
+            return [[s]]  # 返回格式要没有问题
+        res = []
+        n = len(s)
+        """     尽可能不要内置函数，比较之下，直接用t == t[::-1],节省了1/3时间
+        def _check(t):
+            l, r = 0, len(t)-1
+            while l <=r:
+                if t[l] != t[r]:
+                    return False
+                l +=1
+                r -=1
+            return True"""
+        
+
+        def _dfs(s,tmp,idx):
+            if idx>=n:
+                res.append(tmp)
+                return 
+            for i in range(idx,n):
+                t = s[idx:i+1]
+                if t == t[::-1]:  # 替换check节省时间
+                    tmp.append(t)
+                    #print(tmp,i+1)
+                    _dfs(s,tmp[:],i+1)
+                    tmp.pop()
+        _dfs(s,[],0)
+        return res
+
+            
+```
+
+#### 66. [130. 被围绕的区域](https://leetcode-cn.com/problems/surrounded-regions/)
+
+```python
+## DFS矩阵套路，问题是：1，构造二维矩阵总是出错[[x]*n for _ in range(m)]  这个套路要背下来
+# 2. 空边界问题，要想到，就和数学中的'解’一样
+class Solution:
+    def solve(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        if not board or len(board)==0 or len(board[0]) ==0:
+            return board
+        s = set()
+        moves = [(1,0),(-1,0),(0,1),(0,-1)]
+        m, n = len(board), len(board[0])
+        visited = [[False]* n for _ in range(m)]
+        #print(visited)
+        if m<3 or n<3:
+            return board
+        def _dfs(i,j):
+            for x, y in moves:
+                nx = x+i
+                ny = y+j
+                if 0 <=nx<m and 0<= ny < n and board[nx][ny] == 'O' and not visited[nx][ny]:
+
+                    print('error',nx,ny)
+                    s.add((nx,ny))
+                    visited[nx][ny] = True
+                    _dfs(nx,ny)
+        for i in range(n):
+           # print(i)
+            if not visited[0][i] and board[0][i] == 'O':
+                #print('1',i)
+                visited[0][i] = True
+                s.add((0,i))
+                _dfs(0,i)
+            if not visited[m-1][i] and board[m-1][i] == 'O':
+                #print('2',i)
+                visited[m-1][i] = True
+                s.add((m-1,i))
+                _dfs(m-1,i)
+
+        for i in range(m):
+            if not visited[i][0] and board[i][0] == 'O':
+                #print('3',i)
+                visited[i][0] = True
+                s.add((i,0))
+                _dfs(i,0)
+            if not visited[i][n-1] and board[i][n-1] == 'O':
+                #print('4',i)
+                visited[i][n-1] = True
+                s.add((i,n-1))
+                _dfs(i,n-1)
+        for i in range(m):
+            for j in range(n):
+                if (i,j) not in s and board[i][j] == "O":
+                    board[i][j] = 'X'
+        
+        
 ```
 
 
