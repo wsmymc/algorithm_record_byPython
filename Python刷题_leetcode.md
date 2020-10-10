@@ -144,6 +144,13 @@ _minInt = -sys.maxsize -1
 cnt = text.count(' ')   # count直接统计字符串里的字符次数
 n = text.split()        # split在默认的情况下，以所有空字符分割，指空格、tab、换行，也可以指定分割字符
 space, last = divmod(cnt,len(n)-1)  # 内建函数，直接获得数的商、余数
+
+
+return int(bin(n)[2::].zfill(32)[::-1], 2)
+# zfill（字符串右对齐，前面补0）
+
+return int(s,base=2)  # int()函数，加上base参数，可以选择进制转换
+
 ```
 
 #### 17 set.discard(value)
@@ -2006,11 +2013,41 @@ class Solution:
             s= s.next
         return True
 
+    # 也可以当作字符串来做，不过因为要默认32位，所以缺了的话，要补足0
+    class Solution:
+    def reverseBits(self, n: int) -> int:
+        s = bin(n)[2:]
+        #print(s,'s')
+        l = len(s)
+        t =''
+        for i in range(32-l):
+            t += '0'
+
+        s = t+s
+        s = s[::-1]
+        return int(s,base=2)  # int()函数，加上base参数，可以选择进制转换
+    
+   # 更pythonic一点
+ return int(bin(n)[2::].zfill(32)[::-1], 2)
+# zfill（字符串右对齐，前面补0）
 ```
 
 
 
 
+
+#### 74. [190. 颠倒二进制位](https://leetcode-cn.com/problems/reverse-bits/)
+
+```python
+class Solution:
+    def reverseBits(self, n: int) -> int:
+        res, power = 0, 31  # power 表示位数
+        while n:
+            res += (1&n)<<power  # 每次比较n最右边的值，然后左移power位
+            power -=1   # 下一回移动的power位-1
+            n = n>>1    # 最右端用过了，要更新
+        return res
+```
 
 
 
@@ -4808,6 +4845,82 @@ class Solution:
             
         return res
                     
+
+```
+
+#### 63. [93. 复原IP地址](https://leetcode-cn.com/problems/restore-ip-addresses/)
+
+```python
+from typing import List
+
+## 递归回溯没有做好
+class Solution:
+    def restoreIpAddresses(self, s: str) -> List[str]:
+        if not s or len(s)<3 or len(s)>12: 
+            return []
+        res = []
+        def _dfs(s,tmp):
+            if len(tmp) ==3:
+                if len(s)>1 and s[0] == '0':  # 最后一段中，如果有“前导”0，说明有问题，直接不要
+                    return
+                if 0<len(s)<=3 and 0 <= int(s) <= 255:
+                    tmp.append(s)
+                    #print('ok', tmp)
+                    res.append(".".join(tmp))
+                    return
+                else:
+                    #print('fuck')
+                    return
+            for i in range(min(len(s), 3)):  # 3 .不能直接搞3，如果s不够呢？
+                t = s[:i+1]
+                #print('t',t,'s',s,len(tmp),print(tmp))
+                if t[0] == '0':   # 2.本题中一个点是0， 在前三段中，遇到0，说明独立成段，直接下一层递归
+                    tmp.append('0')
+                    _dfs(s[1:],tmp[:])  # 1 ，这里传递给下一层的是一个副本
+                    tmp.pop()
+                    break
+
+                elif 0<int(t) <= 255:
+                    tmp.append(t)
+                    #print('jia',tmp)
+                    _dfs(s[i+1:],tmp[:])
+                    tmp.pop()
+        _dfs(s, [])
+        #print('res',res)
+        return res
+        
+```
+
+#### 64. [142. 环形链表 II](https://leetcode-cn.com/problems/linked-list-cycle-ii/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def detectCycle(self, head: ListNode) -> ListNode:
+        if not head or not head.next:
+            return None
+        f, s = head.next, head
+        flag = False
+        while f and f.next:
+            if f == s:
+                flag = not flag
+                break
+            s = s.next
+            f = f.next.next
+        if not flag:
+            return None
+        f = head
+        s =s.next # 需要慢指针再动一次再循环
+        while True:
+            if f ==s:
+                return s
+            f= f.next
+            s = s.next
 
 ```
 
