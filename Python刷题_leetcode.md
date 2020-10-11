@@ -5074,6 +5074,75 @@ class Solution:
         
 ```
 
+#### 67. [416. 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/)
+
+```python
+class Solution:
+    # 数据集较小不一定是recur，也有可能是dp，本次中recur超时，就应该想到dp
+    #target = 目标值，当然前面需要一些判定
+    # 设置为[n][target+1]，表示前i个元素，能否有和为j的，多一列是为了初始化时候，考虑到目标值为0，那么什么都不拿即可为True
+    def canPartition(self, nums: List[int]) -> bool:
+        n = len(nums)
+        if n<2:
+            return False
+        total = sum(nums)
+        if total &1 ==1:
+            return False
+        target = total >>1
+        # 如果一个值就超标，那就不可能有解
+        if max(nums) >target:
+            return False
+        
+        # dp初始化
+        dp = [[False]* (target+1) for _ in range(n)]
+        # target = 0 时，不取即解
+        for i in range(n):
+            dp[i][0] = True
+        # 这里是纯粹用来递推的种子，需要先初始化.在第一行中，只有num[0]一个元素，所以，只有target == nums[0] 的时候，才有解
+        dp[0][nums[0]] = True
+        
+        # 开始dp
+        for i in range(1,n):
+            num = nums[i]
+            for j in range(1,target+1):
+                if j>=num:
+                    # 上一行已经满足，不用取这个num，或者，这一行的前面满足j-num，要取num
+                    dp[i][j] = dp[i-1][j] or dp[i-1][j-num]
+                else:
+                    # num >j 必然不能取,只能继承上一行的状态
+                    dp[i][j] = dp[i-1][j]
+        return dp[n-1][target]  # 最后递推到全部元素考虑在内，是否有达到target的状态
+    
+    
+class Solution:
+    # 讨论区看到的一种解法，很巧妙。
+    def canPartition(self, nums: List[int]) -> bool:
+        # 常规判定
+        if len(nums) < 2:
+            return  False
+
+        ac = sum(nums)
+        if ac % 2 == 1:
+            return  False
+
+        res_ = ac / 2
+        # 利用字典记录各种组合下来的和
+        d = defaultdict(int)
+        #最开始，什么都不取，为1，这也是为了后面，不取某个数字对应的操作
+        d[0] = 1
+        # 顺次取数字
+        for num in nums:
+            # 和既有的和操作，key = 0时，说明不取这个数，
+            for k in list(d.keys()):
+                r = num + k
+                # 每次判定是否达标
+                if r == res_:
+                    return True
+                # 计算的和加入字典
+                d[r] = 1
+        return False
+```
+
 
 
 
