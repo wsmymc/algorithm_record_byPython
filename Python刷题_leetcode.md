@@ -5175,6 +5175,45 @@ class Solution:
         return False
 ```
 
+#### 68. [147. 对链表进行插入排序](https://leetcode-cn.com/problems/insertion-sort-list/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    # 想法没错，确实需要使用dummy，然后每个节点从头走遍历。不过这里还需要使用一个pre节省时间,可以将cur从pre、cur.next中空出来操作
+    def insertionSortList(self, head: ListNode) -> ListNode:
+        if not head or not head.next:
+            return head
+        dummy = ListNode(float('inf'))
+        dummy.next =head
+        cur = head.next
+        pre= head
+        while cur:
+            tmp = cur.next
+            # 相邻两个节点<= 说明至少这次循环中，不要插入操作
+            if pre.val <= cur.val:
+                pre, cur = cur, tmp
+            else:
+                start = dummy
+                # 从头找属于cur的位置,注意，这里比较的是start。next，能走到start，说明已经》start了，这样最后的空位就在start和 start.next之间
+                while cur.val > start.next.val:
+                    start = start.next
+                # 找到位置后，插入操作
+                pre.next = tmp
+                cur.next = start.next
+                start.next = cur
+                # 找到下一个cur
+                cur = tmp
+        # 这里之所以用dummy.next 而不用head，是因为head也可能会被排序，在局内，而dummy，在局外
+        return dummy.next
+
+```
+
 
 
 
