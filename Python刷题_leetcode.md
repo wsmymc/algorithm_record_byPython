@@ -2098,6 +2098,38 @@ class Solution:
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+#### 76. [530. 二叉搜索树的最小绝对差](https://leetcode-cn.com/problems/minimum-absolute-difference-in-bst/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+# 我能想到的中序遍历，记录数组，循环比较
+# 我没想到的，可以再遍历中，直接加上pre字段，然后不断比较当前值和pre的差值，直接得到res
+class Solution:
+    def getMinimumDifference(self, root: TreeNode) -> int:
+        res = float('inf')
+        pre= -1
+        
+        def _inorder(node):
+            nonlocal res,pre
+            if not node:
+                return None
+            _inorder(node.left)
+            if pre == -1:
+                pre = node.val
+            else:
+                res = min(res,node.val-pre)
+                pre = node.val
+            right = _inorder(node.right)
+        _inorder(root)
+        return res
+
+```
+
 
 
 
