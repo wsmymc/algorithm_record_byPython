@@ -5214,6 +5214,88 @@ class Solution:
 
 ```
 
+#### 69. [144. 二叉树的前序遍历](https://leetcode-cn.com/problems/binary-tree-preorder-traversal/)
+
+```python
+# 递归解法
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorderTraversal(self, root: TreeNode) -> List[int]:
+        res = []
+        if not root:
+            return res
+        def preorder(root):
+            res.append(root.val)
+            if root.left:
+                preorder(root.left)
+            if root.right:
+                preorder(root.right)
+        preorder(root)
+        return res
+# 迭代写法
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorderTraversal(self, root: TreeNode) -> List[int]:
+        res = []
+        if not root:
+            return res
+        q = []
+        q.append(root)
+        while q:
+            cur = q.pop()
+            res.append(cur.val)
+            if cur.right:  # 用数据栈代替程序调用栈，注意顺序先右后左
+                q.append(cur.right)
+            if cur.left:
+                q.append(cur.left)
+        return res
+```
+
+#### 70. [127. 单词接龙](https://leetcode-cn.com/problems/word-ladder/)
+
+```python
+class Solution:
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+        if not beginWord or not endWord or not wordList or endWord not in wordList:
+            return 0
+        n = len(beginWord)
+        # 对一个单词构建可能的相似性模板(顺序将每个字符换成‘*’)，并遍历list，将单词归类(把每个单词放在所有它的相似模板下面))
+        dic = defaultdict(list)
+        for word in wordList:
+            for i in range(n):
+                dic[word[:i] + '*' + word[i+1:]].append(word)
+
+        # 队列BFS，记录单词和路径长度
+        # 每次从一个模板中取出所有的单词，并利用set(),记录已出现，防止回环
+        # 直到找到endword，或者返回0
+        q = [(beginWord,1)]
+        visited = set()
+        visited.add(beginWord)
+        while q:
+            cur_word, path = q.pop(0)
+            for i in range(n):
+                like_word = cur_word[:i] +'*'+ cur_word[i+1:]
+                for word in dic[like_word]:
+                    if word == endWord:
+                        return path+1
+                    if word not in visited:
+                        visited.add(word)
+                        q.append((word, path+1))
+                del dic[like_word]
+        return 0
+            
+```
+
 
 
 
@@ -5765,7 +5847,7 @@ class Solution:
                 
 ```
 
-####  [1611. 使整数变为 0 的最少操作次数](https://leetcode-cn.com/problems/minimum-one-bit-operations-to-make-integers-zero/)
+####  15. [1611. 使整数变为 0 的最少操作次数](https://leetcode-cn.com/problems/minimum-one-bit-operations-to-make-integers-zero/)
 
 ```python
 ##格雷码问题
@@ -5795,6 +5877,70 @@ class Solution:
     def minimumOneBitOperations(self, n: int) -> int:
         if not n:return 0
         return n^self.minimumOneBitOperations(n>>1)
+```
+
+#### 16. [1617. 统计子树中城市之间最大距离](https://leetcode-cn.com/problems/count-subtrees-with-max-distance-between-cities/)
+
+```python
+# 大概明白一点思路，BFS+Floyed+状态压缩DP，但是实际来写，基本不会，确实是只是边界之外的东西，不要说比赛，没有题解，一天都不见得会
+# 这篇题解只理解了大概，还是需要手画一遍，大概能够更清楚
+class Solution:
+    def countSubgraphsForEachDiameter(self, n: int, edges: List[List[int]]) -> List[int]:
+        # 存储两点之间的距离，一开始存储一个不可能最大值作为初始化
+        dis = [[16] * n for _ in range(n)]
+        # 每个点自身的距离为0
+        for i in range(n):
+            dis[i][i] = 0
+        
+        # 状态压缩dp, 1<<n 说明有2^(n)个子树
+        # 状态压缩存储 dp[j]表示子树j的最大距离
+        # j表示成二进制，从右数第k位为1表示第k个节点在子集中，否则不在
+        dp = [0]*(1<<n)
+        for edge in edges:
+            # 直连的点相距为1
+            dis[edge[0] - 1][edge[1]-1] = 1
+            dis[edge[1] -1][edge[0] -1] = 1
+            # 相互连接的两个点构成一个子树，最大距离为1
+            dp[(1<<(edge[0]-1))+(1<<(edge[1]-1))] = 1
+
+        # Floyed算法，就图中每个点到其他个点的最短距离
+        for k in range(n):
+            for i in range(n):
+                for j in range(n):
+                    if dis[i][k] != 16 and dis[k][j] != 16:
+                        dis[i][j] = min(dis[i][j], dis[i][k]+dis[k][j])
+
+        # dp从右到左统计数据，从1开始，因为0说明所有节点全都不在，是空白
+        for  j in range(1,len(dp)):
+            # 如果j所表示得到点，自己不构成子树（其实就是没有在edges中出现过），就没必要继续了
+            if dp[j]==0:
+                continue
+            # 这里的i是指1<<i,从而在确定j的情况下，枚举每个点加入j的情况
+            for i in range(n):
+                # (1<<i)&j  说明这次的点已经在j里；dp[j+(1<<i)] !=0说明这个j已经被计算过了，因为 111=101+10=11+100 添加点的顺序不同 但是能得出同样的一棵子树（）之所以不考虑会不会疏漏了1的情况，是因为1在之前就只表示有且只有两个点，不需要考虑扩展新的点
+                # 综上，出现两种情况中的一个，那么就不需要考虑了，这个点，作废，进入下一个循环
+                if ((1<<i)&j) !=0 or dp[j+(1<<i)] !=0:
+                    continue
+                for k in range(n):
+                    # (1<<k)&j) !=0说明该点k在树j中，dis[i][k]==1说明点k和点j直连
+                    # 因此，先将前一个子树dp[j]的值赋予dp[j+(1<<i)]
+                    if ((1<<k)&j) !=0 and dis[i][k]==1:
+                        dp[j+(1<<i)] = dp[j]
+                        break
+                # 如果没有与i相连的点，那么就无法添加这个节点了
+                if dp[j+(1<<i)] == 0:
+                    continue
+                # 把节点i添加进来 就要更新新子树的最大距离 dp[j+(1<<i)]
+                # 更新的办法是 对于原子树的每一个节点和新节点求最大距离。 因为只产生了这些新距离 做增量计算就好
+                for kk in range(n):
+                    if ((1<<kk) &j) !=0:
+                        dp[j+(1<<i)] = max(dp[j+(1<<i)],dis[i][kk])
+        res = [0]*(n-1)
+        #print(dp)
+        for i in range(len(dp)):
+            if dp[i] !=0:
+                res[dp[i]-1] +=1
+        return res
 ```
 
 
