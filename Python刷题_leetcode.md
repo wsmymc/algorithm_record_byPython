@@ -5296,6 +5296,118 @@ class Solution:
             
 ```
 
+#### 71. [129. 求根到叶子节点数字之和](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def sumNumbers(self, root: TreeNode) -> int:
+        res = 0
+        if not root:
+            return res
+        def dfs(root,sum_):
+            nonlocal res
+            if not root.left and not root.right:
+                res += sum_*10+root.val
+                return 
+            sum_ = sum_*10+root.val
+            if root.left:
+                dfs(root.left, sum_)
+            if root.right:
+                dfs(root.right, sum_)
+        dfs(root, 0)
+        return res
+
+```
+
+#### 72. [133. 克隆图](https://leetcode-cn.com/problems/clone-graph/)
+
+```python
+# 因为是clone，所以用vistied记录，key是原节点，value是克隆节点，然后按照原节点的关系，组织克隆节点一一对应
+## dfs解法
+
+class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        visited = {}
+        def dfs(node):
+            #print(node.val)
+            if not node:
+                return 
+            if node in visited:
+                return visited[node]
+            clone = Node(node.val, [])
+            visited[node] = clone
+            for ni in node.neighbors:
+                # dfs递归地添加新clone的neighbor节点
+                clone.neighbors.append(dfs(ni))
+            return clone
+        return dfs(node)
+  
+
+## bfs解法
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val = 0, neighbors = []):
+        self.val = val
+        self.neighbors = neighbors
+"""
+
+class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        visited = {}
+        def bfs(node):
+            if not node:
+                return
+            clone = Node(node.val, [])
+            visited[node] = clone
+            q = [node]
+            while q:
+                tmp = q.pop(0)
+                for n in tmp.neighbors:
+                    if n not in visited:
+                        visited[n] = Node(n.val, [])
+                        q.append(n)
+                    visited[tmp].neighbors.append(visited[n])
+            return clone
+        return bfs(node)
+            
+            
+```
+
+#### 73. [134. 加油站](https://leetcode-cn.com/problems/gas-station/)（待解决）
+
+```python
+class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
+         # a 就是那个数组
+        a = []
+        for i in range(len(gas)):
+            a.append(gas[i] - cost[i])
+
+        if sum(a) < 0:
+            return -1
+
+        start = 0
+        all_money = 0
+        for i in range(len(a)):
+            all_money += a[i]
+            if all_money < 0:
+                all_money = 0
+                start = i+1
+
+        if start < len(a):
+            return start
+```
+
+
+
 
 
 
