@@ -5381,7 +5381,7 @@ class Solution:
             
 ```
 
-#### 73. [134. 加油站](https://leetcode-cn.com/problems/gas-station/)（待解决）
+#### 73. [134. 加油站](https://leetcode-cn.com/problems/gas-station/)
 
 ```python
 class Solution:
@@ -5391,19 +5391,31 @@ class Solution:
         for i in range(len(gas)):
             a.append(gas[i] - cost[i])
 
-        if sum(a) < 0:
+        if sum(a) < 0:# 油量油耗之差《0，等死没救了
             return -1
 
         start = 0
         all_money = 0
         for i in range(len(a)):
             all_money += a[i]
-            if all_money < 0:
+            if all_money < 0: # 某一阶段《0，说明起点不在这里，从下一点开始
                 all_money = 0
                 start = i+1
 
         if start < len(a):
             return start
+ class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
+        # rest记录全程的油量和油耗之差，如果存在《0，说明注定跑不完，-1
+        # last记录一段路的差值，如果小于零，说明，从这个这个起点开始的走不到下一个站点，那就以下一个站点为起点，越过障碍。如果走到最后，就说明可以走完一周，因为在rest》=0的前提下，必然有解，前面有段落，意味着后面开始的那部分会积累足够弥补前边段落的油量
+        rest, last,start =0,0,0
+        for i in range(len(gas)):
+            last += gas[i]-cost[i]
+            rest += gas[i]-cost[i]
+            if last<0:
+                start =i +1
+                last =0 
+        return start if rest >=0 else -1
 ```
 
 
