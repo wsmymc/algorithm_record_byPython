@@ -5418,6 +5418,92 @@ class Solution:
         return start if rest >=0 else -1
 ```
 
+#### 74. [143. 重排链表](https://leetcode-cn.com/problems/reorder-list/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+# 单链表走一半翻转，从尾到头输出，注意如果是奇数个节点，中间节点，需要提前处理，放在结果的最后
+class Solution:
+    def reorderList(self, head: ListNode) -> None:
+        """
+        Do not return anything, modify head in-place instead.
+        """
+        f, s = head,head
+        rev = ListNode(-1)
+        tmp = rev
+
+        while f and f.next:
+            f = f.next.next
+            pre = s
+            s = s.next
+            t = tmp.next
+            tmp.next = pre
+            pre.next=t
+        
+        dummy = ListNode(-1)
+        last = ListNode(-1)
+        if f:
+            last = s
+            #last.next= None
+            #print(last.val)
+            s = s.next
+            last.next= None
+            #print(s)
+            dummy.next =last
+            #print(dummy)
+        rev = rev.next
+        while rev and s  :
+            n1 = rev
+            rev = rev.next
+            n2 = s
+            s= s.next
+            t = dummy.next
+            n1.next= n2
+            n2.next = t
+            dummy.next = n1
+        return dummy.next
+
+
+```
+
+#### 75. [138. 复制带随机指针的链表](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)
+
+```python
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+"""
+# 1从图里学来的，深拷贝问题类似于数或者图，要求遍历所有“分支“ ，那么dfs 、bfs就是十分可行的方法
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        if not head:
+            return head
+        record = {}
+        def dfs(node):
+            if not node:
+                return None
+            if node in record:
+                return record[node]
+            else:
+                record[node] = Node(node.val)
+                if node.next:
+                    record[node].next = dfs(node.next)
+                if node.random:
+                    record[node].random = dfs(node.random)
+            return record[node]
+        return dfs(head)
+
+
+```
+
 
 
 
