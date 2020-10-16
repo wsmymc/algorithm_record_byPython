@@ -2130,6 +2130,30 @@ class Solution:
 
 ```
 
+#### 77. [977. 有序数组的平方](https://leetcode-cn.com/problems/squares-of-a-sorted-array/)
+
+```python
+# 双指针，两边到中间，边比较边移动
+class Solution:
+    def sortedSquares(self, A: List[int]) -> List[int]:
+        n = len(A)
+        ans = [0] * n
+        
+        i, j, pos = 0, n - 1, n - 1
+        while i <= j:
+            if A[i] * A[i] > A[j] * A[j]:
+                ans[pos] = A[i] * A[i]
+                i += 1
+            else:
+                ans[pos] = A[j] * A[j]
+                j -= 1
+            pos -= 1
+        
+        return ans
+
+
+```
+
 
 
 
@@ -5502,6 +5526,33 @@ class Solution:
         return dfs(head)
 
 
+```
+
+#### 76. [153. 寻找旋转排序数组中的最小值](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/)
+
+```python
+class Solution:
+    # 一开始没想明白，一旦开始旋转，那那么left《right，就是有有序，否则就是无序，mid可以代替left，也可以代替right，在循环中判断
+    # 返回点在于mid 》 mid+1 ，以及mid-1> mid这两种情况
+    # 一开始担心mid求后，会发生mid+1 或者mid-1,越界的问题，，其实用【2,1】、【3,2,1】手动模拟，皆可以找到判定顺序，是先mid+1，如果没有，在判定mid-1。因为求mid的话，如果是偶数的话，mid中中间偏左的位置
+    def findMin(self, nums: List[int]) -> int:
+        if not nums:
+            return -1
+        if len(nums) == 1:
+            return nums[0]
+        l , r = 0, len(nums)-1
+        if nums[r]>nums[l]:
+            return nums[l]
+        while l<r:
+            mid = (l+r)>>1
+            if nums[mid] > nums[mid+1]:
+                return nums[mid+1]
+            if nums[mid-1] > nums[mid]:
+                return nums[mid]
+            if nums[mid] > nums[0]:
+                l = mid+1
+            else:
+                r =mid-1
 ```
 
 
