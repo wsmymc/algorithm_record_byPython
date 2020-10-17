@@ -6306,6 +6306,68 @@ class Solution:
         return self.cnt
 ```
 
+#### 19. [1575. 统计所有可行路径](https://leetcode-cn.com/problems/count-all-possible-routes/)
+
+```python
+# 貌似是周赛题，我忘记了
+# 理清楚情况，就是遍历所有可能。在根据数量级判断，大概知道是dfs或者dp
+# 如果能够直达就+1，否则接着遍历，燃料不足，就停止，手动画树模拟一下就好
+class Solution:
+    def countRoutes(self, locations: List[int], start: int, finish: int, fuel: int) -> int:
+        n = len(locations)
+
+        @lru_cache(None)
+        def dfs(pos, rest):
+            # 如果剩下的燃料不能直达finish，就不要继续了
+            if abs(locations[pos]-locations[finish]) > rest:
+                return 0
+            res = 0
+            for i , loc in enumerate(locations):
+                # 不能i-->i
+                if pos != i:
+                    cost = abs(locations[pos] - loc)
+                    if cost <= rest:
+                        res += dfs(i, rest - cost)
+            # 如果当前就在finish，那么就此结束行程也是一种选择，因此+1
+            if pos == finish:
+                res += 1
+            return res % 1000000007
+        return dfs(start, fuel)
+
+    
+# DFS理论上，都可以装换成dp问题结局，两者都是遍历法，解析如下
+# https://leetcode-cn.com/problems/count-all-possible-routes/solution/tong-ji-suo-you-ke-xing-lu-jing-by-leetcode-soluti/ 和这里解析比起来，时间复杂度，多了n，但是更好理解
+class Solution:
+    def countRoutes(self, locations: List[int], start: int, finish: int, fuel: int) -> int:
+        # 画表,
+        dp = [ [0] * len(locations) for _ in range(fuel+1)]
+        # dp初始化边界，一开始是满油在初始状态
+        dp[fuel][start] = 1
+        # 油量是由多到少
+        '''定义 dp 状态为剩余油量为 x 且此时刚好在 src 处的总数，那么如果有足够的油量到 dst 处，我们就可以知道：dp[x - diff(src, dst)][dst] += dp[x][src]
+(其实这里是自定向下的，可以结合表想一想)
+作者：returnnull-2
+链接：https://leetcode-cn.com/problems/count-all-possible-routes/solution/bian-xing-de-bei-bao-wen-ti-kuo-san-shi-dong-tai-g/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。'''
+        for i in range(fuel, 0 ,-1):
+            for s in range(len(locations)):
+                for e in range(len(locations)):
+                    if s == e:
+                        continue
+                    diff = abs( locations[s] - locations[e])
+                    if diff <= i:
+                        dp[i - diff][e] += dp[i][s]
+        res = 0
+        for i in range(fuel+1):
+            res += dp[i][finish]
+        return res%(10**9+7)
+
+
+
+
+```
+
 
 
  
