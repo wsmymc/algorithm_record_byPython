@@ -2154,6 +2154,20 @@ class Solution:
 
 ```
 
+#### 78. [172. 阶乘后的零](https://leetcode-cn.com/problems/factorial-trailing-zeroes/)
+
+```python
+class Solution:
+    def trailingZeroes(self, n: int) -> int:
+        if n<=0:
+            return n
+        res = 0
+        while n:
+            res += n//5
+            n =n //5
+        return res
+```
+
 
 
 
