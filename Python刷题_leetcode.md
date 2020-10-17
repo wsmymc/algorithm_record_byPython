@@ -6218,6 +6218,94 @@ class Solution:
         return res
 ```
 
+#### 17. [51. N 皇后](https://leetcode-cn.com/problems/n-queens/)
+
+```python
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        # 一开始想单纯dfs，貌似思路有点偏……，dfs要有，但是还有回溯
+        # 所以是backtrace
+        def get_grid():  
+            grid = list()
+            for i in range(n):
+                row[queues[i]] = 'Q'     # 用同一行操作
+                grid.append("".join(row))
+                row[queues[i]] = '.'   # 这一行处理完了，就变回来，操作下一行
+            return grid
+        
+        def backtrace(row):
+            if row == n:  # row最大是n-1，所以这里是遍历完了
+                grid = get_grid()
+                res.append(grid)
+            else:
+                for i in range(n):
+                    if i in col or row - i in diag1 or row+i in diag2:  # 从列的角度考虑，然后是斜线，同一斜线，row +- i的值固定，实际上就是 y = +-x + d，d是定值
+                        continue
+                    queues[row] = i
+                    col.add(i)
+                    diag1.add(row -i)
+                    diag2.add(row+i)
+                    backtrace(row +1)
+                    col.remove(i)
+                    diag1.remove(row -i)
+                    diag2.remove(row+i)
+
+
+
+
+
+        
+
+        res = list()  # 结果集
+        queues = [-1]*n     # 记录每一行的Q的横坐标
+        col= set()
+        diag1 , diag2 = set(),set()   # 集合 这里代表左右两个斜线
+        row = ['.']*n # 一行只可能有一个，所以用行来占位,也单纯从行的维度来递归
+        backtrace(0)  # 从第0行开始
+        return res
+```
+
+#### 18. [52. N皇后 II](https://leetcode-cn.com/problems/n-queens-ii/)
+
+```python
+class Solution:
+    def totalNQueens(self, n: int) -> int:
+        
+        # 一开始想单纯dfs，貌似思路有点偏……，dfs要有，但是还有回溯
+        # 所以是backtrace
+        def backtrace(row):
+            if row == n:
+                self.cnt += 1
+                return
+            else:
+                for i in range(n):
+                    # 因为图的性质，可以看出来row+-i的值可以确认斜线方向是否相连
+                    if i in col or row - i in diag1 or row+i in diag2:
+                        continue
+                    queues[row] = i  # 依次遍历，确定row一行中，Q的位置
+                    col.add(i)
+                    diag1.add(row -i)
+                    diag2.add(row+i)
+                    backtrace(row +1)
+                    col.remove(i)
+                    diag1.remove(row -i)
+                    diag2.remove(row+i)
+
+
+
+
+
+        
+        self.cnt = 0
+        res = list()  # 结果集
+        queues = [-1]*n  
+        col= set()
+        diag1 , diag2 = set(),set() # 这个是考虑斜着的方向
+        row = ['.']*n # 一行只可能有一个，所以用行来占位
+        backtrace(0)
+        return self.cnt
+```
+
 
 
  
