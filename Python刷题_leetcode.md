@@ -5569,6 +5569,80 @@ class Solution:
                 r =mid-1
 ```
 
+####  77. [1620. 网络信号最好的坐标](https://leetcode-cn.com/problems/coordinate-with-maximum-network-quality/)
+
+```python
+
+from typing import List
+from  math import floor,sqrt
+# 比赛时的思路，是纯暴力，先把所有的点摊开在地图上，确定四个极限边界，再在边界点内寻找一个个候选点，比较、记录、排序，取值。太暴力了
+class Solution:
+    def bestCoordinate(self, towers: List[List[int]], radius: int) -> List[int]:
+        if not towers:
+            return
+        if len(towers)==1:
+            return [towers[0][0], towers[0][1]]
+        uy = dy = towers[0][0]
+        lx = rx = towers[0][1]
+        for x,y,r in towers:
+            lx = min(lx,x)
+            rx = max(x,rx)
+            uy = max(y,uy)
+            dy = min(y,dy)
+        lx -= radius
+        rx += radius
+        uy +=radius
+        dy -= radius
+        res = []
+        record = 0
+        #print(lx,uy)
+        for px in range(lx,rx+1):
+            for py in range(dy,uy+1):
+                cnt = 0
+                for x, y,q in towers:
+                    t= sqrt((px-x)**2 + (py-y)**2)
+
+                    if t > radius:
+                        continue
+                    else:
+                        cnt += floor(q/(1+t))
+                if cnt == record:
+                    res.append([px,py])
+                elif cnt > record:
+                    record = cnt
+                    res.clear()
+                    res.append([px,py])
+                else:
+                    continue
+
+        res.sort()
+        return res[0]
+
+## 看到题解 发现暴力也有暴力的细节
+# 先把信号塔按照字典序排序，然后直接每次寻找其他塔对这个塔的影响
+# 不过这里有个问题，一定是塔的信号强度最大吗？其实有点疑问
+class Solution:
+    def bestCoordinate(self, towers: List[List[int]], radius: int) -> List[int]:
+        towers.sort(key=lambda x:[x[0],x[1]]) # x, y升序排列
+        n = len(towers)
+        signals = [0 for _ in range(n)]
+        for i in range(n):
+            signal = 0
+            x1, y1 = towers[i][0], towers[i][1]
+            for j in range(n):
+                x2, y2, q = towers[j][0], towers[j][1], towers[j][2]
+                dist = sqrt((x1-x2) * (x1-x2) + (y1-y2) * (y1-y2))
+                if dist > radius:
+                    signal += 0
+                else:
+                    signal += math.floor(q / (1 + dist))
+            signals[i] = signal
+        maxsignal = max(signals)
+        poi = signals.index(maxsignal)
+        return [towers[poi][0], towers[poi][1]]
+
+```
+
 
 
 
