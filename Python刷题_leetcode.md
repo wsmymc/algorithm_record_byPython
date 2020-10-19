@@ -2168,6 +2168,30 @@ class Solution:
         return res
 ```
 
+#### 79. [844. 比较含退格的字符串](https://leetcode-cn.com/problems/backspace-string-compare/)
+
+```python
+class Solution:
+    def backspaceCompare(self, S: str, T: str) -> bool:
+        if not S and not T:
+            return True
+        q1, q2 = [] ,[]
+        for i in  S:
+            if i != '#':
+                q1.append(i)
+            else:
+                if q1:
+                    q1.pop()
+        for i in  T:
+            if i != '#':
+                q2.append(i)
+            else:
+                if q2:
+                    q2.pop()
+        return q1 == q2
+        
+```
+
 
 
 
@@ -5643,7 +5667,26 @@ class Solution:
 
 ```
 
+#### 78. [5545. 无矛盾的最佳球队](https://leetcode-cn.com/problems/best-team-with-no-conflicts/)
 
+```python
+class Solution:
+    def bestTeamScore(self, scores: List[int], ages: List[int]) -> int:
+        # 前面对数据的处理做到了，但是后面的dp逻辑没有想出来
+        n = len(scores)
+        arr = list(zip(ages, scores)) # 使用list保留zip后的数据，zip生成的貌似是dict
+        arr.sort(key=lambda x : (x[0], x[1]))  # 比赛时lamdba没用对，:后面最好空一格，这就是二维排序了
+
+        # 下面的是比赛时没有考虑到的dp斯洛
+        # 首先初始化，假如单独成队
+        dp = [arr[i][1] for i in range(n)]
+        for i in range(n):
+            for j in range(i):
+                # 如果达成这种条件，就可以不考虑年龄,直接登记最新值，不用考虑年龄相等时的情况，注意前面的sort已经将年龄相等时的成绩大的向后排了
+                if arr[i][1] >= arr[j][1]:
+                    dp[i] = max(dp[i], dp[j]+arr[i][1])
+        return max(dp)
+```
 
 
 
