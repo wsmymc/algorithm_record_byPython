@@ -5688,6 +5688,31 @@ class Solution:
         return max(dp)
 ```
 
+#### 79. [1621. 大小为 K 的不重叠线段的数目](https://leetcode-cn.com/problems/number-of-sets-of-k-non-overlapping-line-segments/)
+
+```python
+class Solution:
+    # 三维动态规划，关键在于要讨论最右边端点的状态，不连接-0，和左端新开一段-1，不是新开，而是延长左端的线段-2
+    def numberOfSets(self, n: int, k: int) -> int:
+        MOD = 10**9 + 7
+        # dp[i][j][t] 表示区间[0,i]中取j段有几种取法, t=0 不取, t=1 取新一段, t=2 和前一段连起来
+        dp = [[[0, 0, 0] for t in range(k+1)] for _ in range(n)]
+        for i in range(n): # 初始化，任何点，不选都是1
+            dp[i][0][0] = 1
+        for i in range(1, n):
+            for j in range(1, min(i, k)+1):
+                dp[i][j][0] = sum(dp[i-1][j])
+                dp[i][j][1] = sum(dp[i-1][j-1])
+                # 选择延长，有两种可能，i-2开始直接顺着i-1延长，以及更里面延长出来
+                dp[i][j][2] = dp[i-1][j][1] + dp[i-1][j][2]
+        return sum(dp[n-1][k]) % MOD
+
+# 另一种数学方法：抽象不太懂.形象点讲，可以认为将中间承接线段的点，是为l、r两个点，这样连接时就不用考虑共享点的问题，共有n+k-1，其中2k个点组成k条线段，如此可以算出排列数（其实不要细想，我也解释不清楚）
+class Solution:
+    def numberOfSets(self, n: int, k: int) -> int:
+        return math.comb(n + k - 1, k * 2) % (10**9 + 7)
+```
+
 
 
 
