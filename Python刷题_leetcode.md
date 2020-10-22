@@ -5854,6 +5854,26 @@ class Solution:
 
 ```
 
+#### 81 .[162. 寻找峰值](https://leetcode-cn.com/problems/find-peak-element/)
+
+```python
+class Solution:
+    # logn时间复杂度要求就是二分法了，只是这里要求有索引，所以判断条件是l<r 而不是l <= r（死循环）
+    # 具体决策，画一条直线或者斜线看看就知道了
+    def findPeakElement(self, nums: List[int]) -> int:
+        l, r = 0, len(nums)-1
+        if l == r:
+            return l
+        while l < r:
+            mid = (l+r) >>1
+            if nums[mid] > nums[mid+1]:
+                r = mid
+            else:
+                l = mid+1
+        return l
+
+```
+
 
 
 
