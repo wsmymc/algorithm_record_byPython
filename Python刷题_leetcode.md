@@ -2252,6 +2252,48 @@ class Solution:
 
 
 
+#### 82. [203. 移除链表元素](https://leetcode-cn.com/problems/remove-linked-list-elements/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def removeElements(self, head: ListNode, val: int) -> ListNode:
+        if not head:
+            return head
+        dummy = ListNode(-1)
+        dummy.next = head
+        f = dummy
+        while f.next:
+            if f.next.val == val:
+                f.next = f.next.next
+            else:
+                f = f.next
+        return dummy.next
+```
+
+#### 83. [204. 计数质数](https://leetcode-cn.com/problems/count-primes/)
+
+```python
+# 厄拉多塞筛法
+class Solution:
+    def countPrimes(self, n: int) -> int:
+        res = 0
+        s = [True]*(n)
+        for i in range(2,n):
+            if s[i]:
+                res += 1
+                #print(i)
+            for j in range(2*i,n,i):
+                s[j] = False
+        return res
+
+```
+
 
 
 
@@ -5769,6 +5811,29 @@ class Solution:
 class Solution:
     def numberOfSets(self, n: int, k: int) -> int:
         return math.comb(n + k - 1, k * 2) % (10**9 + 7)
+```
+
+#### 80. [763. 划分字母区间](https://leetcode-cn.com/problems/partition-labels/)
+
+```python
+class Solution:
+    # map记录最后位置，+贪心确定分割点
+    def partitionLabels(self, S: str) -> List[int]:
+        last = [0] * 26
+        for i, ch in enumerate(S):
+            last[ord(ch) - ord("a")] = i
+        
+        partition = list()
+        start = end = 0
+        for i, ch in enumerate(S):
+            end = max(end, last[ord(ch) - ord("a")])
+            if i == end:
+                partition.append(end - start + 1)
+                start = end + 1
+        
+        return partition
+
+
 ```
 
 
