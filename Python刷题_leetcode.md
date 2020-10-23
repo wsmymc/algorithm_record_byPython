@@ -2312,6 +2312,23 @@ class Solution:
         return True
 ```
 
+#### 85. [219. 存在重复元素 II](https://leetcode-cn.com/problems/contains-duplicate-ii/)
+
+```python
+class Solution:
+    def containsNearbyDuplicate(self, nums: List[int], k: int) -> bool:
+        dic = {}
+        for i, v in enumerate(nums):
+            if v not in dic:
+                dic[v] = i
+            else:
+                if i - dic[v] <= k:
+                    return True
+                else:
+                    dic[v] = i
+        return False
+```
+
 
 
 
@@ -5965,6 +5982,39 @@ class Solution:
 链接：https://leetcode-cn.com/problems/compare-version-numbers/solution/bi-jiao-ban-ben-hao-by-leetcode/
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 83 [166. 分数到小数](https://leetcode-cn.com/problems/fraction-to-recurring-decimal/)
+
+```python
+class Solution:
+    def fractionToDecimal(self, numerator: int, denominator: int) -> str:
+        if numerator == 0:
+            return '0'
+        res = []
+        # 神奇的结果异或，先确定值的正、负
+        if (numerator < 0 ) ^ (denominator <0):
+            res.append('-')
+        numer = abs(numerator)
+        denomin = abs(denominator)
+        a, last = divmod(numer, denomin)
+        # 注意格式，python尤其注意，这里是字符串，需要str()
+        res.append(str(a))
+        if last ==0:
+            return "".join(res)
+        res.append('.')
+        dic ={}
+        while last != 0:
+            # 如果余数重复出现，说明是循环，则，在原本的循环小数之前插入'(',再在后面补上’)‘
+            if last in dic:
+                res.insert(dic[last],'(')
+                res.append(')')
+                break
+            dic[last] = len(res)  # 记录，如果该余数是循环的，那么应该插入'('的位置
+            last *= 10 # 模拟除法操作，向后一位
+            a, last = divmod(last,denomin)
+            res.append(str(a))
+        return "".join(res)
 ```
 
 
