@@ -6017,6 +6017,129 @@ class Solution:
         return "".join(res)
 ```
 
+#### 84. [1024. 视频拼接](https://leetcode-cn.com/problems/video-stitching/)
+
+```python
+class Solution:
+    def videoStitching(self, clips: List[List[int]], T: int) -> int:
+        dp = [0]*(T+1)
+        # 先处理一个跳跃数组
+        for s, e in clips:
+            if s >T:
+                continue
+            if e>T:
+                b = T
+            dp[s] = max(dp[s],e)
+        i = 0
+        last = pre = cnt =0
+        for i in range(T):
+            last = max(dp[i],last)
+            print(i,last)
+            # 这个条件判定是否截断，如果为t-1，也能判定是否停在t之前
+            if i == last:
+                return -1
+            if i == pre:
+                print('i',i,'pre',pre)
+                cnt +=1
+                pre = last
+        return cnt
+
+
+## 折腾了许久，搞了个稍微效率高一点的玩法，终究逃不开从头开始，但是不要溜掉中间大大跳越
+class Solution:
+    def videoStitching(self, clips: List[List[int]], T: int) -> int:
+        clips.sort(key= lambda x : (x[0],x[1]))
+        dic = defaultdict(int)
+        if clips[0][0] != 0:
+            return -1
+        for start, end in clips:
+            dic[start] = end
+        #print(dic,clips)
+        cnt = 0
+        p = 0
+        tmp =pre= 0
+        for i in range(T):
+            last = max(dic[i],p)
+            if last == i:
+                return -1
+            if i == pre:
+                cnt+=1
+                pre = max(p,dic[i])
+            if i<pre:
+                p = max(dic[i],p)
+
+        return cnt 
+```
+
+#### 85. [220. 存在重复元素 III](https://leetcode-cn.com/problems/contains-duplicate-iii/)
+
+```python
+class Solution:
+    # 桶排序，每个桶的间距是t+1，那么桶内差距一定是最大t，相邻桶的差距最大2*t-1，。
+    # 每个桶的容量是一个，等有k个桶之后，需要做桶的更新，i-k那个数的桶去除，i个桶计入
+    def containsNearbyAlmostDuplicate(self, nums: List[int], k: int, t: int) -> bool:
+        if t < 0 or k < 0:
+            return False
+        all_buckets = {}
+        bucket_size = t + 1                     # 桶的大小设成t+1更加方便
+        for i in range(len(nums)):
+            bucket_num = nums[i] // bucket_size # 放入哪个桶
+            
+            if bucket_num in all_buckets:       # 桶中已经有元素了
+                return True
+            
+            all_buckets[bucket_num] = nums[i]   # 把nums[i]放入桶中
+            
+            if (bucket_num - 1) in all_buckets and abs(all_buckets[bucket_num - 1] - nums[i]) <= t: # 检查前一个桶
+                return True
+            
+            if (bucket_num + 1) in all_buckets and abs(all_buckets[bucket_num + 1] - nums[i]) <= t: # 检查后一个桶
+                return True
+            
+            # 如果不构成返回条件，那么当i >= k 的时候就要删除旧桶了，以维持桶中的元素索引跟下一个i+1索引只差不超过k
+            if i >= k:
+                del all_buckets[nums[i-k]//bucket_size]
+                # all_buckets.pop(nums[i-k]//bucket_size)
+                
+        return False
+
+    
+    
+    ## 别人的题解，用到了soetedset这个数据结构，基本思路其实也是维护一个k大小的验证窗口，区别在于，这个窗口可以二分查找，要擦新加入的索引，因此，不用内部再搞一套循环。
+    from sortedcontainers import SortedSet
+
+
+class Solution:
+    def containsNearbyAlmostDuplicate(self, nums: List[int], k: int, t: int) -> bool:
+        sorted_set = SortedSet()
+
+        for i in range(len(nums)):
+            num = nums[i
+            # 
+				
+            # find the successor of current element作为后继找前面符合条件的节点
+            # sorted_set.bisect_left(num) 这个函数指向插入后的索引，换言之，目前该索引上的值以及索引后一项的值，应当是与num差距最小的了
+            if sorted_set and sorted_set.bisect_left(num) < len(sorted_set):
+                if sorted_set[sorted_set.bisect_left(num)] <= num + t:
+                    return True
+
+            # find the predecessor of current element作为前驱，找后面符号条件的节点
+            if sorted_set and sorted_set.bisect_left(num) != 0:
+                if num <= sorted_set[sorted_set.bisect_left(num) - 1] + t:
+                    return True
+
+            sorted_set.add(num)
+            if len(sorted_set) > k:
+                sorted_set.remove(nums[i - k])
+
+        return False
+
+作者：moqimoqidea
+链接：https://leetcode-cn.com/problems/contains-duplicate-iii/solution/python3-er-cha-sou-suo-shu-by-moqimoqidea/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 
