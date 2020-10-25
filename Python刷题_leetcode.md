@@ -6140,6 +6140,62 @@ class Solution:
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+#### 86.[845. 数组中的最长山脉](https://leetcode-cn.com/problems/longest-mountain-in-array/)
+
+```python
+class Solution:
+    # 枚举山峰
+    # 依次遍历，两个方向，查看从这一个点开始，的递减序列地长度
+    # 统计记过，两个序列之和-1
+    def longestMountain(self, A: List[int]) -> int:
+        if not A:
+            return 0
+            
+        n = len(A)
+        left = [0] * n
+        for i in range(1, n):
+            left[i] = (left[i - 1] + 1 if A[i - 1] < A[i] else 0)
+        
+        right = [0] * n
+        for i in range(n - 2, -1, -1):
+            right[i] = (right[i + 1] + 1 if A[i + 1] < A[i] else 0)
+        
+        ans = 0
+        for i in range(n):
+            if left[i] > 0 and right[i] > 0:
+                ans = max(ans, left[i] + right[i] + 1)
+        
+        return ans
+class Solution:
+    # 枚举山脚
+    # 从第一个可能的左侧山脚考虑，确定了左侧山脚后，寻找右侧山脚，然后更新最大值
+    def longestMountain(self, A: List[int]) -> int:
+        n = len(A)
+        ans = left = 0
+        while left + 2 < n:
+            # 假设有侧山脚为l+1
+            right = left + 1
+            # 如果符合递增，走这里的逻辑，否则直接在下面l = r,进入下一次循环
+            if A[left] < A[left + 1]:
+                # 在不越界的条件下，先走到山顶
+                while right + 1 < n and A[right] < A[right + 1]:
+                    right += 1
+                # 在不越界的情况下，开始下山，注意r>r+1,防止有平台。之所以<n-1，是需要有明确山脚，不能直接到n-1还是增加
+                if right < n - 1 and A[right] > A[right + 1]:
+                    # 在不越界的情况下，开始继续下山（退出循环条件，要么是到边界，要么是不符合递减规律，总之都可以确定山脚）
+                    while right + 1 < n and A[right] > A[right + 1]:
+                        right += 1
+                    # 更新结果
+                    ans = max(ans, right - left + 1)
+                else:
+                    # 这里是如果发现有山顶平台的情况，更新r，进而更新l，进入下一次循环
+                    right += 1
+            left = right
+        return ans
+
+
+```
+
 
 
 
