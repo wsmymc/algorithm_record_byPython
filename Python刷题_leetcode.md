@@ -2329,6 +2329,56 @@ class Solution:
         return False
 ```
 
+#### 86. [1207. 独一无二的出现次数](https://leetcode-cn.com/problems/unique-number-of-occurrences/)
+
+```python
+## 还是太蠢了点，最直白的方法最有效，之前考略太多，反而作死
+class Solution:
+    def uniqueOccurrences(self, arr: List[int]) -> bool:
+        if not arr or len(arr) == 0:
+            return True
+        arr.sort()
+        dic = defaultdict(int)
+        cnt = 0
+        for i in range(len(arr)):
+            #print('i',i,cnt)
+            #print(dic)
+            if i == 0:
+                cnt +=1
+                continue
+
+            if arr[i] != arr[i-1]:
+                if cnt not in dic:
+                    dic[cnt] = arr[i-1]
+                    cnt = 1
+                else:
+                    return False
+                if i == len(arr)-1:
+                    if 1 in dic:
+                        return False
+                    else:
+                        dic[1] = arr[-1]
+            else:
+                cnt += 1
+                if i == len(arr)-1:
+                    if cnt in dic:
+                        return False
+                    else:
+                        return True
+        #print(dic)
+        return True
+    
+    
+  pythoninc：
+eleNumbers=collections.Counter(arr)
+        return len(set(eleNumbers.values()))==len(eleNumbers)
+
+作者：jutraman
+链接：https://leetcode-cn.com/problems/unique-number-of-occurrences/solution/pythondu-yi-wu-er-de-chu-xian-ci-shu-by-jutraman/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 
@@ -6192,6 +6242,68 @@ class Solution:
                     right += 1
             left = right
         return ans
+
+
+```
+
+#### 87. [227. 基本计算器 II](https://leetcode-cn.com/problems/basic-calculator-ii/)
+
+```python
+
+
+class Solution:
+    def calculate(self, s: str) -> int:
+        stk = []
+        # 虚拟开头，特殊处理
+        num = 0
+        sign = '+'
+        for i in range(len(s)):
+            if s[i].isdigit():
+                num = num*10 + int(s[i])
+                # 这里需要判断一下末尾情况，否则会丢失数据
+            if s[i] in '+-*/' or i == len(s)-1:
+                if sign == '+':
+                    stk.append(num)
+                elif sign == '-':
+                    stk.append(-num)
+                elif sign == '*':
+                    stk.append(int(stk.pop())*num)
+                else:
+                    stk.append(int(stk.pop()/num))
+                num=0
+                # 记录本次的运算符，用来和下一个数计算
+                sign = s[i]
+       #print(stk)
+        return sum(stk)
+
+```
+
+#### 88. [228. 汇总区间](https://leetcode-cn.com/problems/summary-ranges/)
+
+```python
+class Solution:
+    # 就是单纯遍历，然后记录了连续的字段，形成二维列表
+    # 后面根据长度，==1，就是一个，》1，取收尾，构造答案格式
+    def summaryRanges(self, nums: List[int]) -> List[str]:
+        if not nums:
+            return []
+        if len(nums)==1:
+            return [str(nums[0])]
+        #遍历区间 核心是 保证下一个元素与前一个元素的差为1
+        res=[[nums[0]]]
+        for i in range(1,len(nums)):
+            if nums[i]-res[-1][-1]==1:
+                res[-1].append(nums[i])
+            else:
+                res.append([nums[i]])
+        results=[]
+        for x in res:
+            if len(x)==1:
+                results.append(str(x[0]))
+            else:
+                results.append(str(x[0])+"->"+str(x[-1]))
+        return results
+
 
 
 ```
