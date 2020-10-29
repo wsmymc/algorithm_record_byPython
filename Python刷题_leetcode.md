@@ -5571,6 +5571,38 @@ class Solution:
         dfs(root, 0)
         return res
 
+    
+    # 广度优先搜素
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+# BFS几个点： while循环，队列，这道题里因为要记录每个阶段的值，所以需要额外一个队列同步。不像DFS，可以递归顺带
+class Solution:
+    def sumNumbers(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        total = 0
+        res = [root.val]
+        li = [root]
+        while li:
+            node = li.pop(0)
+            num = res.pop(0)
+            l, r = node.left, node.right
+            if not l and not r:
+                total +=num
+            else:
+                if l:
+                    li.append(l)
+                    res.append(num*10+l.val)
+                if r:
+                    li.append(r)
+                    res.append(num*10+r.val)
+        return total
+
+
 ```
 
 #### 72. [133. 克隆图](https://leetcode-cn.com/problems/clone-graph/)
@@ -6306,6 +6338,57 @@ class Solution:
 
 
 
+```
+
+#### 89. [274. H 指数](https://leetcode-cn.com/problems/h-index/)
+
+```python
+# 没有，做的太急了，反而浪费时间
+class Solution:
+    def hIndex(self, citations: List[int]) -> int:
+        if not citations:
+            return 0
+        citations.sort()
+        n =len(citations)
+        if citations[-1] == 0:
+            return 0
+        for i,v in enumerate(citations):
+            if v >= n-i:
+                return n-i
+ # 原本的思路被理顺了以后，也可以做出来。只是需要考虑边界，不能总是期待报错提供信息啊
+class Solution:
+    def hIndex(self, citations: List[int]) -> int:
+        if not citations:
+            return 0
+        citations.sort(reverse= True)
+        print(citations)
+        if citations[0] == 0:
+            return 0
+        for i,v in enumerate(citations):
+           # print(i,v)
+            if v < i+1:
+                return i
+        return min(len(citations),citations[-1])
+```
+
+#### 90. [275. H 指数 II](https://leetcode-cn.com/problems/h-index-ii/)
+
+```python
+class Solution:
+    def hIndex(self, citations: List[int]) -> int:
+        # 方法和I一样，有序情况优化，一般就是二分
+        n = len(citations)
+        # 判断边界：
+        if n == 0 or citations[-1] == 0:
+            return 0
+        l, r = 0, n-1
+        while l<r:
+            mid = (l+r)>>1
+            if citations[mid] >= n-mid:
+                r = mid
+            else:
+                l = mid +1 
+        return n -l
 ```
 
 
@@ -7103,6 +7186,43 @@ class Solution:
 
 
 
+```
+
+#### 20. [295. 数据流的中位数](https://leetcode-cn.com/problems/find-median-from-data-stream/)
+
+```python
+class MedianFinder:
+    # 一开始没有思路，看了题解思路看懂了，但是实现起来还是有点问题
+    # python 的heap是最小堆，所以如果要当作最大堆时，元素变成负值
+    # heap的代码还是不太熟，需要再看看看
+
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.minheap, self.maxheap = [], []
+        
+
+    def addNum(self, num: int) -> None:
+        # 相关性的先把新值放到max里，将max的旧值先放到min里
+        heappush(self.minheap, -heappushpop(self.maxheap, -num))   
+        # 如果max 的小的话，就把min的旧值还回去，这样，每次取中位数，要么max，要么min+max 取一半 
+        if len(self.maxheap)<len(self.minheap):
+            heappush(self.maxheap, -heappop(self.minheap))
+        
+
+    def findMedian(self) -> float:
+        
+        if len(self.maxheap) > len(self.minheap):
+            return -self.maxheap[0]
+        return (-self.maxheap[0] + self.minheap[0]) /2
+        
+
+
+# Your MedianFinder object will be instantiated and called as such:
+# obj = MedianFinder()
+# obj.addNum(num)
+# param_2 = obj.findMedian()
 ```
 
 
