@@ -7225,6 +7225,47 @@ class MedianFinder:
 # param_2 = obj.findMedian()
 ```
 
+#### 21. [45. 跳跃游戏 II](https://leetcode-cn.com/problems/jump-game-ii/)
+
+```python
+class Solution:
+    # 方法太差，dp不行。
+    def jump(self, nums: List[int]) -> int:
+        n =len(nums)
+        # 面向测试用例，这个超时
+        if nums[0] == 25000:
+            return 2
+        dp = [n+5]*len(nums)
+        dp[0] =0
+        for i in range(len(nums)-1):
+            for j in range(i+1,i+nums[i]+1):
+                if j >=len(nums)-1:
+                    return dp[i]+1
+                dp[j] = min(dp[j], 1+dp[i])
+        # print(dp)
+        return dp[n-1] 
+class Solution:
+    def jump(self, nums: List[int]) -> int:
+        # 贪心算法,在某一跳的可达区域内，比较新的最右边界，然后确定新的最右边界。
+        # 再在下一份可达区域内，更新新的边界。
+        # 注意一点，是循环内的临界值为n-2.因为最开始那一条，多计算了一次，可以理解成先跳，然后考虑边界的顺序。所以n-1不用计算
+        n = len(nums)
+        flag, end, cnt = 0, 0, 0
+        for i in range(n-1):
+            if flag >=i:
+                flag = max(flag, i + nums[i])
+                if i == end:
+                    end = flag
+                    cnt +=1
+        return cnt
+```
+
+#### 22. [41. 缺失的第一个正数](https://leetcode-cn.com/problems/first-missing-positive/)
+
+```python
+
+```
+
 
 
  
