@@ -2379,7 +2379,7 @@ eleNumbers=collections.Counter(arr)
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
-<<<<<<< HEAD
+
 #### 87. [242. 有效的字母异位词](https://leetcode-cn.com/problems/valid-anagram/)
 
 ```python
@@ -2403,10 +2403,11 @@ class Solution:
                 return False
         return True
 
-=======
-#### 87. [463. 岛屿的周长](https://leetcode-cn.com/problems/island-perimeter/)
+```
 
-​```python
+#### 88. [463. 岛屿的周长](https://leetcode-cn.com/problems/island-perimeter/)
+
+```python
 class Solution:
     def islandPerimeter(self, grid: List[List[int]]) -> int:
         moves = ((1,0), (0,1), (-1,0),(0,-1))
@@ -2425,10 +2426,7 @@ class Solution:
                         #print(cnt)
                     res += cnt
         return res
->>>>>>> 4afaeb05b2349d06f503f36a928fbaab11c21c8b
 ```
-
-
 
 
 
@@ -7352,35 +7350,55 @@ class Solution:
 
 
 
- #### 23. [84. 柱状图中最大的矩形](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)
+ #### 23 .[84. 柱状图中最大的矩形](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)
 
 ```python
 class Solution:
+    # 单调栈玩法
     def largestRectangleArea(self, heights: List[int]) -> int:
-        if not heights or len(heights) == 0:
-            return 0
-        t = sorted(set(heights))
-        _min, _max = min(heights), max(heights)
         n = len(heights)
-        # 这里取巧了，避免了超时特例
-        if n == 20000:
-            return 100000000
+        # 其实这里用来记录以某个柱为中心，向左右找到他的高度延展截断处
+        left, right = [0] * n, [0] * n
+        # 这里是单调栈
+        mono_stack = list()
+        # left
+        for i in range(n):
+            # 如果不能严格大于，那就要出栈，知道能够》
+            while mono_stack and heights[mono_stack[-1]] >= heights[i]:
+                mono_stack.pop()
+            # 如果栈空，说明，可以到尽头，所以是-1，作为左端的虚结点
+            left[i] = mono_stack[-1] if mono_stack else -1
+            # 入栈
+            mono_stack.append(i)
+        
+        mono_stack = list()
+        # right
+        for i in range(n - 1, -1, -1):
+             # 如果不能严格大于，那就要出栈，直到能够》
+            while mono_stack and heights[mono_stack[-1]] >= heights[i]:
+                mono_stack.pop()
+            # 如果栈空，说明，可以到尽头，所以是-1，作为右端的虚结点
+            right[i] = mono_stack[-1] if mono_stack else n
+            # 入栈
+            mono_stack.append(i)
+        # 宽度*高度
+        ans = max((right[i] - left[i] - 1) * heights[i] for i in range(n)) if n > 0 else 0
+        return ans
 
+class Solution:
+    # 单调栈玩法
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        stack = []
+        heights = [0] + heights + [0]
         res = 0
-        for i in t:
-            if i == 0:
-                continue
-            tmp = 0
-            for j in range(n):
-                if heights[j] < i:
-                    res = max(tmp, res)
-                    tmp = 0
-                else:
-                    tmp += i
-            res = max(tmp,res)
+        for i in range(len(heights)):
+            #print(stack)
+            while stack and heights[stack[-1]] > heights[i]:
+                tmp = stack.pop()
+                res = max(res, (i - stack[-1] - 1) * heights[tmp])
+                # print(i,stack[-1],tmp,res)
+            stack.append(i)
         return res
-
-
 ```
 
 
