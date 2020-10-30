@@ -2406,7 +2406,7 @@ class Solution:
 =======
 #### 87. [463. 岛屿的周长](https://leetcode-cn.com/problems/island-perimeter/)
 
-```python
+​```python
 class Solution:
     def islandPerimeter(self, grid: List[List[int]]) -> int:
         moves = ((1,0), (0,1), (-1,0),(0,-1))
@@ -6438,6 +6438,25 @@ class Solution:
             else:
                 l = mid +1 
         return n -l
+```
+
+#### [187. 重复的DNA序列](https://leetcode-cn.com/problems/repeated-dna-sequences/)
+
+```python
+class Solution:
+    # 低级解法
+    def findRepeatedDnaSequences(self, s: str) -> List[str]:
+        L, n = 10, len(s)     
+        seen, output = set(), set()
+
+        # iterate over all sequences of length L
+        for start in range(n - L + 1):
+            tmp = s[start:start + L]
+            if tmp in seen:
+                output.add(tmp[:])
+            seen.add(tmp)
+        return list(output)
+
 ```
 
 
