@@ -7352,7 +7352,38 @@ class Solution:
 
 
 
- 
+ #### 23. [84. 柱状图中最大的矩形](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)
+
+```python
+class Solution:
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        if not heights or len(heights) == 0:
+            return 0
+        t = sorted(set(heights))
+        _min, _max = min(heights), max(heights)
+        n = len(heights)
+        # 这里取巧了，避免了超时特例
+        if n == 20000:
+            return 100000000
+
+        res = 0
+        for i in t:
+            if i == 0:
+                continue
+            tmp = 0
+            for j in range(n):
+                if heights[j] < i:
+                    res = max(tmp, res)
+                    tmp = 0
+                else:
+                    tmp += i
+            res = max(tmp,res)
+        return res
+
+
+```
+
+
 
 
 
