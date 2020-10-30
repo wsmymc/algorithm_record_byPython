@@ -2379,6 +2379,7 @@ eleNumbers=collections.Counter(arr)
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+<<<<<<< HEAD
 #### 87. [242. 有效的字母异位词](https://leetcode-cn.com/problems/valid-anagram/)
 
 ```python
@@ -2402,6 +2403,29 @@ class Solution:
                 return False
         return True
 
+=======
+#### 87. [463. 岛屿的周长](https://leetcode-cn.com/problems/island-perimeter/)
+
+```python
+class Solution:
+    def islandPerimeter(self, grid: List[List[int]]) -> int:
+        moves = ((1,0), (0,1), (-1,0),(0,-1))
+        n, m = len(grid), len(grid[0])
+        res =0
+        for i in range(n):
+            for j in range(m):
+                if grid[i][j] ==1:
+                    cnt = 0
+                    for k in moves:
+                        tx = i + k[0]
+                        ty = j + k[1]
+                        # 判断边界，一个方块的上下所有四个方向，要么是海水，要么是边界，那就是可以计算入内的边界
+                        if tx<0 or tx >=n or ty <0 or ty>=m or grid[tx][ty] == 0:
+                            cnt += 1
+                        #print(cnt)
+                    res += cnt
+        return res
+>>>>>>> 4afaeb05b2349d06f503f36a928fbaab11c21c8b
 ```
 
 
