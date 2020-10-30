@@ -2379,6 +2379,31 @@ eleNumbers=collections.Counter(arr)
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+#### 87. [242. 有效的字母异位词](https://leetcode-cn.com/problems/valid-anagram/)
+
+```python
+class Solution:
+    def isAnagram(self, s: str, t: str) -> bool:
+        if len(s) != len(t):
+            return False
+        count = {}
+        for char in s:
+            if char in count:
+                count[char] += 1
+            else:
+                count[char] = 1
+        for char in t:
+            if char in count:
+                count[char] -= 1
+            else:
+                return False
+        for value in count.values():
+            if value != 0:
+                return False
+        return True
+
+```
+
 
 
 
@@ -7263,7 +7288,23 @@ class Solution:
 #### 22. [41. 缺失的第一个正数](https://leetcode-cn.com/problems/first-missing-positive/)
 
 ```python
-
+class Solution:
+    # 原地哈希表明状态
+    def firstMissingPositive(self, nums: List[int]) -> int:
+        n = len(nums)
+		# 先处理，这里如果<=0，就设置为N+1说明其实不不对后面的状态影响
+        for i in range(n):
+            if nums[i]<=0:
+                nums[i] = n+1
+        # 注意用绝对值，这样不受正负影响
+        for i in range(n):
+            if abs(nums[i])<=n:
+                nums[abs(nums[i])-1] = 0 -abs(nums[abs(nums[i])-1])
+        print(nums)
+        for i in range(n):
+            if nums[i]>0:
+                return i+1
+        return n+1
 ```
 
 
