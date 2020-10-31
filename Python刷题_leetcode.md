@@ -7403,6 +7403,72 @@ class Solution:
 
 
 
+#### 24. [381. O(1) 时间插入、删除和获取随机元素 - 允许重复](https://leetcode-cn.com/problems/insert-delete-getrandom-o1-duplicates-allowed/)
+
+```python
+class RandomizedCollection:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.table = defaultdict(list)
+        self.ns = []
+
+
+
+    def insert(self, val: int) -> bool:
+        """
+        Inserts a value to the collection. Returns true if the collection did not already contain the specified element.
+        """
+        # 根据之前有没有相同的数来判断操作
+        flag = val not in self.table
+        if flag:
+            self.table[val].append(len(self.ns))
+        else:
+            self.table[val].append(len(self.ns))
+        self.ns.append(val)
+        return flag
+
+
+    def remove(self, val: int) -> bool:
+        """
+        Removes a value from the collection. Returns true if the collection contained the specified element.
+        """
+        flag = val in self.table
+        if flag:
+            last  = len(self.ns)-1
+            v = self.ns[last]
+            idx = self.table[val].pop()
+           #  print(val,'idx',idx,'last',last,'ns', self.ns)
+            self.ns[idx] = self.ns[last]
+            # 如果不是恰好删除的是最后一位的话，索引需要处理一下。否则不用关心这个
+            if last != idx:
+                self.table[v].remove(last)
+                self.table[v].append(idx)
+            # 如果该val不存在副本，炫耀清空table
+            if not len(self.table[val]):
+                self.table.pop(val)
+            self.ns.pop()
+        return flag
+
+    def getRandom(self) -> int:
+        """
+        Get a random element from the collection.
+        """
+        # 之前处理好后，这里实际上只用随机就好
+        #random.choice()，这个模块我还是不太熟悉
+        return random.choice(self.ns)
+
+
+
+# Your RandomizedCollection object will be instantiated and called as such:
+# obj = RandomizedCollection()
+# param_1 = obj.insert(val)
+# param_2 = obj.remove(val)
+# param_3 = obj.getRandom()
+```
+
 
 
 
