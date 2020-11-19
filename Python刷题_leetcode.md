@@ -2430,6 +2430,75 @@ class Solution:
 
 
 
+#### 89. [283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
+
+```python
+class Solution:
+    def moveZeroes(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        利用空间，从前向后，将所有非0数字前移，后面的空位都设置为0
+        """
+        i ,j = 0,0
+        for i in range(len(nums)):
+            if nums[i] != 0:
+                nums[j] = nums[i]
+                j += 1
+        for j in range(j,len(nums)):
+            nums[j] =0 
+            j +=1
+```
+
+#### 90 [258. 各位相加](https://leetcode-cn.com/problems/add-digits/)
+
+```python
+# 和Java有所不同，原因在于python中-1%9 == 8，所以需要分类讨论。这里主要是对%的定义不同
+class Solution:
+    def addDigits(self, num: int) -> int:
+        if num > 9:
+            num = num % 9
+            if num == 0:#如果为0，说明之前能整除9，之和为9
+                return 9
+        return num
+
+
+```
+
+#### 91 .[263. 丑数](https://leetcode-cn.com/problems/ugly-number/)
+
+```python
+class Solution:
+    # 如果是丑数，三个数不断除，结果为1
+    def isUgly(self, num: int) -> bool:
+        if num <= 0:
+            return False
+        nums = [2,3,5]
+        for i in nums:
+            while num % i == 0:
+                num //= i
+        return num ==1
+```
+
+#### 93. [268. 丢失的数字](https://leetcode-cn.com/problems/missing-number/)
+
+```python
+class Solution:
+    def missingNumber(self, nums: List[int]) -> int:
+        num_set = set(nums)
+        n = len(nums) + 1
+        for number in range(n):
+            if number not in num_set:
+                return number
+
+
+```
+
+
+
+
+
+
+
 ## medium
 
 * 每日一题的任
