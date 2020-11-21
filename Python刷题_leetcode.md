@@ -6507,7 +6507,7 @@ class Solution:
         return n -l
 ```
 
-#### [187. 重复的DNA序列](https://leetcode-cn.com/problems/repeated-dna-sequences/)
+#### 91 [187. 重复的DNA序列](https://leetcode-cn.com/problems/repeated-dna-sequences/)
 
 ```python
 class Solution:
@@ -6523,6 +6523,83 @@ class Solution:
                 output.add(tmp[:])
             seen.add(tmp)
         return list(output)
+
+```
+
+#### 92 [148. 排序链表](https://leetcode-cn.com/problems/sort-list/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def sortList(self, head: ListNode) -> ListNode:
+        """自底向上采用归并方式，利用了原本的空间，避免递归占用，栈空间。
+        归并排序，堆排序和快排 O(nlogn),"""
+        def merge(head1, head2):
+            # 合并，
+            dummy = ListNode(0)
+            tmp,tmp1,tmp2 = dummy,head1,head2
+            while tmp1 and tmp2:
+                if tmp1.val <= tmp2.val:
+                    tmp.next = tmp1
+                    tmp1 = tmp1.next
+                else:
+                    tmp.next, tmp2 = tmp2, tmp2.next
+                tmp = tmp.next
+            if tmp1:
+                tmp.next = tmp1
+            elif tmp2:
+                tmp.next = tmp2
+            return dummy.next
+
+        if not head:
+            return head
+        length = 0
+        node = head
+        while node:
+            # 统计链表长度，用于后续分割
+            length += 1
+            node = node.next
+        # 设立虚节点，从最短开始开始归并（也就是自底向上）
+        dummy = ListNode(0,head)
+        sublen = 1
+        while sublen < length:# 终结条件，归并段的长度大于等于总长度
+            pre, cur = dummy, dummy.next
+            # 开始分割链表，执行归并
+            while cur:
+                # 每一次循环都是在截取两段做merge
+                head1 = cur
+                for i in range(1, sublen):
+                    if cur.next:
+                        cur = cur.next
+                    else:
+                        break
+                head2 = cur.next
+                # 截断链表，上边就是一个段了
+                cur.next = None
+                cur = head2
+                for i in range(1,sublen):
+                    if cur and cur.next:
+                        cur = cur.next
+                    else:
+                        break
+                # 承接后续的段落
+                succ = None
+                if cur:
+                    succ = cur.next
+                    cur.next = None
+                # print(head1, head2)
+                mergedchain = merge(head1,head2)
+                pre.next = mergedchain
+                while pre.next:
+                    pre = pre.next
+                cur = succ
+            # 归并段长度*2
+            sublen <<= 1
+        return dummy.next
 
 ```
 
