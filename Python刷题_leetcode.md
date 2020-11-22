@@ -2493,7 +2493,72 @@ class Solution:
 
 ```
 
+#### 94. [485. 最大连续1的个数](https://leetcode-cn.com/problems/max-consecutive-ones/)
 
+```python
+class Solution:
+    # 解法不够优雅
+    def findMaxConsecutiveOnes(self, nums: List[int]) -> int:
+        if len(nums) <= 1:
+            return nums[0]
+        res = 0
+        cnt = nums[0]
+        for i in range(1,len(nums)):
+            if nums[i] == 1:
+                cnt += 1
+            else:
+                res = max(cnt, res)
+                cnt = 0
+        return max(res,cnt)
+```
+
+#### 95. [509. 斐波那契数](https://leetcode-cn.com/problems/fibonacci-number/)
+
+```python
+class Solution:
+    # 最笨的方法，2^N
+    def fib(self, N: int) -> int:
+        if N == 0:
+            return 0
+        if N == 1:
+            return 1
+        return self.fib(N-1) + self.fib(N-2)
+class Solution:
+    # 自底向上，说白了就是记忆化
+    def fib(self, N: int) -> int:
+        if N<= 1:
+            return N
+        s  = [0  for i in range(N+1)]
+        s[0] = 0
+        s[1] = 1
+        for i in range(2, N+1):
+            s[i] = s[i-1] + s[i-2]
+        return s[N]
+```
+
+
+
+#### 96. [566. 重塑矩阵](https://leetcode-cn.com/problems/reshape-the-matrix/)
+
+```python
+class Solution:
+    def matrixReshape(self, nums: List[List[int]], r: int, c: int) -> List[List[int]]:
+        old_r = len(nums)
+        old_c = len(nums[0])
+        # 先判断能不能转化
+        if old_c * old_r != r * c:return nums
+        # 先搞一个一维的，然后按照显得步长取值
+        tmp = []
+        for i in range(old_r):
+            for j in range(old_c):
+                tmp.append(nums[i][j])
+        new = []
+        for i in range(0, len(tmp), c):
+            new.append(tmp[i:i+c])
+        return new
+
+
+```
 
 
 

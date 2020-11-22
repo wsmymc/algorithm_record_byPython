@@ -4,7 +4,8 @@
 
 ## 语法点
 
-
+1. https://leetcode-cn.com/circle/article/dnbYTt/
+2. 
 
 ## easy
 
@@ -73,6 +74,119 @@ class Solution {
             n ^= i ^nums[i];
         }
         return n;
+
+    }
+}
+```
+
+### 5. [242. 有效的字母异位词](https://leetcode-cn.com/problems/valid-anagram/)
+
+```java
+class Solution {
+    /*
+    1. java语句要有分号
+    2. python 中的字典是dict(),{}，defaultdict(),Java中需要Map<> = new HashMap<>();
+    3. python 中使用[]可以赋值取值，Java需要get,getOrDefault(),put等方法
+    4. 布尔值大小写
+    5. 字符串的长度时length(),方法。获取字符串中字符的是charAt()
+    */
+    public boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()){
+            return false;
+        }
+        Map<Character, Integer> map =new HashMap<Character, Integer>();
+        for(int i = 0; i<s.length();i++){
+            char c = s.charAt(i);
+            map.put(c, map.getOrDefault(c,0)+1);
+        }
+        for (int i = 0; i<t.length();i++){
+            char c = t.charAt(i);
+            map.put(c,map.getOrDefault(c,0)-1);
+            if (map.get(c)<0){
+                return false;
+            }
+        }
+        return true;
+
+    }
+}
+```
+
+### 6. [485. 最大连续1的个数](https://leetcode-cn.com/problems/max-consecutive-ones/)
+
+```Java
+class Solution {
+    /*
+    1. 数组长度用.lenght，属性
+    2. 变量声明时需要指定类型
+    3. if 条件判断要在括号内部
+    */
+    public int findMaxConsecutiveOnes(int[] nums) {
+        int cnt =0;
+        int res = 0;
+        for (int i =0 ;i<nums.length;i++){
+            if(nums[i] == 1){
+                cnt ++;
+            }
+            else{
+                res = Math.max(res,cnt);
+                cnt = 0;
+            }
+        }
+        return Math.max(res,cnt);
+
+    }
+}
+```
+
+### 7. [509. 斐波那契数](https://leetcode-cn.com/problems/fibonacci-number/)
+
+```java
+class Solution {
+    public int fib(int N) {
+        if(N<=1){
+            return N;
+        }
+        if (N==2){
+            return 1;
+        }
+        int cur = 0;
+        int pre1 = 1;
+        int pre2 =1;
+        for (int i=3;i<=N;i++){
+            cur = pre1 + pre2;
+            pre1 = pre2;
+            pre2 = cur;
+        }
+        return cur;
+
+    }
+}
+```
+
+### 8. [566. 重塑矩阵](https://leetcode-cn.com/problems/reshape-the-matrix/)
+
+```Java
+class Solution {
+    public int[][] matrixReshape(int[][] nums, int r, int c) {
+        // 不用一位数组中间过渡，也可以。
+        if (nums.length == 0|| r* c != nums.length * nums[0].length){
+            return nums;
+        }
+        int[][] res = new int[r][c];
+        int row=0,col=0;
+        for(int i =0; i<nums.length;i++){
+            for(int j =0; j<nums[0].length;j++){
+                res[row][col] = nums[i][j];
+                col ++;
+                if(col == c){
+                    row ++;
+                    col =0;
+                }
+
+            }
+        }
+        return res;
 
     }
 }
