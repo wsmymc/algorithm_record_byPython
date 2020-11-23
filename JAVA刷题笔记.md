@@ -192,6 +192,81 @@ class Solution {
 }
 ```
 
+### 9. [605. 种花问题](https://leetcode-cn.com/problems/can-place-flowers/)
+
+```java
+class Solution {
+    public boolean canPlaceFlowers(int[] flowerbed, int n) {
+        int i=0,cnt=0;
+        while(i<flowerbed.length){
+            // 巧妙地地方在于两点：
+            // 1. 利用短路特性，将，最左最右两种情况包含在内 2. 原地修改，记录情况
+            if(flowerbed[i]==0 && (i==0 || flowerbed[i-1]==0) && ( i== flowerbed.length-1||flowerbed[i+1]==0)){
+                flowerbed[i++] = 1;
+                cnt++;
+            }
+            if(cnt>=n){
+                return true;
+            }
+            i++;
+        }
+        return false;
+
+    }
+}
+```
+
+### 10. [643. 子数组最大平均数 I](https://leetcode-cn.com/problems/maximum-average-subarray-i/)
+
+```java
+class Solution {/*
+小数考虑用double声明
+分号
+Math.max
+*/
+    public double findMaxAverage(int[] nums, int k) {
+        double _sum = 0;
+        for(int i =0 ;i<k;i++){
+            _sum += nums[i];
+        }
+        double res = _sum;
+        for(int i =k;i<nums.length;i++){
+            _sum += nums[i]-nums[i-k];
+            res = Math.max(res,_sum);
+        }
+        return res/k;
+    }
+}
+```
+
+### 11. [661. 图片平滑器](https://leetcode-cn.com/problems/image-smoother/)
+
+```java
+class Solution {
+    public int[][] imageSmoother(int[][] M) {
+        int R= M.length,C= M[0].length;
+        int[][] res =new int[R][C];
+
+        for(int r= 0;r<R;r++){
+            for(int c =0 ;c<C;c++){
+                int cnt = 0;
+                for(int nr=r-1;nr<=r+1;nr++){
+                    for(int nc = c-1;nc<=c+1;nc++){
+                        if (0<= nr &&nr<R&&0<=nc&&nc<C){
+                            res[r][c] += M[nr][nc];
+                            cnt ++;
+                        }
+                    }
+                }
+                res[r][c] /=cnt;
+            }
+        }
+        return res;
+
+    }
+}
+```
+
 
 
 ## mediium

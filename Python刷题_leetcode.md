@@ -2560,6 +2560,70 @@ class Solution:
 
 ```
 
+#### 97. [605. 种花问题](https://leetcode-cn.com/problems/can-place-flowers/)
+
+```python
+class Solution:
+    def canPlaceFlowers(self, flowerbed: List[int], n: int) -> bool:
+        # 由于如果0 出现在开头和结尾需要特别处理。所以这里前后补0，统一逻辑
+        flowerbed=[0]+flowerbed+[0]
+        tmp=0
+        for i in range(len(flowerbed)):
+
+            if flowerbed[i]==1:
+                tmp=0
+            else:
+                tmp+=1
+            # 如果满三，就可以放一个花，这时，tmp = 1
+            if tmp==3:
+                n-=1
+                tmp=1
+            if n==0:
+                return True
+        return False
+
+
+```
+
+#### 98. [643. 子数组最大平均数 I](https://leetcode-cn.com/problems/maximum-average-subarray-i/)
+
+```python
+class Solution:
+    def findMaxAverage(self, nums: List[int], k: int) -> float:
+        res = 0
+        _sum = sum(nums[:k])
+        res = _sum/k
+        for i in range(len(nums)-k):
+            _sum = _sum - nums[i] + nums[i+k]
+            res = max(res, _sum/k)
+        return res
+
+```
+
+#### 99. [661. 图片平滑器](https://leetcode-cn.com/problems/image-smoother/)
+
+```python
+class Solution:
+    def imageSmoother(self, M: List[List[int]]) -> List[List[int]]:
+        r,c = len(M),len(M[0])
+        res = [[0 for _ in range(c)] for _ in range(r)]
+
+        for i in range(r):
+            for j in range(c):
+                cnt = 0 
+                n = 0
+                # 遍历周边及中心，看似四重循环，其实内部是循环9次
+                for _r in [i-1,i,i+1]:
+                    for _c in [j-1,j,j+1]:
+                        if 0<=_r<r and 0<=_c<c:
+                            cnt += M[_r][_c]
+                            n += 1
+                    
+                res[i][j] = floor(cnt/n)
+        return res
+
+```
+
 
 
 
