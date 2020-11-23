@@ -6668,6 +6668,30 @@ class Solution:
 
 ```
 
+#### 93. [452. 用最少数量的箭引爆气球](https://leetcode-cn.com/problems/minimum-number-of-arrows-to-burst-balloons/)
+
+```python
+class Solution:
+    def findMinArrowShots(self, points: List[List[int]]) -> int:
+        # 贪心算法，根据右边界的大小排序。在一串可以射穿的气球中，在右边界（意味着存在气球）中的最小值（意味着保持之前能社保的气球少），尽可能贪心的尝试是否能够社保更多气球
+        if not points:
+            return 0
+        points.sort(key=lambda x: x[1])
+        # 初始贪心右边界
+        pos = points[0][1]
+        # 至少一箭
+        res = 1
+        for balloon in points:
+            # 上一个气球的右边界够不到下一个的左边界，需要再射一箭
+            if balloon[0] > pos:
+                res += 1
+                pos = balloon[1]
+        return res
+
+
+
+```
+
 
 
 

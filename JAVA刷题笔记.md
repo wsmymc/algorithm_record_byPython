@@ -196,5 +196,43 @@ class Solution {
 
 ## mediium
 
+### 1. [452. 用最少数量的箭引爆气球](https://leetcode-cn.com/problems/minimum-number-of-arrows-to-burst-balloons/)
+
+```Java
+class Solution {
+    public int findMinArrowShots(int[][] points) {
+        if (points.length == 0){
+            return 0;
+        }
+        // 有选择的排序，以前一直记不住。
+        // Comparator 是一个接口，这里需要实现一个匿名方法来作为参数，传进Arrays.sort()排序
+        // 实现接口需要重写compare方法，这里x>y 返回1，是从小到大，反之是从大到小
+        Arrays.sort(points, new Comparator<int[]>(){
+            public int compare(int[] x, int[] y){
+                if (x[1]>y[1]){
+                    return 1;
+                }else if(x[1]<y[1]){
+                    return -1;
+                }else{
+                    return 0;
+                }
+            }
+        });
+        int pos = points[0][1];
+        int res = 1;
+        for(int[] balloon: points){
+            if(balloon[0]>pos){
+                res++;
+                pos = balloon[1];
+            }
+        }
+        return res;
+
+    }
+}
+```
+
+
+
 ## hard
 
