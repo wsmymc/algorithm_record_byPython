@@ -6756,6 +6756,31 @@ class Solution:
 
 ```
 
+#### 94. [222. 完全二叉树的节点个数](https://leetcode-cn.com/problems/count-complete-tree-nodes/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def countNodes(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        cnt = 0
+        def dfs(root):
+            nonlocal cnt
+            if not root:
+                return 0
+            cnt = dfs(root.left) + dfs(root.right)+1
+            return cnt
+        res = dfs(root)
+        return res
+```
+
 
 
 
