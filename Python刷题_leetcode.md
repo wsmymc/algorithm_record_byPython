@@ -2624,6 +2624,49 @@ class Solution:
 
 ```
 
+#### 100. [665. 非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)
+
+```python
+class Solution:
+    def checkPossibility(self, nums: List[int]) -> bool:
+        cnt = 0
+        for i in range(1,len(nums)):
+            if nums[i]<nums[i-1]:
+                cnt += 1
+                if cnt >1:
+                    return False
+                # 形如：[2, 4, 0, 1]的特殊情况，i==2时，无论修改4，还是0 都不行，4-》0,2》0；0-》4；1《4
+                # 先判断考虑四元组是否越界
+                if i+1 < len(nums) and i-2 >= 0:
+                    # 如果出现i+1 也小于 i-1 ,并且 i-2 也大于i的情况，例如 2200，这样，无论修改2，还是0，总有递减情况出现
+                    if nums[i+1] < nums[i-1] and nums[i-2] > nums[i]:
+                        return False     
+        return cnt <= 1
+```
+
+#### 101. [674. 最长连续递增序列](https://leetcode-cn.com/problems/longest-continuous-increasing-subsequence/)
+
+```python
+class Solution:
+    def findLengthOfLCIS(self, nums: List[int]) -> int:
+        res= 0
+        if not nums:
+            return 0
+        if len(nums) == 1:
+            return nums[0]
+        l ,r = 0, 0
+        for i in range(1,len(nums)):
+            if nums[i]>nums[i-1]:
+                r += 1
+            else:
+                # print(i,l,r)
+                res = max(res, r-l+1)
+                l =i
+                r=i
+        return max(res,r-l+1)
+
+```
+
 
 
 
