@@ -2667,6 +2667,65 @@ class Solution:
 
 ```
 
+#### 102.[697. 数组的度](https://leetcode-cn.com/problems/degree-of-an-array/)
+
+```python
+class Solution:
+    def findShortestSubArray(self, nums: List[int]) -> int:
+        # 使用三个哈希表,分别记录起点终点和度
+        l,r ,cnt = {},{},{}
+        for idx ,v in enumerate(nums):
+            # 如果没有统计起点，加上起点
+            if v not in l:
+                l[v] = idx
+            # 更新终点和次数
+            r[v] = idx
+            cnt[v] = cnt.get(v,0)+1 
+        # 计算出度
+        degree = max(cnt.values())
+        res = len(nums)
+        for x in cnt:
+            if cnt[x] == degree:
+                res = min(res, r[x]-l[x]+1)
+        return res
+```
+
+#### 103. [724. 寻找数组的中心索引](https://leetcode-cn.com/problems/find-pivot-index/)
+
+```python
+class Solution:
+    def pivotIndex(self, nums: List[int]) -> int:
+        # 单纯的加太单纯了，只能应付非负数，如果有负数，问题就变复杂了
+        # 其实最简单的是前缀和，减去中间，那么如果可行的话，势必相等，这里其实可以两次遍历就行
+        _sum = sum(nums)
+        l_sum = 0
+        for i, v in enumerate(nums):
+            if l_sum == (_sum - nums[i]-l_sum):
+                return i
+            l_sum += nums[i]
+        return -1
+```
+
+#### 104. [717. 1比特与2比特字符](https://leetcode-cn.com/problems/1-bit-and-2-bit-characters/)
+
+```python
+class Solution:
+    def isOneBitCharacter(self, bits: List[int]) -> bool:
+        n = len(bits)-1
+        if bits[n] == 1:
+            return False
+        t = 0
+        while t <= n:
+            if bits[t] == 1:
+                t += 2
+                if t > n:
+                    return False
+                continue
+            t += 1
+            
+        return True
+```
+
 
 
 
