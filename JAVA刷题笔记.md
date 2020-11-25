@@ -335,6 +335,92 @@ class Solution {
 }
 ```
 
+### 15. [674. 最长连续递增序列](https://leetcode-cn.com/problems/longest-continuous-increasing-subsequence/)
+
+```java
+class Solution {
+    public int findLengthOfLCIS(int[] nums) {
+        if(nums.length<=1){
+            return nums.length;
+        }
+        int res = 1;
+        int cnt = 1;
+        for(int i=0;i<nums.length-1;i++){
+            if(nums[i+1]> nums[i]){
+                cnt++;
+            }else{
+                res = Math.max(res, cnt);
+                cnt = 1;
+            }
+        }
+        return Math.max(res, cnt);
+
+    }
+}
+```
+
+### 16. [665. 非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)
+
+```java
+class Solution {
+    public boolean checkPossibility(int[] nums) {
+        if (nums.length<3){
+            return true;
+        }
+        int cnt = 0;
+        for(int i=0;i<nums.length-1;i++){
+            if (nums[i]>nums[i+1]){
+                cnt++;
+                if (cnt>1){
+                    return false;
+                }
+                // 核心判定，当i-1 比i+1 打的时候，i+1 升格
+                if(i-1>=0&&nums[i-1]>nums[i+1]){
+                    nums[i+1] = nums[i];
+
+                }
+                // 否则 i降格
+                else{
+                    nums[i] = nums[i+1];
+                }
+            }
+        }
+        //System.out.println(cnt);
+        return cnt<=1;
+
+    }
+}
+```
+
+### 17. [1370. 上升下降字符串](https://leetcode-cn.com/problems/increasing-decreasing-string/)
+
+```java
+class Solution {
+    public String sortString(String s) {
+        int[] num = new int[26];
+        for(int i =0;i<s.length();i++){
+            num[s.charAt(i)-'a']++;
+        }
+        StringBuffer sb = new StringBuffer();
+        while(sb.length()<s.length()){
+            for(int i=0;i<26;i++){
+                if(num[i]>0){
+                    num[i]--;
+                    sb.append((char)(i+'a'));
+                }
+            }
+            for(int i=25;i>=0;i--){
+                if(num[i]>0){
+                    num[i]--;
+                    sb.append((char)(i+'a'));
+                }
+            }
+        }
+        return sb.toString();
+    }
+}
+```
+
 
 
 ## mediium
@@ -372,6 +458,69 @@ class Solution {
         return res;
 
     }
+}
+```
+
+### 2. [222. 完全二叉树的节点个数](https://leetcode-cn.com/problems/count-complete-tree-nodes/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public int countNodes(TreeNode root) {
+        //先判断层数
+        if(root == null){
+            return 0;
+        }
+        int level = 0;
+        TreeNode node= root;
+        while(node.left != null){
+            level++;
+            node = node.left;
+        }
+        // 知道了层数以后，可以根据完全二叉树的性质，估计出最大最小区间
+        int low = 1<<level;
+        int high = (1<<(level+1))-1;
+        // 万物皆可二分？
+        while(low<high){
+            // 这种求中指的方法，应该可以防止溢出
+            int mid = (high-low+1)/2 + low;
+            // 判断中值点的有无
+            if(exists(root,level,mid)){
+                low = mid;
+            }else{
+                high = mid -1;
+            }
+        }
+        return low;
+
+    }
+    public boolean exists(TreeNode root, int level,int k){
+        // 这个掩码用来判断后面的节点该走的方向
+        //其实这里有一个很巧妙的地方，如果给节点编号，比如5，6，7，8，那么二进制就是，101，110，111，1000，结合途中的顺序，其实从第二位开始，0代表，左下，1代表右下，本身包含了路径的顺序。
+        // 又因为是从第二个节点开始的，所以掩码bits 是1 左移层数-1为，然后校验
+        int bits = 1<<(level -1);
+        TreeNode node = root;
+        while(node != null && bits>0){
+            // 1 & x =?,如果是0，说明x = 0,左下，反之右下。
+            if ((bits & k) == 0){
+                node = node.left;
+            }else{
+                node = node.right;
+            }
+            bits >>= 1;
+        }
+        //确定该节点是否存在
+        return node != null;
+    }
+    // 时间复杂度，O(log^2n)
 }
 ```
 

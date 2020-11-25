@@ -6881,6 +6881,49 @@ class Solution:
             return cnt
         res = dfs(root)
         return res
+# 上面的解法不够契合提议，没有用到完全二叉树性质，新解法：
+# 具体在JAVA版本里面查，就不赘述了
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def countNodes(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        level = 0
+        node = root
+        while node.left:
+            level += 1
+            node = node.left
+        low ,high = 2**level , 2**(level+1)-1
+        # print(high)
+        def exists(root, level, mid):
+            # mask = 1<<(level-1)
+            mask = 2**(level -1)
+            t = root
+            while t and mask:
+                if mask&mid == 0:
+                    t= t.left
+                else:
+                    t= t.right
+                mask = mask >>1
+            return t
+            # print(t)
+            # if t:
+            #     return True
+            # return False
+
+        while low<high:
+            mid = (high - low +1 )//2 +low
+            if exists(root,level,mid):
+                low = mid
+            else:
+                high = mid -1
+        return low
 ```
 
 
