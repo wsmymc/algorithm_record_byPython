@@ -267,6 +267,74 @@ class Solution {
 }
 ```
 
+### 12. [717. 1比特与2比特字符](https://leetcode-cn.com/problems/1-bit-and-2-bit-characters/)
+
+```java
+class Solution {
+    public boolean isOneBitCharacter(int[] bits) {
+        int i = bits.length -2;
+        // 统计从倒数第二位开始，到倒数第二个0开始，有多少个1，做差求出来。根据1的奇偶性，就可以确定合法与否
+        while(i>=0 && bits[i]>0){
+            i--;
+        }
+        return (bits.length - i)%i == 0;
+
+    }
+}
+```
+
+### 13. [724. 寻找数组的中心索引](https://leetcode-cn.com/problems/find-pivot-index/)
+
+```java
+class Solution {
+    public int pivotIndex(int[] nums) {
+        int sum = 0;
+        for(int i =0 ;i<nums.length;i++){
+            sum += nums[i];
+        }
+        int l_sum = 0;
+        for(int i =0; i<nums.length;i++){
+            if (l_sum == sum -nums[i]-l_sum){
+                return i;
+            }
+            l_sum += nums[i];
+        }
+        return -1;
+
+    }
+}
+```
+
+### 14. [697. 数组的度](https://leetcode-cn.com/problems/degree-of-an-array/)
+
+```java
+class Solution {
+    // 泛型以及哈希表创建
+    //getOrDeault
+    //Collections.max
+    public int findShortestSubArray(int[] nums) {
+        Map<Integer,Integer>  left = new HashMap(),right = new HashMap(), cnt = new HashMap();
+        for(int i=0;i<nums.length;i++){
+            int x = nums[i];
+            if (left.get(x) == null){
+                left.put(x,i);
+            }
+            right.put(x,i);
+            cnt.put(x,cnt.getOrDefault(x,0)+1);
+        }
+        int res = nums.length;
+        int degree = Collections.max(cnt.values());
+        for(int x:cnt.keySet()){
+            if (cnt.get(x) == degree){
+                res = Math.min(res,right.get(x) - left.get(x) + 1);
+            }
+        }
+        return res;
+
+    }
+}
+```
+
 
 
 ## mediium
