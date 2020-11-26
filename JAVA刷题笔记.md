@@ -421,6 +421,61 @@ class Solution {
 }
 ```
 
+### 18. [747. 至少是其他数字两倍的最大数](https://leetcode-cn.com/problems/largest-number-at-least-twice-of-others/)
+
+```java
+class Solution {
+    public int dominantIndex(int[] nums) {
+        if(nums.length <2){
+            return 0;
+        }
+        int[] flag = {0,1};
+        if(nums[0]> nums[1]){
+            flag[0] =1;
+            flag[1] = 0;
+        }
+        for(int i =2;i<nums.length;i++){
+            if(nums[i]<=nums[flag[0]]){
+                continue;
+            }
+            else if(nums[i]>nums[flag[0]] && nums[i]<= nums[flag[1]]){
+                flag[0] = i;
+            }else{
+                flag[0] = flag[1];
+                flag[1] = i;
+            }
+            System.out.println(flag[1]);
+        }
+        if (nums[flag[1]] >= 1<<nums[flag[0]]){
+            return flag[1];
+        }
+        return -1;
+
+    }
+}
+```
+
+### 19. [766. 托普利茨矩阵](https://leetcode-cn.com/problems/toeplitz-matrix/)
+
+```java
+class Solution {
+    public boolean isToeplitzMatrix(int[][] matrix) {
+        int c = matrix[0].length;
+        for(int i =1 ;i<matrix.length;i++){
+            for (int j = 1 ; j<c;j++){
+                if(matrix[i][j] != matrix[i-1][j-1]){
+                    return false;
+                }
+            }
+        }
+        return true;
+
+        
+
+    }
+}
+```
+
 
 
 ## mediium
@@ -527,4 +582,118 @@ class Solution {
 
 
 ## hard
+
+### 1. [164. 最大间距](https://leetcode-cn.com/problems/maximum-gap/)
+
+```java
+class Solution {
+    public int maximumGap(int[] nums) {
+        // 桶排序
+        int n = nums.length;
+        if (n<2){
+            return 0;
+        }
+        int min = nums[0];
+        int max = nums[0];
+        for (int i = 1;i<nums.length;i++){
+            min = Math.min(min,nums[i]);
+            max = Math.max(max, nums[i]);
+        }
+        // 如果最大最小相同，说明全组一个数，最大差值本身就是0
+        if (max - min == 0){
+            return 0;
+        }
+
+        int bucker_volumn = (int) Math.ceil((double)(max-min)/(n-1)); // 向上取整
+        //每个箱子里数字的最小值和最大值
+        //PS 这里其实是无脑了，不考虑实际的箱子的数量，直接搞最大可能
+        int[] bucketMin = new int[n - 1];
+        int[] bucketMax = new int[n - 1];
+        
+        //最小值初始为 Integer.MAX_VALUE
+        Arrays.fill(bucketMin, Integer.MAX_VALUE);
+        //最小值初始化为 -1，因为题目告诉我们所有数字是非负数
+        Arrays.fill(bucketMax, -1);
+
+        //考虑每个数字
+        for (int i = 0; i < nums.length; i++) {
+            //当前数字所在箱子编号
+            int index = (nums[i] - min) / bucker_volumn;
+            //最大数和最小数不需要考虑
+            if(nums[i] == min || nums[i] == max) {
+                continue;
+            }
+            //更新当前数字所在箱子的最小值和最大值
+            bucketMin[index] = Math.min(nums[i], bucketMin[index]);
+            bucketMax[index] = Math.max(nums[i], bucketMax[index]);
+        }
+        int maxGap = 0;
+        //min 看做第 -1 个箱子的最大值
+        int previousMax = min;
+        //从第 0 个箱子开始计算
+        for (int i = 0; i < n - 1; i++) {
+            //最大值是 -1 说明箱子中没有数字，直接跳过
+            if (bucketMax[i] == -1) {
+                continue;
+            }
+            
+            //当前箱子的最小值减去前一个箱子的最大值
+            maxGap = Math.max(bucketMin[i] - previousMax, maxGap);
+            previousMax = bucketMax[i];
+        }
+        //最大值可能处于边界，不在箱子中，需要单独考虑
+        maxGap = Math.max(max - previousMax, maxGap);
+        return maxGap;
+
+    }
+}
+
+
+
+// java的基数排序貌似和python不太一样，估计是因为申请二维数组比较麻烦，尤其是其中的数组还是不定长的，所以使用了一些类似记录下标，从后往前，保留上一轮成果的技巧：
+class Solution {
+    public int maximumGap(int[] nums) {
+        int n = nums.length;
+        if (n < 2) {
+            return 0;
+        }
+        long exp = 1;
+        int[] buf = new int[n];
+        int maxVal = Arrays.stream(nums).max().getAsInt();
+
+        while (maxVal >= exp) {
+            int[] cnt = new int[10];
+            for (int i = 0; i < n; i++) {
+                int digit = (nums[i] / (int) exp) % 10;
+                cnt[digit]++;
+            }
+            for (int i = 1; i < 10; i++) {
+                cnt[i] += cnt[i - 1];
+            }
+            //必须从后往前遍历，否则会破坏已排好的轮次
+            //因为桶子里的值（即下标）是不断减小的
+            //当某一位相同时，让上一位更大的（即上一轮排序结果中靠后的）获得更大的下标
+            for (int i = n-1; i>=0 ; i--) {
+                int digit = (nums[i] / (int) exp) % 10;
+                buf[cnt[digit] - 1] = nums[i];
+                cnt[digit]--;
+            }
+            System.arraycopy(buf, 0, nums, 0, n);
+            exp *= 10;
+        }
+
+        int ret = 0;
+        for (int i = 1; i < n; i++) {
+            ret = Math.max(ret, nums[i] - nums[i - 1]);
+        }
+        return ret;
+    }
+}
+
+
+```
+
+
+
+
 

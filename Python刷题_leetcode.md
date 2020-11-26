@@ -2726,6 +2726,49 @@ class Solution:
         return True
 ```
 
+#### 105. [766. 托普利茨矩阵](https://leetcode-cn.com/problems/toeplitz-matrix/)
+
+```python
+class Solution:
+    def isToeplitzMatrix(self, matrix: List[List[int]]) -> bool:
+        # 当然可以每次和左上元素比较，也可以用对角线特性，r-c作为key，构造字典比较
+        # 不过值得记下来的是一个特殊方法：
+        # 只需判断：前行中除最后一个元素外剩余的元素完全等于后行中除第一个元素外剩余的元素
+        col_len = len(matrix) #3
+        row_len = len(matrix[0]) #4
+        if col_len == 1 or row_len == 1:
+            return True
+        for i in range(len(matrix) - 1):
+            # 实际上也是利用对角线性质，不过不是单个元素，而是整行偏移。
+            if matrix[i][:-1] != matrix[i + 1][1:]:
+                return False
+        return True
+```
+
+#### 106. [747. 至少是其他数字两倍的最大数](https://leetcode-cn.com/problems/largest-number-at-least-twice-of-others/)
+
+```python
+class Solution:
+    def dominantIndex(self, nums: List[int]) -> int:
+        if len(nums)<2:
+            return 0
+        if nums[0]<=nums[1]:
+            res = [0,1]
+        else:
+            res = [1,0]
+        for i in range(2,len(nums)):
+            if nums[i]<=nums[res[0]]:
+                pass
+            elif nums[i]>nums[res[0]] and nums[i]<= nums[res[1]]:
+                res[0] = i
+            else:
+                res[0] = res[1]
+                res[1] = i
+        if nums[res[1]] >= 2* nums[res[0]]:
+            return res[1]
+        return -1
+```
+
 
 
 
