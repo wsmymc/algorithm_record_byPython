@@ -7938,6 +7938,77 @@ class RandomizedCollection:
 # param_3 = obj.getRandom()
 ```
 
+#### 25. [164. 最大间距](https://leetcode-cn.com/problems/maximum-gap/)
+
+https://leetcode-cn.com/problems/maximum-gap/solution/zui-da-jian-ju-by-leetcode-solution/这里有一个反证法证明，使用桶排序的话，桶内的差距一定不是最大差距，最大差距一定在不同的通之间，更确切些——是相邻两个桶，后一个通的最小值和前一个桶的最大的差值（确保排序之后也是在相邻的位置。）
+
+1. 我们期望将数组中的各个数等距离分配，也就是每个桶的长度相同，也就是对于所有桶来说，桶内最大值减去桶内最小值都是一样的。可以当成公式来记。:
+
+   每个桶的长度=(max(nums)-min(nums))//(len(nums)-1)
+
+2. 确定桶的数量，最后的加一保证了数组的最大值也能分到一个桶。
+
+   桶的数量= (max(nums)-min(nums))//桶的长度 +1
+
+3. 我们的做法是要将数组中的数放到一个个桶里面，不断更新更大的（后一个桶内元素的最小值 - 前一个桶内元素的最大值），最后就得到了答案。
+
+4. 如何确定每个数应该对应哪个桶？
+
+   location= (nums[i] - min(nums))//每个桶的长度
+
+```python
+class Solution:
+    def maximumGap(self, nums: List[int]) -> int:
+        # 因为时间复杂度的限制，可行的方法不多：桶排序和基数排序
+        """桶排序的两个核心问题：
+
+        每个桶的长度是多少？换句话说，每个桶放置元素的范围是什么？
+        一共要准备多少个桶？"""
+        if not nums or len(nums)<2 :
+            return 0
+        max_ , min_ = max(nums), min(nums)
+        max_gap = 0
+        # 桶的最小值为1
+        bucket_volume = max(1, (max_ - min_)//(len(nums)-1))
+        # 计算桶的数量,为了考虑最大值，要+1
+        bucket_num = 1 + (max_ - min_)//bucket_volume
+        # 按照数量生成通
+        buckets = [[] for _ in range(bucket_num)]
+        for i in range(len(nums)):
+            index = (nums[i] - min_)//bucket_volume
+            buckets[index].append(nums[i])
+        pre_max = float('inf')
+        for i in range(len(buckets)):
+            # 判定假设排序后是否相邻
+            if buckets[i] and pre_max != float('inf'):
+                max_gap = max(max_gap, min(buckets[i]) - pre_max)
+            if buckets[i]:
+                pre_max = max(buckets[i])
+        return max_gap
+    
+# 基数排序逻辑很清楚，但是代码没有写过，所以需要写一遍
+# 基数排序的时间复杂度和空间复杂度都是O(kn)，k是数组中最大的数的位数，但是在一般情况下会被近似看成O(n)
+class Solution:
+    def maximumGap(self, nums: List[int]) -> int:
+        # 边界条件：
+        if len(nums)<2: return 0
+        # 开始基数排序:
+        i = 0 # 比较的位置
+        max_ = max(nums)
+        j = len(str(max_)) # 记录位数
+        while i<j:
+            # 基数排序实际上是特殊的桶排序，0~9十个桶初始化
+            bucket = [[] for _ in range(10)]
+            for x in nums:
+                bucket[int(x/(10**i))%10].append(x)
+            nums.clear()
+            for x in bucket:
+                for y in x:
+                    nums.append(y)
+            i += 1
+        return max(nums[i] - nums[i-1] for i in range(1,len(nums)))
+```
+
 
 
 
