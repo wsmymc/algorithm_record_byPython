@@ -2793,6 +2793,18 @@ class Solution:
             result.append([a, b-1])
         return result  
 
+## 正则表达式玩法：
+class Solution:
+    def largeGroupPositions(self, s: str) -> List[List[int]]:
+        import re
+        data= [i+j for i,j in re.findall(r'([a-z])(\1*)',s)]
+        res,idx=[],0
+        for k in data:
+            if len(k)>=3:
+                res.append([idx,idx+len(k)-1])
+            idx+=len(k)
+        return res
+
 
 ```
 

@@ -476,6 +476,46 @@ class Solution {
 }
 ```
 
+### 20. [830. 较大分组的位置](https://leetcode-cn.com/problems/positions-of-large-groups/)
+
+```java
+class Solution {
+    public List<List<Integer>> largeGroupPositions(String s) {\
+        // 二维列表定义确实比python 麻烦许多
+        List<List<Integer>> res = new ArrayList();
+        int i=0,n=s.length();
+        for(int j =0 ;i<n;j++){
+            if (j==n-1||s.charAt(j) != s.charAt(j+1)){
+                if (j-i+1>=3){
+                    // 临时生成的列表python中只用【】，java里需要先new Arraylist,填好值后再把Arraylist add 到res中
+                    res.add(Arrays.asList(new Integer[]{i,j}));
+                }
+                i = j+1;
+            }
+        }
+        return res;
+    }
+}
+```
+
+### 21. [867. 转置矩阵](https://leetcode-cn.com/problems/transpose-matrix/)
+
+```java
+class Solution {
+    public int[][] transpose(int[][] A) {
+        int r= A.length,c = A[0].length;
+        int[][] ans = new int[c][r];
+        for(int i =0;i<r;i++){
+            for(int j=0;j<c;j++){
+                ans[j][i] = A[i][j];
+            }
+        }
+        return ans;
+
+    }
+}
+```
+
 
 
 ## mediium
@@ -576,6 +616,32 @@ class Solution {
         return node != null;
     }
     // 时间复杂度，O(log^2n)
+}
+```
+
+### 3. [454. 四数相加 II](https://leetcode-cn.com/problems/4sum-ii/)
+
+```python
+class Solution {
+    public int fourSumCount(int[] A, int[] B, int[] C, int[] D) {
+        Map<Integer,Integer> cnt = new HashMap();
+        for(int i:A){
+            for(int j:B){
+                cnt.put(i+j,cnt.getOrDefault(i+j,0)+1);
+            }
+        }
+        int ans = 0;
+        for(int i:C){
+            for(int j:D){
+                if(cnt.containsKey(-j-i)){
+                    ans += cnt.get(-i-j);
+
+                }
+            }
+        }
+        return ans;
+
+    }
 }
 ```
 
