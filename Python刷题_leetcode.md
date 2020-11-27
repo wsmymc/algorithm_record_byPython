@@ -2769,6 +2769,49 @@ class Solution:
         return -1
 ```
 
+#### 107. [830. 较大分组的位置](https://leetcode-cn.com/problems/positions-of-large-groups/)
+
+```python
+class Solution:
+    def largeGroupPositions(self, s: str) -> List[List[int]]:
+        if len(s) < 3:
+            return []
+        a = 0
+        b = 0
+        result = []
+        while b < len(s):
+            if s[b] == s[a]:
+                b += 1
+            else:
+                if b-a >= 3:
+                    result.append([a, b-1])
+                    a = b
+                else:
+                    a = b
+                    b += 1
+        if b-a >= 3:
+            result.append([a, b-1])
+        return result  
+
+
+```
+
+#### 108. [867. 转置矩阵](https://leetcode-cn.com/problems/transpose-matrix/)
+
+```python
+class Solution:
+    def transpose(self, A: List[List[int]]) -> List[List[int]]:
+        n=len(A)
+        m=len(A[0])
+        res=[]
+        for i in range(m):
+            x=[]
+            for j in range(n):
+                x.append(A[j][i])
+            res.append(x)
+        return res
+```
+
 
 
 
@@ -6967,6 +7010,23 @@ class Solution:
             else:
                 high = mid -1
         return low
+```
+
+#### 95. [454. 四数相加 II](https://leetcode-cn.com/problems/4sum-ii/)
+
+```python
+class Solution:
+    def fourSumCount(self, A: List[int], B: List[int], C: List[int], D: List[int]) -> int:
+        # 其实是变形的两数之和，这里可以A+B 分成一组，用字典记录，然后就是单纯的二重循环比较了，如果有契合的数字+1
+        # pythonic的解法
+        # 本质和两个for 循环，然后以V+u 为key， 遇到key ，value +1 一样，这一步由Counter做的
+        cntAB = collections.Counter(u+v for u in A for v in B)
+        res = 0
+        for u in C:
+            for v in D:
+                if -v-u in cntAB:
+                    res += cntAB[-v-u]
+        return res
 ```
 
 
