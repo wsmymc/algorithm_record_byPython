@@ -2824,6 +2824,50 @@ class Solution:
         return res
 ```
 
+#### 109. [896. 单调数列](https://leetcode-cn.com/problems/monotonic-array/)
+
+```python
+class Solution:
+    def isMonotonic(self, A: List[int]) -> bool:
+        if len(A)<2:
+            return True
+        if A[0]<= A[-1]:
+            flag = 0
+        if A[0]> A[-1]:
+            flag =1
+        # print(flag)
+        for i in range(1,len(A)):
+            if A[i] >= A[i-1] and flag == 0:
+                continue
+            elif A[i] <= A[i-1] and flag == 1:
+                continue
+            else:
+                return False
+        return True
+            
+
+```
+
+#### 110. [888. 公平的糖果交换](https://leetcode-cn.com/problems/fair-candy-swap/)
+
+```python
+class Solution:
+    def fairCandySwap(self, A: List[int], B: List[int]) -> List[int]:
+        # 用set减少遍历的时间
+        #  Sa -x +y = Sb -y +x
+        # 推倒后是 y=x+（Sb-Sa）/2
+        gap = sum(B) - sum(A)
+        #print('gap',gap)
+        setb = set(B)
+        for x in A:
+            print(x,x+gap//2)
+            if x + gap//2 in setb:
+                #print(x)
+                return [x,x+gap//2]
+
+
+```
+
 
 
 
@@ -8122,6 +8166,37 @@ class Solution:
                     nums.append(y)
             i += 1
         return max(nums[i] - nums[i-1] for i in range(1,len(nums)))
+```
+
+#### 26. [493. 翻转对](https://leetcode-cn.com/problems/reverse-pairs/)
+
+```python
+class Solution:
+    def reversePairs(self, nums: List[int]) -> int:
+        return self.mergeSort(nums, 0, len(nums) - 1)
+
+    def mergeSort(self, nums, l, r):
+        if l >= r:
+            return 0
+        mid = l + ((r - l) >> 1)
+        left = self.mergeSort(nums, l, mid)
+        right = self.mergeSort(nums, mid + 1, r)
+        return self.merge(nums, l, mid, r) + left + right
+
+    def merge(self, nums, l, mid, r):
+        # 找翻转对的代码
+        ans = 0
+        i, j = l, mid + 1
+        while i <= mid and j <= r:
+            if (nums[i] + 1) >> 1 > nums[j]:
+                ans += (mid - i + 1)
+                j += 1
+            else:
+                i += 1
+        nums[l:r + 1] = sorted(nums[l:r + 1])
+        return ans
+
+
 ```
 
 

@@ -516,6 +516,57 @@ class Solution {
 }
 ```
 
+### 22. [888. 公平的糖果交换](https://leetcode-cn.com/problems/fair-candy-swap/)
+
+```java
+class Solution {
+    public int[] fairCandySwap(int[] A, int[] B) {
+        int sa =0 ,sb= 0;
+        for(int x:A){
+            sa += x;
+        }
+        for (int x:B){
+            sb += x;
+        }
+        int gap = (sb-sa)/2;
+        Set<Integer>  s = new HashSet();
+        for (int x:B){
+            s.add(x);
+        }
+        for (int x:A){
+            if (s.contains(x + gap)){
+                return new int[]{x,x+gap};
+            }
+        }
+        throw null;
+
+    }
+}
+```
+
+### 23. [896. 单调数列](https://leetcode-cn.com/problems/monotonic-array/)
+
+```java
+class Solution {
+    public boolean isMonotonic(int[] A) {
+        if(A.length<2) return true;
+        boolean b = A[0]>A[A.length-1];
+        for (int i =1;i<A.length;i++){
+            if (A[i] == A[i-1]){
+                continue;
+                //这里的两个否定实际上用的很巧妙
+            }else if(A[i]>A[i-1] != b){
+                continue;
+            }else{
+                return false;
+            }
+        }
+        return true;
+
+    }
+}
+```
+
 
 
 ## mediium
