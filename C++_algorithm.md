@@ -285,6 +285,201 @@ public:
 };
 ```
 
+### 11 .[661. 图片平滑器](https://leetcode-cn.com/problems/image-smoother/)
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> imageSmoother(vector<vector<int>>& M) {
+        int R = M.size(),C = M[0].size();
+        vector<vector<int>> res(R,vector<int>(C,0));
+        //cout<<"R:"<<R<<endl;
+        for(int r= 0;r<R;r++){
+            //cout<<r<<endl;
+            for(int c=0;c<C;c++){
+                //cout<<"r;"<<r<<endl;
+                int cnt =0;
+                for(int nr= r-1;nr<=r+1;nr++){
+                    for(int nc=c-1;nc<=c+1;nc++){
+                        if(0<=nr &&nr<R&&nc>=0&&nc<C){
+
+                            res[r][c] += M[nr][nc];
+                            cnt ++;
+                            //cout<<"res"<<res[r][c]<<endl;
+                        }
+                        // if (0<= nr &&nr<R&&0<=nc&&nc<C){
+                        //     res[r][c] += M[nr][nc];
+                        //     cnt ++;
+                        // }
+                    }
+                }
+                cout<<cnt;
+                res[r][c] /= cnt;
+            }
+        }
+        return res;
+
+    }
+};
+```
+
+
+
+### 12. [717. 1比特与2比特字符](https://leetcode-cn.com/problems/1-bit-and-2-bit-characters/)
+
+```C++
+class Solution {
+public:
+    bool isOneBitCharacter(vector<int>& bits) {
+        int i = bits.size()-2;
+        while(i >=0 && bits[i]>0){
+            i--;
+        }
+        return (bits.size()-1-(i-1))%2==0;
+
+    }
+};
+```
+
+### 13. [724. 寻找数组的中心索引](https://leetcode-cn.com/problems/find-pivot-index/)
+
+```C++
+class Solution {
+public:
+    int pivotIndex(vector<int>& nums) {
+        int sum = 0;
+        for(int i=0;i<nums.size();i++){
+            sum += nums[i];
+        }
+        int l_sum =0;
+        for(int i=0;i<nums.size();i++){
+            if (l_sum == sum-nums[i]-l_sum){
+                return i;
+            }
+            l_sum += nums[i];
+        }
+        return -1;
+
+    }
+};
+```
+
+
+
+### 14.[697. 数组的度](https://leetcode-cn.com/problems/degree-of-an-array/)
+
+```c++
+class Solution {
+public:
+    int findShortestSubArray(vector<int>& nums) {
+        // 1. 利用 map 确定每个元素的度 (相同元素的所有索引)
+        unordered_map<int, vector<int>> degree_map;
+        
+        // map 的 second 是 vector，所以用 push_back
+        for (int i = 0; i < nums.size(); i++)
+            degree_map[nums[i]].push_back(i);
+
+        // 每个元素的度
+        int n_degree = 0;
+
+        // 数组的度
+        int nums_degree = 0;
+
+        // 与数组度数相同的最短子数组的长度
+        int min_len = 0;
+
+        int tmp_len = 0;
+
+        // 2. 求跟原数组的度相同的最短子数组的长度
+        for (auto n : degree_map) {
+            // 3. 求每个元素 n 的度
+
+            //这里的second 就是字典的value
+            n_degree = n.second.size();
+            
+            if (n_degree >= nums_degree) {
+                // 4. 求每个子数组的长度
+                tmp_len = n.second[n_degree - 1] - n.second[0] + 1;
+
+                if (n_degree == nums_degree) {
+                    // 5. 找到度数相同子数组，每次取最小值
+                    min_len = min(min_len, tmp_len);
+                } else {
+                    // 这是 degree > nums_degree 的情况
+                    
+                    // 求数组最大的度
+                    nums_degree = n_degree;
+
+                    // 更新子数组的长度
+                    min_len = tmp_len;
+                }
+            }
+        }
+
+        return min_len;
+
+
+    }
+};
+```
+
+### 15. [674. 最长连续递增序列](https://leetcode-cn.com/problems/longest-continuous-increasing-subsequence/)
+
+```C++
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        if(nums.size()<=1){
+            return nums.size();
+        }
+        int res =1,cnt =1;
+        for(int i =0;i<nums.size()-1;i++){
+            if(nums[i+1]>nums[i]){
+                cnt ++;
+            }else{
+                res = max(res,cnt);
+                cnt = 1;
+            }
+        }
+        return max(res,cnt);
+    }
+};
+```
+
+### 16. [665. 非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)
+
+```c++
+class Solution {
+public:
+    bool checkPossibility(vector<int>& nums) {
+        if (nums.size()<3){
+            return true;
+        }
+        int cnt = 0;
+        for(int i=0;i<nums.size()-1;i++){
+            if (nums[i]>nums[i+1]){
+                cnt++;
+                if (cnt>1){
+                    return false;
+                }
+                // 核心判定，当i-1 比i+1 打的时候，i+1 升格
+                if(i-1>=0&&nums[i-1]>nums[i+1]){
+                    nums[i+1] = nums[i];
+
+                }
+                // 否则 i降格
+                else{
+                    nums[i] = nums[i+1];
+                }
+            }
+        }
+        return cnt<=1;
+    }
+};
+```
+
+### 从17 到26 省略，有空在填补
+
 
 
 
@@ -292,6 +487,48 @@ public:
 
 
 ## medium
+
+### 1. [452. 用最少数量的箭引爆气球](https://leetcode-cn.com/problems/minimum-number-of-arrows-to-burst-balloons/)
+
+```C++
+class Solution {
+public:
+    int findMinArrowShots(vector<vector<int>>& points) {
+        // 对于empty或只有一个区间, return;
+        if (points.size() <= 1)
+            return points.size();
+        // 按照区间开始位置排序
+        sort(points.begin(), points.end(),
+        //[](){}匿名函数写法，注意传进去的两个参数，vector里面存储的类型，如int
+            [](const vector<int> &a, const vector<int> b) {
+                return a[0] == b[0] ? a[1] <= b[1] : a[0] < b[0];
+            });
+
+        int arrows = 1;
+        // 初始化待发射区为[points[0][0], points[0][1]] ;
+        vector<int> range = {points[0][0], points[0][1]};
+        for (int i = 1; i < points.size(); i++) {
+            auto curr = points[i];
+            // 当前区间和待发射区间有交集, 更新交叉区间
+            if (curr[0] <= range[1]) {
+                range[0] = max(range[0], curr[0]);
+                range[1] = min(range[1], curr[1]);
+            } else {
+                // 没有交集, 增加箭头数量, 将待发射区间设置为当前区间
+                ++arrows;
+                range[0] = curr[0];
+                range[1] = curr[1];
+            }
+        }
+        return arrows;
+
+
+
+    }
+};
+```
+
+
 
 
 
