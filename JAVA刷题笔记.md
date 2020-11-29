@@ -567,6 +567,75 @@ class Solution {
 }
 ```
 
+### 24. [976. 三角形的最大周长](https://leetcode-cn.com/problems/largest-perimeter-triangle/)
+
+```java
+class Solution:
+    def largestPerimeter(self, A: List[int]) -> int:
+        A.sort()
+        n = len(A)
+        for i in range(n-1,-1,-1):
+            if A[i-1] + A[i-2] > A[i]:
+                return sum(A[i-2:i+1])
+        return 0
+```
+
+### 25. [922. 按奇偶排序数组 II](https://leetcode-cn.com/problems/sort-array-by-parity-ii/)
+
+```java
+class Solution {
+    public int[] sortArrayByParityII(int[] A) {
+        int n = A.length;
+        int j = 1;
+        for (int i = 0; i < n; i += 2) {
+            //只考虑奇数就好剩下的自然就是偶数
+            if (A[i] % 2 == 1) {
+                while (A[j] % 2 == 1) {
+                    j += 2;
+                }
+                swap(A, i, j);
+            }
+        }   
+        return A;
+    }
+
+    public void swap(int[] A, int i, int j) {
+        int temp = A[i];
+        A[i] = A[j];
+        A[j] = temp;
+    }
+}
+
+```
+
+### 26.[922. 按奇偶排序数组 II](https://leetcode-cn.com/problems/sort-array-by-parity-ii/)
+
+```JAVA
+class Solution {
+    // == 的优先级比&高，所以记得用的时候带括号
+    public int[] sortArrayByParityII(int[] A) {
+        int n = A.length;
+        int j = 1;
+        for (int i = 0; i < n; i += 2) {
+            if (A[i] % 2 == 1) {
+                while (A[j] % 2 == 1) {
+                    j += 2;
+                }
+                swap(A, i, j);
+            }
+        }   
+        return A;
+    }
+
+    public void swap(int[] A, int i, int j) {
+        int temp = A[i];
+        A[i] = A[j];
+        A[j] = temp;
+    }
+}
+
+```
+
 
 
 ## mediium

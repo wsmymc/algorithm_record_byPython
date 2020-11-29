@@ -2868,7 +2868,59 @@ class Solution:
 
 ```
 
+#### 111. [976. 三角形的最大周长](https://leetcode-cn.com/problems/largest-perimeter-triangle/)
 
+```python
+class Solution:
+    def largestPerimeter(self, A: List[int]) -> int:
+        A.sort()
+        n = len(A)
+        for i in range(n-1,-1,-1):
+            if A[i-1] + A[i-2] > A[i]:
+                return sum(A[i-2:i+1])
+        return 0
+```
+
+#### 112. [922. 按奇偶排序数组 II](https://leetcode-cn.com/problems/sort-array-by-parity-ii/)
+
+```python
+class Solution:
+    def sortArrayByParityII(self, A: List[int]) -> List[int]:
+        l1,l2 = [],[]
+        for x in A:
+            if x &1 ==0:
+                l2.append(x)
+            else:
+                l1.append(x)
+        res = []
+        for i in range(len(A)//2):
+            res.append(l2.pop())
+            res.append(l1.pop())
+        return res
+```
+
+
+
+#### 113. [985. 查询后的偶数和](https://leetcode-cn.com/problems/sum-of-even-numbers-after-queries/)
+
+```python
+class Solution:
+    def sumEvenAfterQueries(self, A: List[int], queries: List[List[int]]) -> List[int]:
+        # 直接从和的角度考虑
+        S = sum(x for x in A if x % 2 == 0)
+        ans = []
+
+        for x, k in queries:
+            #  先确定变化之前的值，
+            if A[k] % 2 == 0: S -= A[k]
+            A[k] += x
+            # 在判断变化后的值
+            if A[k] % 2 == 0: S += A[k]
+            ans.append(S)
+
+        return ans
+
+```
 
 
 
