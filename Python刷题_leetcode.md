@@ -7137,6 +7137,169 @@ class Solution:
         return res
 ```
 
+#### 96. [767. 重构字符串](https://leetcode-cn.com/problems/reorganize-string/)
+
+```python
+#基于计数的贪心算法
+
+class Solution:
+    #  1. 取Counter中的单个键值对就用items()
+    # 2. 列表变成字符串的方法： "".join([])
+    def reorganizeString(self, S: str) -> str:
+        if len(S)<2:
+            return S
+        # 用计数器简化代码
+        n = len(S)
+        counts = collections.Counter(S)
+        maxCount = max(counts.items(),key=lambda x: x[1])
+        maxCount = maxCount[1]  # 取得是value
+        if maxCount > (n+1)/2:
+            return ""  # 如果单一字符超过这个限制，说明，必有连续重复字符，直接返回结果，不用管下面的逻辑
+        
+        res = [""]*n  # 初始化
+        # print(res)
+        evenIndex , oddIndex = 0,1
+        half_length = n//2
+        for c,cnt in counts.items():
+            # 这里是基于计数的贪心，找到一个字符，直接间隔排序
+            # 只要字母的出现次数不超过字符串的长度的一半（即出现次数小于或等于 n/2n/2），就可以放置在奇数下标，只有当字母的出现次数超过字符串的长度的一半时，才必须放置在偶数下标。
+            # 因此优先填充计数下标，直到计数下标填充满 ，或者 恰好有一个次数 == n/2+1 只能放偶数下标
+            while cnt>0 and cnt<=half_length and oddIndex<n:
+                res[oddIndex] = c
+                cnt -=1
+                oddIndex +=2
+            while cnt>0:
+                res[evenIndex] = c
+                cnt -= 1
+                evenIndex += 2
+        # print(res)
+        return "".join(res)
+    
+    
+# 基于最大堆的贪心算法
+class Solution:
+    def reorganizeString(self, S: str) -> str:
+        if len(S) < 2:
+            return S
+        # 前半部分判否的逻辑不变
+        length = len(S)
+        counts = collections.Counter(S)
+        maxCount = max(counts.items(), key=lambda x: x[1])[1]
+        if maxCount > (length + 1) // 2:
+            return ""
+        
+        queue = [(-x[1],x[0]) for x in counts.items()]  # python 里的是最小堆，要当做最大堆使用的话，需要用负值
+        heapq.heapify(queue)  # 建堆
+        res= []
+
+        # 用堆构建序列
+        while len(queue) >1:
+            _, c1 = heapq.heappop(queue)
+            _, c2 = heapq.heappop(queue)
+            res.extend([c1,c2])
+            counts[c1] -= 1
+            counts[c2] -= 1
+            # 之前pop出来了，现在修改完后，需要放回去
+            if counts[c1] > 0:
+                heapq.heappush(queue,(-counts[c1],c1))
+            if counts[c2] > 0:
+                heapq.heappush(queue,(-counts[c2],c2))
+        # 每次两个，但是也有可能剩一个的情况
+        if queue:
+            res.append(queue[0][1])
+        return "".join(res)
+
+
+
+```
+
+#### 97. [378. 有序矩阵中第K小的元素](https://leetcode-cn.com/problems/kth-smallest-element-in-a-sorted-matrix/)
+
+```python
+class Solution:
+    def kthSmallest(self, matrix: List[List[int]], k: int) -> int:
+        """
+        1. 二分法解决问题，利用行、列有序的性质
+        2.不妨假设答案为 xx，那么可以知道 l\leq x\leq rl≤x≤r，这样就确定了二分查找的上下界。
+
+每次对于「猜测」的答案 midmid，计算矩阵中有多少数不大于 midmid ：
+
+如果数量不少于 k，那么说明最终答案 x 不大于 mid；
+如果数量少于 k，那么说明最终答案 x 大于 mid。
+ """
+        n = len(matrix)
+
+        def check(mid):
+            i, j = n - 1, 0
+            num = 0
+            while i >= 0 and j < n:
+                # 从左下角开始走，如果不大于mid,那么这一列都不大于，记录并且向后走
+                if matrix[i][j] <= mid:
+                    num += i + 1
+                    j += 1
+            # 否则，向上走
+                else:
+                    i -= 1
+            return num >= k
+
+        left, right = matrix[0][0], matrix[-1][-1]  # 二分前，确定最大最小值
+        while left < right:
+            mid = (left + right) // 2
+            # 计算小于等于mid的 值有多少，是否大于k
+            if check(mid):
+                right = mid
+            else:
+                left = mid + 1
+        
+        return left
+
+
+```
+
+### 98. [973. 最接近原点的 K 个点](https://leetcode-cn.com/problems/k-closest-points-to-origin/)
+
+```python
+class Solution:
+    def kClosest(self, points: List[List[int]], K: int) -> List[List[int]]:
+        #  最大堆需要用负值来利用
+        q = [(-x**2-y**2,i) for i ,(x,y) in enumerate(points[:K])]
+        heapq.heapify(q)
+        n = len(points)
+        for i in range(K,n):
+            x,y = points[i]
+            dist = - x**2-y**2
+            heapq.heappushpop(q,(dist,i))
+        res = [points[idx] for _, idx in q]
+        return res
+    
+## topK的另一种写法：变形的快排
+def random_select(left: int, right: int, K: int):
+            pivot_id = random.randint(left, right)
+            pivot = points[pivot_id][0] ** 2 + points[pivot_id][1] ** 2
+            points[right], points[pivot_id] = points[pivot_id], points[right]
+            i = left - 1
+            for j in range(left, right):
+                if points[j][0] ** 2 + points[j][1] ** 2 <= pivot:
+                    i += 1
+                    points[i], points[j] = points[j], points[i]
+            i += 1
+            points[i], points[right] = points[right], points[i]
+            # [left, i-1] 都小于等于 pivot, [i+1, right] 都大于 pivot
+            if K < i - left + 1:
+                random_select(left, i - 1, K)
+            elif K > i - left + 1:
+                random_select(i + 1, right, K - (i - left + 1))
+
+        n = len(points)
+        random_select(0, n - 1, K)
+        return points[:K]
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/k-closest-points-to-origin/solution/zui-jie-jin-yuan-dian-de-k-ge-dian-by-leetcode-sol/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 
