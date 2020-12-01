@@ -2922,6 +2922,68 @@ class Solution:
 
 ```
 
+#### 114. [1672. 最富有客户的资产总量](https://leetcode-cn.com/problems/richest-customer-wealth/)
+
+```python
+class Solution:
+    def maximumWealth(self, accounts: List[List[int]]) -> int:
+        return max(list(sum(accounts[i]) for i in range(len(accounts))))
+```
+
+#### 115. [1656. 设计有序流](https://leetcode-cn.com/problems/design-an-ordered-stream/)
+
+```python
+class OrderedStream:
+
+    def __init__(self, n: int):
+        self. size = n
+        self.dic = {}
+        self .ptr = 1
+
+
+    def insert(self, id: int, value: str) -> List[str]:
+        res = []
+        if 1<= id<=self.size:
+            self.dic[id] =value
+            if id != self.ptr:
+                return res
+            else:
+                for i in range(id, self.size+1):
+                    if i in self.dic:
+                        res.append(self.dic[i])
+                        self.ptr += 1
+                    else:return res
+                return res
+        return res
+                    
+            
+
+
+
+# Your OrderedStream object will be instantiated and called as such:
+# obj = OrderedStream(n)
+# param_1 = obj.insert(id,value)
+```
+
+#### 116. [1652. 拆炸弹](https://leetcode-cn.com/problems/defuse-the-bomb/)
+
+```python
+class Solution:
+    def decrypt(self, code: List[int], k: int) -> List[int]:
+        code1 = []
+        len1 = len(code)
+        if k > 0:
+            for i in range(len1):
+                code1.append(sum(code[x%len1] for x in range(i+1, i+1+k)))
+        if k < 0:
+            for i in range(len1):
+                # 这里还是+ ，因为k 本身就是负值，不用减
+                code1.append(sum(code[x%len1] for x in range(i+k, i)))
+        if k == 0:
+            code1 = [0 for _ in range(len1)]
+        return code1
+```
+
 
 
 ## medium
