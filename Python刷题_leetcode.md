@@ -7300,6 +7300,37 @@ def random_select(left: int, right: int, K: int):
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+#### 99. [34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode-cn.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+```python
+class Solution:
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        # 两次二分，一次确定有无以及左边界，一次确定右边界。
+        # 左边界很正常，普通的二分，右边界因为是向右逼近，所以取中指，逼近判断，都有变化
+        res = [-1,-1]
+        l,r = 0,len(nums)-1
+        while l<r:
+            mid = l + (r-l)//2   # 向左取整
+            if nums[mid]<target:
+                l = mid +1
+            else:
+                r =mid
+        if not nums or nums[l]!= target:
+            return res
+        res[0] = l    # 确定了左边界
+        l, r = l,len(nums)-1
+        while l<r:
+            mid = l+ (r-l+1)//2   # 向右取整
+            # 这里是右边过度移动
+            if nums[mid]>target:
+                r = mid -1
+            else:
+                l = mid
+        res[1] = r
+        return res
+
+```
+
 
 
 
