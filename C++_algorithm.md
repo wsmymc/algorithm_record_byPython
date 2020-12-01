@@ -482,7 +482,70 @@ public:
 
 
 
+### 27. [1652. 拆炸弹](https://leetcode-cn.com/problems/defuse-the-bomb/)
 
+```c++
+class Solution {
+public:
+    vector<int> decrypt(vector<int> &code, int k) {
+        vector<int> ans;
+        int n = code.size();
+        if (k < 0) {
+            for (int i = 0; i < code.size(); ++i) {
+                int num = 0;
+                for (int j = 0, index = i; j < -k; ++j) {
+                    num += code[(--index + n) % n];
+                }
+                ans.push_back(num);
+            }
+        } else {
+            for (int i = 0; i < code.size(); ++i) {
+                int num = 0;
+                for (int j = 0, index = i; j < k; ++j) {
+                    num += code[(++index) % n];
+                }
+                ans.push_back(num);
+            }
+        }
+        return ans;
+    }
+};
+
+```
+
+
+
+### 28. [1656. 设计有序流](https://leetcode-cn.com/problems/design-an-ordered-stream/)
+
+```c++
+class OrderedStream {
+public:
+    string res[1005];
+    int ptr;
+    OrderedStream(int n) {
+        this-> ptr = 1;
+        for(int i =0;i<n;i++){
+            res[i] = "";
+        }
+
+    }
+    
+    vector<string> insert(int id, string value) {
+        res[id] = value;
+        vector<string> ret;
+        while(res[ptr].length()>0){
+            ret.push_back(res[ptr++]);
+        }
+        return ret;
+    }
+};
+
+/**
+ * Your OrderedStream object will be instantiated and called as such:
+ * OrderedStream* obj = new OrderedStream(n);
+ * vector<string> param_1 = obj->insert(id,value);
+ */
+```
 
 
 
