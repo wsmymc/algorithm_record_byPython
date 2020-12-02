@@ -872,6 +872,87 @@ class Solution {
 
 
 
+### 5. [973. 最接近原点的 K 个点](https://leetcode-cn.com/problems/k-closest-points-to-origin/)
+
+```Java
+class Solution {
+    public int[][] kClosest(int[][] points, int K) {
+        // 堆的用法里面，需要写一个比较器,实现compare 方法
+        // 有限队列的offer ,poll ,peek方法
+        PriorityQueue<int[]> pq = new PriorityQueue<int[]> (new Comparator<int[]>(){
+            public int compare(int[] s1, int[] s2){
+                return s2[0]-s1[0];
+            }
+        });
+        for (int i =0 ;i<K;i++){
+            pq.offer(new int[]{points[i][0]*points[i][0] + points[i][1]*points[i][1],i});
+        }
+        int n = points.length;
+        for(int i= K;i<n;i++){
+            int dist = points[i][0]*points[i][0] + points[i][1]*points[i][1];
+            if(dist<pq.peek()[0]){
+                pq.poll();
+                pq.offer(new int[]{dist,i});
+            }
+        }
+        int[][] res= new int[K][2];
+        for(int i=0;i<K;i++){
+            res[i] = points[pq.poll()[1]];
+        }
+        return res;
+
+    }
+}
+
+
+
+// 快排
+class Solution {
+    public int[][] kClosest(int[][] points, int K) {
+        // 变形的快排
+        return quickSelect(points, 0, points.length -1, K-1);
+    }
+    private int[][] quickSelect(int[][] points, int low, int high,int idx){
+        // 快排切分，不过只要找到确定的位置为K-1 ，就可以返回，不用完全排序
+        if (low>high){
+            return new int[0][0];
+        }
+        int pos = partition(points,low,high); // 每一轮快排最终确定的位置
+        if  (pos == idx){
+            // Arrays 包里的方法，需要熟悉
+            return Arrays.copyOf(points,idx+1);
+        }
+        // 如果不是，根据大小，向左向右照
+        return pos<idx?quickSelect(points , pos+1 ,high,idx): quickSelect(points,low, pos-1,idx);
+    }
+    private int partition(int[][] points, int low, int high){
+        int[] v = points[low];
+        int dist = v[0]*v[0] + v[1]*v[1];
+        // 快排起步，右端虚一位
+        int i=low,j=high+1;
+        while(true){
+            // 双指针快排，都有点陌生了
+            while(++i <= high && points[i][0]*points[i][0]+points[i][1]*points[i][1] <dist);
+            while(--j <= high && points[j][0]*points[j][0]+points[j][1]*points[j][1] >dist);
+            if( i >= j){
+                break;
+            }
+            int[] tmp = points[i];
+            points[i] = points[j];
+            points[j] = tmp;
+
+        }
+        points[low] = points[j];
+        points[j] = v;
+        return j;
+    }
+}
+```
+
+
+
+
+
 
 
 
