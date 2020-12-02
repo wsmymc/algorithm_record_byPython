@@ -951,7 +951,126 @@ class Solution {
 
 
 
+### 6. [378. 有序矩阵中第K小的元素](https://leetcode-cn.com/problems/kth-smallest-element-in-a-sorted-matrix/)
 
+```java
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) {
+        // n重topK
+        PriorityQueue<int[]> heap = new PriorityQueue<int[]>(new Comparator<int[]>(){
+            public int compare(int[] a, int[]b){
+                return a[0]-b[0];
+            }
+        });
+        int n = matrix.length;
+        for(int i=0; i<n;i++){
+            heap.offer(new int[]{matrix[i][0],i,0});
+        }
+        for(int i=0; i<k-1;i++){
+            int[] tmp = heap.poll();
+            if(tmp[2] != n-1){
+                heap.offer(new int[]{matrix[tmp[1]][tmp[2]+1], tmp[1], tmp[2]+1});
+            }
+        }
+        return heap.poll()[0];
+
+    }
+}
+
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) {
+
+        // 二分法
+        int n = matrix.length;
+        int left = matrix[0][0], right = matrix[n-1][n-1];
+        while(left<right){
+            int mid = left + (right-left)/2;
+            // 如果 <= mid的数量大于等于k，说明mid 太大，所以right 缩小。反之，left 增大
+            if (check(matrix,mid,k,n)){
+                right = mid;
+            }
+            else
+            {
+                left = mid+1;
+            }
+        }
+        return left;
+
+    }
+    public boolean check(int[][] matrix, int mid ,int k,int n){
+        int i = n-1;
+        int j= 0;
+        int num =0 ;
+        while(i>= 0 && j <n){
+            if (matrix[i][j]<= mid){
+                num += i +1;
+                j++;
+            }
+            else{
+                i --;
+            }
+        }
+        return num>= k;
+    }
+}
+```
+
+
+
+### 7. [767. 重构字符串](https://leetcode-cn.com/problems/reorganize-string/)
+
+```java
+class Solution {
+    public String reorganizeString(String S) {
+        // 思路是贪心，预设好方法，从次数最多的字符间隔排列
+        // 实现是堆排序
+        if(S.length()<2){
+            return S;
+        }
+        int[] cnt = new int[26];
+        int maxCnt = 0;
+        int length = S.length();
+        for(int i= 0 ;i<length;i++ ){
+            char c = S.charAt(i);
+            cnt[c-'a']++;
+            maxCnt = Math.max(maxCnt,cnt[c-'a']);
+        }
+        if (maxCnt>(length+1)/2){
+            return "";
+        }
+        PriorityQueue<Character> heap = new PriorityQueue<Character>(new Comparator<Character>(){
+            public int compare(Character c1,Character c2){
+                return cnt[c2-'a']-cnt[c1-'a'];
+            }
+        });
+        for(char c= 'a';c<='z';c++){
+            if(cnt[c-'a']>0){
+                heap.offer(c);
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        while(heap.size()>1){
+            char c1 =heap.poll();
+            char c2= heap.poll();
+            sb.append(c1);
+            sb.append(c2);
+            cnt[c1-'a']--;
+            cnt[c2-'a']--;
+            if(cnt[c1-'a']>0){
+                heap.offer(c1);
+            }
+            if(cnt[c2-'a']>0){
+                heap.offer(c2);
+            }
+        }
+        if (heap.size()>0){
+            sb.append(heap.poll());
+        }
+        
+        return sb.toString();
+    }
+}
+```
 
 
 
