@@ -2984,6 +2984,46 @@ class Solution:
         return code1
 ```
 
+#### 117. [1413. 逐步求和得到正数的最小值](https://leetcode-cn.com/problems/minimum-value-to-get-positive-step-by-step-sum/)
+
+```python
+class Solution:
+    def minStartValue(self, nums: List[int]) -> int:
+        record = nums[0]
+        _sum = nums[0]
+        for i in range(1,len(nums)):
+            _sum += nums[i]
+            record = min(record, _sum)
+        if record>=0:
+            return 1
+        return 1-record
+
+```
+
+#### 118.[1122. 数组的相对排序](https://leetcode-cn.com/problems/relative-sort-array/)
+
+```python
+class Solution:
+    def relativeSortArray(self, arr1: List[int], arr2: List[int]) -> List[int]:
+        # 技术排序
+        upper = max(arr1)
+        frequency = [0] * (upper + 1)
+        for x in arr1:
+            frequency[x] += 1
+        
+        ans = list()
+        for x in arr2:
+            ans.extend([x] * frequency[x])
+            frequency[x] = 0
+        for x in range(upper + 1):
+            if frequency[x] > 0:
+                ans.extend([x] * frequency[x])
+        return ans
+
+
+        
+```
+
 
 
 ## medium
@@ -8508,6 +8548,49 @@ class Solution:
 ```
 
 
+
+#### 27. [321. 拼接最大数](https://leetcode-cn.com/problems/create-maximum-number/)
+
+```python
+class Solution:
+    def maxNumber(self, nums1: List[int], nums2: List[int], k: int) -> List[int]:
+        res = []
+        for i in range(k+1):
+            # 如果长度不够，就不可能做成，跳过
+            if i>len(nums1) or k-i >len(nums2):
+                continue
+            s1 = self.get_max_n(nums1,i)
+            s2 = self.get_max_n(nums2,k-i)
+            # print('i:',i,'k-i:',k-i)
+            # print(s1,s2)
+            res = max(res, self.merge(s1,s2))
+            # print('res:',res)
+        return res
+    
+    def get_max_n(self, nums,m):
+        # 以单调栈的形式选取m个字符构成最大数字
+        # 换个角度，单调栈上的每个位置，实际上就是数字的位置吧，十位上1肯定比个位上9要大
+        n = len(nums)
+        stack = []
+        for i ,v in enumerate(nums):
+            # 站不为空、且如果弹出的话，后续的数字还够用，且比栈顶数字大
+            while stack and n-i + len(stack) > m and v>stack[-1]:
+                stack.pop()
+            stack.append(v)
+            if len(stack)>m:
+                stack.pop()
+        return stack
+    
+    def merge(self, s1, s2):
+        res = []
+        while s1 and s2:
+            if s1>s2:
+                res.append(s1.pop(0))
+            else:
+                res.append(s2.pop(0))
+        res += s1 + s2
+        return res
+```
 
 
 

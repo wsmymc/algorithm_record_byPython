@@ -705,6 +705,24 @@ class OrderedStream {
  */
 ```
 
+### 29. [1413. 逐步求和得到正数的最小值](https://leetcode-cn.com/problems/minimum-value-to-get-positive-step-by-step-sum/)
+
+```java
+class Solution {
+    public int minStartValue(int[] nums) {
+        int tmp= nums[0], _sum = nums[0];
+        for(int i =1;i<nums.length;i++){
+            _sum += nums[i];
+            tmp =Math.min(_sum,tmp);
+        }
+        if(tmp>=0){
+            return 1;
+        }
+        return 1-tmp;
+    }
+}
+```
+
 
 
 ## mediium
