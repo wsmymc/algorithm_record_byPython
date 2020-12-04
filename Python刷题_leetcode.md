@@ -3024,6 +3024,28 @@ class Solution:
         
 ```
 
+#### 119. [1013. 将数组分成和相等的三个部分](https://leetcode-cn.com/problems/partition-array-into-three-parts-with-equal-sum/)
+
+```python
+class Solution:
+    def canThreePartsEqualSum(self, A: List[int]) -> bool:
+        if not A: return False
+        _sum  = sum(A)
+        if _sum%3 != 0:
+            return False
+        part= _sum//3
+        tmp = 0
+        cnt =0
+        for i,v in enumerate(A):
+            tmp += v
+            if tmp == part and cnt<2 and i<len(A)-1:
+            
+                cnt += 1
+                tmp =0
+        print(tmp,part,cnt)
+        return cnt == 2 and tmp == part
+```
+
 
 
 ## medium
@@ -7431,6 +7453,58 @@ class Solution:
         res[1] = r
         return res
 
+```
+
+#### 100.[659. 分割数组为连续子序列](https://leetcode-cn.com/problems/split-array-into-consecutive-subsequences/)
+
+```python
+class Solution:
+    def isPossible(self, nums: List[int]) -> bool:
+        # 哈希表内部嵌套堆，说实话没想到
+        # 以每一个数字结尾的构建一个堆，堆内存储各个字符串的长度
+        # 每次将最短的+1
+        # 最后遍历是否有《3的队列
+        cnter = collections.defaultdict(list)
+        for x in nums:
+            # 新写法？声明并初始化？
+            # 注意，这里找的是x-1 能够连续的前一个
+            if queue := cnter[x-1]:
+                # x-1 的堆中少了一个子序列长度
+                prevLength = heapq.heappop(queue)
+                # x的堆中多了一个
+                heapq.heappush(cnter[x],prevLength+1)
+            else:
+                heapq.heappush(cnter[x],1)
+        return not any(queue and queue[0]<3 for queue in cnter.values())
+    
+    
+## 贪心法，
+class Solution:
+    def isPossible(self, nums: List[int]) -> bool:
+        # 贪心的玩法有头绪，但是没细想，毕竟心不静
+        # 原则是以某位为指引，尽可能长，最不济，凑成三，否则false
+        countMap = collections.Counter(nums)  # 计算次数
+        endMap = collections.Counter()
+        for x in nums:
+            if(count := countMap[x])>0:
+                # 如果有前一个数字为末尾的序列，那就续上，变成以x为末尾的序列，x-1 的序列取消
+                if (prev_end_count := endMap.get(x-1,0))>0:
+                    countMap[x] -= 1
+                    endMap[x-1] = prev_end_count -1
+                    endMap[x] +=1
+                # 如果没有，说明前面断开，只能以自己为起点，看看有没有可以向后组成三个的序列，如果有的话，计入endmap
+                # 否则false
+                # 注意这里就说明，了endmap里的序列至少要大于等于3
+                else:
+                    if(count_1 := countMap.get(x+1,0)) > 0 and (count_2 := countMap.get(x+2,0)) >0:
+                        countMap[x] -= 1
+                        countMap[x+1] -= 1
+                        countMap[x+2] -= 1
+                        endMap[x+2] += 1
+                    else:
+                        return False
+        return True
+                        
 ```
 
 
