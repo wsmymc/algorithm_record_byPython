@@ -547,6 +547,36 @@ public:
  */
 ```
 
+### 29. [5617. 设计 Goal 解析器](https://leetcode-cn.com/problems/goal-parser-interpretation/)
+
+```c++
+class Solution {
+public:
+    string interpret(string command) {
+        string res;//存储结果
+        //遍历字符串
+        for(int i=0;i<command.size();){
+            if(command[i]=='G'){//若当前字符是G，则直接替换为G，并对索引增加1
+                res+="G";
+                ++i;
+            }
+            else if(command[i+1]==')'){//否则，下一个字符是右括号的话，则需要替换的一定是一对括号，替换为o，并对索引增2
+                res+="o";
+                i+=2;
+            }
+            else{//否则，一定是需要替换为 al 的字符串，替换，并对索引增加4
+                res+="al";
+                i+=4;
+            }
+        }
+        return res;
+
+
+
+    }
+};
+```
+
 
 
 ## medium
@@ -623,6 +653,35 @@ public:
 ```
 
 
+
+### 3. [5618. K 和数对的最大数目](https://leetcode-cn.com/problems/max-number-of-k-sum-pairs/)
+
+```C++
+class Solution {
+public:
+    int maxOperations(vector<int>& nums, int k) {
+        sort(nums.begin(),nums.end());
+        int l=0,r=nums.size()-1;
+        int ans=0;
+        while(l<r){
+            if(nums[l]+nums[r]<k){
+                l++;
+            }
+            else if(nums[l]+nums[r]>k){
+                r--;
+            }
+            else{
+                l++;
+                r--;
+                ans++;
+            }
+        }
+        return ans;
+    }
+};
+
+
+```
 
 
 

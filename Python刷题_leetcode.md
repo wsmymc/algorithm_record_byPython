@@ -3024,6 +3024,17 @@ class Solution:
         
 ```
 
+### 119. [5617. 设计 Goal 解析器](https://leetcode-cn.com/problems/goal-parser-interpretation/)
+
+```python
+
+class Solution:
+    def interpret(self, command: str) -> str:
+        command = command.replace("()","o")
+        command = command.replace("(al)", "al")
+        return command
+```
+
 
 
 ## medium
@@ -7433,6 +7444,46 @@ class Solution:
 
 ```
 
+#### 99. [5618. K 和数对的最大数目](https://leetcode-cn.com/problems/max-number-of-k-sum-pairs/)
+
+```python
+from typing import List
+import collections
+
+class Solution:
+    def maxOperations(self, nums: List[int], k: int) -> int:
+        res = 0
+        dic = collections.defaultdict(int)
+        for i ,v in enumerate(nums):
+            if k-v in dic and dic[k-v] >0:
+                dic[k-v] -= 1
+                res += 1
+            else:
+                dic[v] += 1
+        return res
+```
+
+#### 100. [5620. 连接连续二进制数字](https://leetcode-cn.com/problems/concatenation-of-consecutive-binary-numbers/)
+
+```python
+class Solution:
+    def concatenatedBinary(self, n: int) -> int:
+        # 比赛的时候有这个想法，不过后面还是暴力模拟过了，毕竟那个省时间
+        # x=x⋅2^(len2(i)) + i 基本就是这个算法
+        # 这个抄来的题解的里的优化，在于计算len2(i),即二进制位的长度
+        # 其实是记忆化，自底向上，从1-》n, 每一次中，len2(i) 最多变化1，100..0这样，是2的整数次幂，而验证是否是整数次的方法，就是看i&(i-1) ?0
+        mod = 10**9 + 7
+        # ans 表示答案，shift 表示 len_{2}(i)
+        ans = shift = 0
+        for i in range(1, n + 1):
+            # if 131072 % i == 0:
+            if (i & (i - 1)) == 0:
+                shift += 1
+            ans = ((ans << shift) + i) % mod
+        return ans
+
+```
+
 
 
 
@@ -8590,6 +8641,67 @@ class Solution:
                 res.append(s2.pop(0))
         res += s1 + s2
         return res
+```
+
+#### 28.[5619. 最小不兼容性](https://leetcode-cn.com/problems/minimum-incompatibility/)
+
+```python
+class Solution:
+    # 看到数据集这么小，就应该猜到要么是dfs+剪枝，要没事状态压缩dp
+    # 只是侥幸中一个错误的方法过了46个样例，就在岔路上走下去了
+    # 当然，上述两个方法，一直没掌握也是原因
+    def minimumIncompatibility(self, nums: List[int], k: int) -> int:
+        n = len(nums)
+        if n == k:
+            return 0
+        # 状态压缩需要做好数据的预处理，某种意义上也是打彪
+        value = dict()
+        # 这里对1<<n 遍历，实际上是说明从找1~N任意组合的可能性,每一位代表一个数是否被取到，由于二项式定时，时间复杂度是O(3^n)
+        for sub in range(1 << n):
+            # 判断 sub 是否有 n/k 个 1，只有这样才有可能构造成为子集，才有记录的价值
+            if bin(sub).count("1") == n // k:
+                # 使用哈希表进行计数
+                freq = set()
+                flag = True
+                # 然后在nums数组中遍历
+                for j in range(n):
+                    # 如果sub中的某一位和j的位置相同，就说明nums[j] 其实就在sub的一合之中
+                    if sub & (1 << j):
+                        # 任意一个数不能出现超过 1 次，符合题意
+                        if nums[j] in freq:
+                            flag = False
+                            break
+                        freq.add(nums[j])
+                
+                # 如果满足要求，那么计算 sub 的不兼容性
+                if flag:
+                    value[sub] = max(freq) - min(freq)
+        # 统计所有的可能性的不兼容性的值
+
+        # 接下来开始动态规划遍历
+        f = dict()
+        f[0] = 0
+        for mask in range(1 << n):
+            # 判断 mask 是否有 n/k 倍数个 1，这里可以是1——k个子集的并集
+            if bin(mask).count("1") % (n // k) == 0:
+                sub = mask
+                while sub > 0:
+                    # 如果选取的sub 和 mask^sub都在f里面，就可以动态规划更新
+                    if sub in value and mask ^ sub in f:
+                        if mask not in f:
+                            # 如果不在其中就记录下来
+                            f[mask] = f[mask ^ sub] + value[sub]
+                        else:
+                            #如果在其中，就更新最小值
+                            f[mask] = min(f[mask], f[mask ^ sub] + value[sub])
+                    # 一开始sub = mask，mask中的1可以有很多倍的（n//k），所以，需要在循环中将mask逐渐减小，
+                    sub = (sub - 1) & mask
+                
+        
+        return -1 if (1 << n) - 1 not in f else f[(1 << n) - 1]
+
+
+
 ```
 
 
