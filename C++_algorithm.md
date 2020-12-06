@@ -547,6 +547,7 @@ public:
  */
 ```
 
+
 ### 29. [5617. 设计 Goal 解析器](https://leetcode-cn.com/problems/goal-parser-interpretation/)
 
 ```c++
@@ -574,10 +575,79 @@ public:
 
 
     }
+
+```
+
+### 30.[1122. 数组的相对排序](https://leetcode-cn.com/problems/relative-sort-array/)
+
+```C++
+class Solution {
+public:
+    vector<int> relativeSortArray(vector<int>& arr1, vector<int>& arr2) {
+        vector<int> res,rest;
+        unordered_map<int,int> hash;
+        for(auto v:arr1){
+            hash[v]++;
+        }
+        for(auto v:arr2){
+            while(hash[v]) res.push_back(v),hash[v]--;
+        }
+        for(auto v:arr1){
+            if(hash[v]){
+                rest.push_back(v);
+            }
+        }
+        sort(rest.begin(),rest.end());
+        for(auto v:rest){
+            res.push_back(v);
+        }
+        return res;
+
+    }
 };
 ```
 
+### 31. [1413. 逐步求和得到正数的最小值](https://leetcode-cn.com/problems/minimum-value-to-get-positive-step-by-step-sum/)
 
+```C++
+class Solution {
+public:
+    int minStartValue(vector<int>& nums) {
+        int sum =nums[0];
+        int _min = nums[0];
+        for(int i=1;i<nums.size();i++){
+            sum += nums[i];
+            _min = min(_min,sum);
+        }
+        if(_min>0) return 1;
+        return 1-_min;
+
+    }
+    
+};
+```
+
+### 31. [204. 计数质数](https://leetcode-cn.com/problems/count-primes/)
+
+```C++
+class Solution {
+public:
+    int countPrimes(int n) {
+        int count = 0;
+        vector<bool> flags(n,true);
+        for(int i=2;i<n;i++){
+            if(flags[i]){
+                count++;
+                for(int j=2*i;j<n;j += i){
+                    flags[j] = false;
+                }
+            }
+        }
+        return count;
+
+    }
+};
+```
 
 ## medium
 
