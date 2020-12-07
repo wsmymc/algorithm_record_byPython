@@ -8766,7 +8766,7 @@ class Solution:
                         else:
                             #如果在其中，就更新最小值
                             f[mask] = min(f[mask], f[mask ^ sub] + value[sub])
-                    # 一开始sub = mask，mask中的1可以有很多倍的（n//k），所以，需要在循环中将mask逐渐减小，
+                    # 一开始sub = mask，mask中的1可以有很多倍的（n//k），所以，需要在循环中将mask逐渐减小，实际上是遍历mask的所有子集
                     sub = (sub - 1) & mask
                 
         
