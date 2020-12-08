@@ -3024,7 +3024,7 @@ class Solution:
         
 ```
 
-### 119. [5617. 设计 Goal 解析器](https://leetcode-cn.com/problems/goal-parser-interpretation/)
+#### 119. [5617. 设计 Goal 解析器](https://leetcode-cn.com/problems/goal-parser-interpretation/)
 
 ```python
 
@@ -3057,6 +3057,58 @@ class Solution:
         return cnt == 2 and tmp == part
 
 ```
+
+#### 120 [1184. 公交站间的距离](https://leetcode-cn.com/problems/distance-between-bus-stops/)
+
+```python
+class Solution:
+    def distanceBetweenBusStops(self, distance: List[int], start: int, destination: int) -> int:
+        _sum = sum(distance)
+        start ,destination = min(start,destination),max(start,destination)
+        if start == destination:
+            return 0
+        tmp = 0
+        for i in range(start,destination):
+            tmp += distance[i]
+        return min(tmp,_sum-tmp)
+```
+
+#### 121. [1185. 一周中的第几天](https://leetcode-cn.com/problems/day-of-the-week/)
+
+```python
+ class Solution:
+    def dayOfTheWeek(self, day: int, month: int, year: int) -> str:
+        week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        #print(week[1])
+        # 1971年1月1日为星期五
+        days = 0
+        for i in range(1971,year):
+            if (i%4 == 0 and i%100 != 0) or(i%400 ==0):
+                days += 366
+            else:
+                days += 365
+        for i in range(1,month):
+            if i in [1,3,5,7,8,10,12]:
+                days += 31
+            elif i in [4,6,9,11]:
+                days += 30
+            elif i == 2:
+                if (year%4 == 0 and year%100 != 0) or(year%400 ==0):
+                    days += 29
+                else:
+                    days += 28a
+        days += day-1
+        #print('days;',days)
+        return week[(days+5)%7]
+
+
+```
+
+
+
+
+
+
 
 ## medium
 
@@ -7557,6 +7609,57 @@ class Solution:
                         return False
         return True
 ```
+
+#### 102.[842. 将数组拆分成斐波那契序列](https://leetcode-cn.com/problems/split-array-into-fibonacci-sequence/)
+
+```python
+class Solution:
+    def splitIntoFibonacci(self, S: str) -> List[int]:
+        res = list()
+        # 递归回溯问题，特点在于入股前两个定了，后面只是找到是否有前两个之和的序列，然后递归验证，如果遍历完了，还没有找到，就False
+        # 时间复杂度O(n (log(10)C)^2
+        def backtrace(idx:int):
+            if idx == len(S):
+                return len(res) >= 3
+            curr = 0
+            for i in range(idx,len(S)):
+                #print(res)
+                if i>idx  and S[idx] == '0':
+                    # 0 可以在开头，但中间数字不应该是0，所以i>idx 的情况，0就没必要考虑了。没有012这种数字
+                    break
+                curr = curr *10 + int(S[i])
+                #print(curr)
+                if curr>2**31-1:
+                    break  #  题目限制，剪枝
+                # 符合斐波那契规则
+                if len(res)< 2 or curr == sum(res[-2:]):
+                    res.append(curr)
+                    # 递归
+                    if backtrace(i+1):
+                        return True
+                    # 回溯
+                    res.pop()
+                elif len(res)>2 and curr >= sum(res[-2:]):
+                    # 这里也是一个剪枝，如果出现大于了，i增curr增，会更大，所以后面的也不用遍历了
+                    break
+            return False
+        backtrace(0)
+        return res
+
+     
+
+
+                
+```
+
+
+
+
+
+
+
+
+
 
 
 ## hard

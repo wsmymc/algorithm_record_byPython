@@ -755,6 +755,54 @@ public:
 
 
 
+### 4. [842. 将数组拆分成斐波那契序列](https://leetcode-cn.com/problems/split-array-into-fibonacci-sequence/)
+
+```C++
+class Solution {
+public:
+    vector<int> splitIntoFibonacci(string S) {
+        vector<int> list;
+        backtrack(list, S, S.length(), 0, 0, 0);
+        return list;
+    }
+
+    bool backtrack(vector<int>& list, string S, int length, int index, long long sum, int prev) {
+        if (index == length) {
+            return list.size() >= 3;
+        }
+        long long curr = 0;
+        for (int i = index; i < length; i++) {
+            if (i > index && S[index] == '0') {
+                break;
+            }
+            curr = curr * 10 + S[i] - '0';
+            if (curr > INT_MAX) {
+                break;
+            }
+            if (list.size() >= 2) {
+                if (curr < sum) {
+                    continue;
+                }
+                else if (curr > sum) {
+                    break;
+                }
+            }
+            list.push_back(curr);
+            if (backtrack(list, S, length, i + 1, prev + curr, curr)) {
+                return true;
+            }
+            list.pop_back();
+        }
+        return false;
+    }
+};
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/split-array-into-fibonacci-sequence/solution/jiang-shu-zu-chai-fen-cheng-fei-bo-na-qi-ts6c/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 
