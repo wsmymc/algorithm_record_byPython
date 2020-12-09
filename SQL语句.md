@@ -35,3 +35,32 @@ WHERE
     GROUP BY DepartmentId)
 ```
 
+#### 2. [177. 第N高的薪水](https://leetcode-cn.com/problems/nth-highest-salary/)
+
+```mysql
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+# 单表查询玩法
+BEGIN
+    SET N := N-1;
+  RETURN (
+      # Write your MySQL query statement below.
+        select Salary from  Employee
+        GROUP BY
+                Salary
+        ORDER BY
+        Salary DESC
+        LIMIT N,1
+      
+  );
+END
+```
+
+#### 3. [178. 分数排名](https://leetcode-cn.com/problems/rank-scores/)
+
+```mysql
+
+# Write your MySQL query statement below
+select Score ,
+DENSE_RANK() OVER(ORDER BY Score DESC) AS 'RANK' FROM Scores;
+```
+
