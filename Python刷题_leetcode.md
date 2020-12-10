@@ -7654,6 +7654,28 @@ class Solution:
 
 
 
+####103. [565. 数组嵌套](https://leetcode-cn.com/problems/array-nesting/)
+
+```python
+class Solution:
+    def arrayNesting(self, nums: List[int]) -> int:
+        res = 0
+        for idx,v in enumerate(nums):
+            # 按照题意模拟，其实每一个数只会被访问一次，这样可以在访问后修改成一个绝不会有的数，作为访问过的标记
+            if v != 20000:
+                cnt = 0
+                start = v
+                while nums[start] != 20000:
+                    tmp = start
+                    start = nums[start]
+                    cnt += 1
+                    nums[tmp] =20000
+                res = max(res,cnt)
+        return res
+
+
+```
+
 
 
 
