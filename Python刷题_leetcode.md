@@ -7654,7 +7654,7 @@ class Solution:
 
 
 
-####103. [565. 数组嵌套](https://leetcode-cn.com/problems/array-nesting/)
+#### 103. [565. 数组嵌套](https://leetcode-cn.com/problems/array-nesting/)
 
 ```python
 class Solution:
@@ -7677,6 +7677,26 @@ class Solution:
 ```
 
 
+
+#### 104. [264. 丑数 II](https://leetcode-cn.com/problems/ugly-number-ii/)
+
+```python
+
+class Solution:
+    def nthUglyNumber(self, n: int) -> int:
+        dp = [0] * n
+        dp[0] = 1
+        l2, l3, l5 = 0, 0, 0
+        for i in range(1, n):
+            dp[i] = min(2 * dp[l2], 3 * dp[l3], 5 * dp[l5])
+            if dp[i] == 2 * dp[l2]:
+                l2 += 1
+            if dp[i] == 3 * dp[l3]:
+                l3 += 1
+            if dp[i] == 5 * dp[l5]:
+                l5 += 1
+        return dp[n - 1]
+```
 
 
 
