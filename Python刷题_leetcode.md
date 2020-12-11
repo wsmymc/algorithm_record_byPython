@@ -7688,7 +7688,9 @@ class Solution:
         dp[0] = 1
         l2, l3, l5 = 0, 0, 0
         for i in range(1, n):
+            # 已经入队的每个数，都是可以乘2,3,5，这里的指针是指向需要乘因数的最小值
             dp[i] = min(2 * dp[l2], 3 * dp[l3], 5 * dp[l5])
+            # 例如：下一个数是2* dp[l2],就说明l2,已经在最小值上用过了，需要向右移一位
             if dp[i] == 2 * dp[l2]:
                 l2 += 1
             if dp[i] == 3 * dp[l3]:
@@ -7698,7 +7700,92 @@ class Solution:
         return dp[n - 1]
 ```
 
+#### 105. [649. Dota2 参议院](https://leetcode-cn.com/problems/dota2-senate/)
 
+```python
+class Solution:
+    def predictPartyVictory(self, senate: str) -> str:
+        # 两个队列模拟，贪心禁止离自己最近的地方议员
+        n = len(senate)
+        radiant = collections.deque()
+        dire = collections.deque()
+        
+        for i, ch in enumerate(senate):
+            if ch == "R":
+                radiant.append(i)
+            else:
+                dire.append(i)
+        
+        while radiant and dire:
+            #轮回的方式是采用+n的方式
+            if radiant[0] < dire[0]:
+                radiant.append(radiant[0] + n)
+            else:
+                dire.append(dire[0] + n)
+            radiant.popleft()
+            dire.popleft()
+        
+        return "Radiant" if radiant else "Dire"
+
+
+```
+
+#### 106. [692. 前K个高频单词](https://leetcode-cn.com/problems/top-k-frequent-words/)
+
+```python
+class Solution:
+    def topKFrequent(self, words: List[str], k: int) -> List[str]:
+        cnt = collections.Counter(words)
+        candidates = cnt.keys()
+        res= sorted(candidates,key = lambda x: (-cnt[x],x))
+        # 原来的不行，版本问题吧，python3 里dict_keys 是不能直接用sort的
+        # candidates.sort(key = lambda x: (-cnt[x],x))
+        return res[:k]
+    
+class Solution:
+    import heapq
+    def topKFrequent(self, words: List[str], k: int) -> List[str]:
+        cnt = collections.Counter(words)
+        li = [(-freq,word) for word,freq in cnt.items()]
+        # heapify 使heap 化
+        heapq.heapify(li)
+        return [heapq.heappop(li)[1] for _ in range(k)]
+
+
+```
+
+
+
+#### 107. [743. 网络延迟时间](https://leetcode-cn.com/problems/network-delay-time/)
+
+```python
+class Solution:
+    # 硬是拿dfs莽着做，9000+，需要熟悉常见的图算法，不是dfs,bfs这种
+    def networkDelayTime(self, times: List[List[int]], N: int, K: int) -> int:
+        dic = defaultdict(list)
+        for pair in times:
+            dic[pair[0]].append((pair[1],pair[2]))
+        res = [6000001 for _ in range(N)]
+
+        #print(res)
+        #print(dic)
+        def dfs(n,t):
+            #res[n-1] = min(t,res[n-1])
+            if t>= res[n-1]:
+                return
+            res[n-1] = t
+            if not dic[n]:
+                return 
+            for p in dic[n]:
+                #print(p)
+                # res[p[0]-1] = min(t+p[1],res[p[0]-1])
+           
+                dfs(p[0],t+p[1])
+                #dic[n].pop(0)
+        dfs(K,0)
+        print(res)
+        return -1 if max(res) == 6000001 else max(res)
+```
 
 
 
