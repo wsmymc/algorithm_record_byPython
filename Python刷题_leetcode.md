@@ -7785,6 +7785,99 @@ class Solution:
         dfs(K,0)
         print(res)
         return -1 if max(res) == 6000001 else max(res)
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], N: int, K: int) -> int:
+        # 虽然这一题是用堆的标签搜到的，不过貌似是一个图论的问题
+        # dijkstra算法,确实快很多
+        # 1 .将起始点到各点的距离初始化为无穷大
+        dist = {i:float('inf') for i in range(1,N+1)}
+        # 起始点自身为0
+        dist[K] = 0
+        # j结果集
+        res = {}
+        # print(dist,type(dist))
+        while dist:
+            # 每一次挑选已有结果中最短的作为计算节点
+            min_dis = min(dist.values())
+            # 如果剩下的还有无限大的值，且是最小值，说明，有的点根本没有联系到，可以返回-1
+            if min_dis == float('inf'):
+                return -1
+            # 遍历剩下的节点，找到距离等于min_dis的点，一个就可以,因为每一次只向结果集里加入一个节点，如果有复数，可以在下一次添加
+            for k,v in dist.items():
+                if v == min_dis:
+                    ind = k
+                    break
+            for time in times:
+                # 这个点关联的其他点，更新距离，其他店需要不在结果集里面
+                if time[0] == ind and time[1] not in res.keys():
+                    dist[time[1]] = min(dist[time[1]], dist[time[0]]+time[2])
+            res[ind] = min_dis
+            # dist.pop(ind)
+            del dist[ind]
+        return max(res.values())
+    
+    
+##  使用堆优化互殴更快一点
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], N: int, K: int) -> int:
+        graph = collections.defaultdict(list)
+        for u, v, w in times:
+            graph[u].append((v, w))
+
+        pq = [(0, K)]
+        dist = {}
+        while pq:
+            d, node = heapq.heappop(pq)
+            if node in dist: continue
+            dist[node] = d
+            for nei, d2 in graph[node]:
+                if nei not in dist:
+                    heapq.heappush(pq, (d+d2, nei))
+
+        return max(dist.values()) if len(dist) == N else -1
+```
+
+#### 108. [376. 摆动序列](https://leetcode-cn.com/problems/wiggle-subsequence/)
+
+```python
+# dp解法
+class Solution:
+    def wiggleMaxLength(self, nums: List[int]) -> int:
+        # 根据末尾的形状，有上升和下降两种序列，状态相互转化，可以用up,down 表示
+        n = len(nums)
+        if n<2:
+            return n
+        up = down = 1 # 初始化
+        for i in range(1,n):
+            if nums[i] > nums[i-1]:
+                up = max(down+1, up)
+            elif nums[i]<nums[i-1]:
+                down = max(up+1,down)
+            # 相等时，没有改变，所以不用考虑
+        return max(up, down)
+
+    
+## 也可以使用贪心解法，直接计算峰、谷的数量
+class Solution:
+    def wiggleMaxLength(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n < 2:
+            return n
+        
+        prevdiff = nums[1] - nums[0]
+        ret = (2 if prevdiff != 0 else 1)
+        for i in range(2, n):
+            diff = nums[i] - nums[i - 1]
+            if (diff > 0 and prevdiff <= 0) or (diff < 0 and prevdiff >= 0):
+                ret += 1
+                prevdiff = diff
+        
+        return ret
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/wiggle-subsequence/solution/bai-dong-xu-lie-by-leetcode-solution-yh2m/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
 
