@@ -7442,7 +7442,7 @@ class Solution:
 
 ```
 
-### 98. [973. 最接近原点的 K 个点](https://leetcode-cn.com/problems/k-closest-points-to-origin/)
+#### 98. [973. 最接近原点的 K 个点](https://leetcode-cn.com/problems/k-closest-points-to-origin/)
 
 ```python
 class Solution:
@@ -7878,6 +7878,129 @@ class Solution:
 链接：https://leetcode-cn.com/problems/wiggle-subsequence/solution/bai-dong-xu-lie-by-leetcode-solution-yh2m/
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 109  [5610. 有序数组中差绝对值之和](https://leetcode-cn.com/problems/sum-of-absolute-differences-in-a-sorted-array/)
+
+```python
+from typing import List
+
+# 没有难度，注意题目中的非递减特性，更快的方法其实是用前缀和，不过懒得再写了
+class Solution:
+    def getSumAbsoluteDifferences(self, nums: List[int]) -> List[int]:
+        res = []
+        t = 0
+        record = []
+        for j in range(len(nums)):
+            t += nums[j]
+            record.append((t))
+        print(record)
+        for i in range(len(nums)):
+            tmp = 0
+            a= i*nums[i]-record[i-1] if i >0 else 0
+            b = record[len(nums)-1]-record[i]-(len(nums)-i-1)*nums[i]
+            print(a,b)
+            tmp = a +b
+            res.append(tmp)
+            #print(tmp)
+        return  res
+```
+
+#### 110 [5626. 十-二进制数的最少数目](https://leetcode-cn.com/problems/partitioning-into-minimum-number-of-deci-binary-numbers/)
+
+```python
+# 水题，一开始被名词吓住了，以为要搞二进制，其实就是用10这种数来拼结果，都是十进制，那直接找最大位就好，懒得手写遍历，其实还能提前找到9break
+class Solution:
+    def minPartitions(self, n: str) -> int:
+
+
+        a = collections.Counter(n)
+        return int(max(a.keys()))
+
+```
+
+#### 111. [5611. 石子游戏 VI](https://leetcode-cn.com/problems/stone-game-vi/)
+
+```python
+
+class Solution:
+    def stoneGameVI(self, aliceValues: List[int], bobValues: List[int]) -> int:
+        # 思路是对的，通过数据量，知道不能用dp,需要贪心
+        # 但是细节错了，不能考虑每一步的局部，直接转换视角从整体考虑
+        # 假设b拿到了所有的石子，那么每一次a取数，都是在降低差值，没取一个，都是a+ ,b- ，缩小差距
+        # 这一可以将a+b 作为标准排序，然后abab这样依次取数，看最后结果
+        # 或者是另一种解释：
+       	"""
+       	假设只有两个石头,对于 a， b 的价值分别是 a1, a2, b1, b2
+
+第一种方案是A取第一个，B取第二个，A与B的价值差是 c1 = a1 - b2
+第二种方案是A取第二个，B取第一个，A与B的价值差是 c2 = a2 - b1
+那么这两种方案对于A来说哪一种更优，就取决于两个方案的价值差的比较
+
+记 c = c1 - c2 = （a1 - b2） - (a2 - b1) = (a1 + b1) - (a2 + b2)
+
+
+
+作者：spacex-1
+链接：https://leetcode-cn.com/problems/stone-game-vi/solution/c-tan-xin-zheng-ming-by-spacex-1-xi8y/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"""
+        arr = [(a+b, a, b) for a, b in zip(aliceValues, bobValues)]
+        arr.sort(reverse=True)
+
+        n = len(arr)
+        a_val, b_val = 0, sum(bobValues)
+        for i in range(n):
+            _, a, b = arr[i]
+            if i % 2 == 0:
+                a_val += a
+                b_val -= b
+
+        if a_val == b_val:
+            return 0
+
+        if a_val > b_val:
+            return 1
+        return -1
+
+```
+
+#### 112. [5627. 石子游戏 VII](https://leetcode-cn.com/problems/stone-game-vii/)
+
+```python
+
+class Solution:
+    # 赛后做出来的，这里其实是被上一道题误导，以为中等难度，就不会出dp，其实看数据《1000,就能看到大概率使用dp
+    # 然后就是找转移状态，先初始化相邻两个为一组，先手的值，然后扩展到三个乃至更多
+    # 方程的话 dp[i][j] = max(sum(i+1:j+1) - dp[i+1][j] , sum(i,j)-dp[i][j-1]),算是某种自底向上
+    # 当然为了避免超时，需要用前缀和代替sum
+    def stoneGameVII(self, stones: List[int]) -> int:
+        s = sum(stones)
+        a=b=0
+        n =len(stones)
+        dp= [[0 for _ in range(n)] for _ in range(n) ]
+        for i in range(1,n):
+            dp[i-1][i] = max(stones[i-1:i+1])
+        tmp = []
+        s = 0
+        for i in range(n):
+            s += stones[i]
+            tmp.append(s)
+        for i in range(n-3,-1,-1):
+            for j in range(i+2,n):
+                # if sum(stones[i+1:j+1]) != tmp[j]-tmp[i]:
+                #     print('f')
+
+                if i -1< 0:
+                    c = tmp[j-1]
+                else:
+                    c = tmp[j-1]-tmp[i-1]
+
+                dp[i][j] = max(tmp[j]-tmp[i]- dp[i + 1][j], c - dp[i][j - 1])
+                #dp[i][j] = max(sum(stones[i+1:j+1])-dp[i+1][j],sum(stones[i:j])-dp[i][j-1])
+        #print(dp)
+        return dp[0][n-1]
+
 ```
 
 
@@ -9100,6 +9223,95 @@ class Solution:
 
 
 ```
+
+#### 29. [5612. 从仓库到码头运输箱子](https://leetcode-cn.com/problems/delivering-boxes-from-storage-to-ports/)
+
+```python
+class Solution:
+    def boxDelivering(self, boxes: List[List[int]], portsCount: int, maxBoxes: int, maxWeight: int) -> int:
+        '''
+动态规划
+
+在不超过总箱子数和总重量的约束下，每次都尽量多装箱子，每次装上车的箱子有可能出现两种情况
+1. 最后一个箱子和它后面一个箱子目的地不一样，那没得选，当前这一车直接按顺序送
+2. 最后一个箱子和它后面一个箱子目的地相同，那当前这一车有两种选择，要么把末尾的一些箱子卸掉不运，让卸掉之后的箱子的最后一个根它后一个箱子的目的地不同，要么就这一整车老老实实送，其他的选择不会产生更小的开销，也就是说，当前这一车如果尽最大努力装箱子，如果选中的这一段箱子的而最后一个位置是切在原来序列里面目的地相同的箱子的某一段中间的话，可以两种选择，最后不完整的一段要么丢掉，要么加在当前这一车一起运，两种选择中取较小值
+
+
+        '''
+        n = len(boxes)
+
+        @lru_cache(None)
+        def dp(start_pos):
+            if start_pos>=n:
+                return 0
+            wei_sum = 0
+            box_sum = 0
+            end_pos = start_pos
+            # 开始装箱
+            for i in range(start_pos,n):
+                target, weight = boxes[i]
+                # 不要超过限制
+                if wei_sum+weight>maxWeight or box_sum+1 >maxBoxes:
+                    break
+                wei_sum += weight
+                box_sum += 1
+                end_pos = i
+
+            box_cnt =0
+            last_idx = -1
+            for i in range(start_pos, end_pos+1):
+                # 这里要考察两种情况，如果在不越界，或者和下一个箱子的目的地不同的情况下 +1
+                if (i== n-1 or boxes[i][0] != boxes[i+1][0]):
+                    box_cnt += 1
+                    last_idx = i
+            # 如果出现上述的同一目的地要分车送的情况
+            if last_idx != end_pos:
+                box_cnt += 1
+            res = (box_cnt+1) + dp(end_pos+1)
+
+            # 如果存在截断处，就要考虑两种情况了
+            if last_idx != end_pos and last_idx != -1:
+                res= min(res,(box_cnt-1+1)+dp(last_idx+1))
+            return res
+        return dp(0)
+
+```
+
+#### 30. [5245. 堆叠长方体的最大高度](https://leetcode-cn.com/problems/maximum-height-by-stacking-cuboids/)
+
+```python
+class Solution:
+    # 有这个想法，但是比赛时被第三题卡住，没有机会尝试
+    def maxHeight(self, cuboids: List[List[int]]) -> int:
+        arr = [sorted(size) for size in cuboids]
+        # print(arr)
+        arr.sort()
+        n = len(cuboids)
+        print(arr)
+
+        # dp(i)表示以i位置结尾的最大高度和
+        dp  = [0]*n
+        res= -1
+        for i in range(n):
+            dp[i] = arr[i][2]
+            for j in range(i):
+                # 这里and arr[i][2] >= arr[j][2],是题目要求
+                if arr[i][1]>= arr[j][1] and arr[i][2] >= arr[j][2] :
+                    dp[i] = max(dp[i],dp[j] + arr[i][2])
+            res = max(res,dp[i])
+        # print(dp)
+        return res
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
