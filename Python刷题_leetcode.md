@@ -2,7 +2,6 @@
 
 * 目前所做的都是用Java刷过的题，一方面复习算法思路，恢复手感，一方面学习python语法
 * 目前共计400+题目，先从简单的刷起
-* 有些题目重复或者太弱智，就不写了。
 
 ## 零碎语法点
 
@@ -3101,6 +3100,21 @@ class Solution:
         #print('days;',days)
         return week[(days+5)%7]
 
+
+```
+
+#### 122 [1346. 检查整数及其两倍数是否存在](https://leetcode-cn.com/problems/check-if-n-and-its-double-exist/)
+
+```python
+class Solution:
+    def checkIfExist(self, arr: List[int]) -> bool:
+        counter = collections.Counter(arr)
+        for n in arr:
+            if n != 0 and counter[2 * n] >= 1:
+                return True
+            if n == 0 and counter[2 * n] >= 2:
+                return True
+        return False
 
 ```
 
@@ -8034,6 +8048,82 @@ class Solution:
                 digit[i - 1] = str(int(digit[i - 1]) - 1)
                 digit[i:] = ['9'] * (n - i)  #此处能否再优化下？                    
         return int(''.join(digit))
+
+```
+
+#### 115. [189. 旋转数组](https://leetcode-cn.com/problems/rotate-array/)
+
+```python
+class Solution:
+    def rotate(self, nums: List[int], k: int) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        n = len(nums)
+        if n < 2:
+            pass
+        else:
+            while k > 0:
+                a = nums[-1]
+                nums[1:n] = nums[0:n-1]
+                nums[0] = a
+                k -= 1
+                
+class Solution:
+    def rotate(self, nums: List[int], k: int) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        n=len(nums)
+        k=k%n
+        def swap(l,r):
+            while(l<r):
+                nums[l],nums[r]=nums[r],nums[l]
+                l=l+1
+                r=r-1
+        swap(0,n-k-1)
+        swap(n-k,n-1)
+        swap(0,n-1)
+
+class Solution:
+    def rotate(self, nums: List[int], k: int) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        n = len(nums)
+        k %= n
+        nums[:] = nums[::-1]
+        nums[:k] = nums[:k][::-1]
+        nums[k:] = nums[k:][::-1]
+
+import math
+# 这个才是完美方案
+# 忽略一点问题，不得已，抄袭别人的题解
+def rotate(nums,k):
+    """
+    Do not return anything, modify nums in-place instead.
+    """
+    k %= len(nums) #只做有效的移动
+    lcm = len(nums) * k // math.gcd(len(nums), k) if len(nums)%k!=0 else len(nums) #求取最小公倍数
+    m = lcm//k #计算m
+    count = len(nums)
+    iter_count = max(len(nums) // m - 1, 0) #计算闭环数
+    while iter_count >= 0: #对于每一个闭环进行移动
+        index = iter_count #初始化起点位置
+        value = nums[iter_count]
+        while True: #迭代进行每一次闭环移动
+            dest = (index + k) % len(nums)
+            nums[dest], value = value, nums[dest]
+            count -= 1
+            index = dest
+            if dest == iter_count or count == 0: #当一个闭环完成时或无闭环且全部移动完成时退出
+                break
+        iter_count -= 1
+
+作者：QsingH
+链接：https://leetcode-cn.com/problems/rotate-array/solution/huan-zhuang-ti-huan-de-li-lun-fen-xi-by-qsingh/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。 
 
 ```
 
