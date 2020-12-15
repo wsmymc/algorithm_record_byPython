@@ -8003,6 +8003,40 @@ class Solution:
 
 ```
 
+#### 113. [954. 二倍数对数组](https://leetcode-cn.com/problems/array-of-doubled-pairs/)
+
+```python
+class Solution:
+    def canReorderDoubled(self, A: List[int]) -> bool:
+        # 先按照绝对值排序，然后计数，实际上就是看是不是有2倍关系
+        A.sort(key=lambda x:abs(x), reverse=True)
+        cnts = Counter(A)
+        # 然后依次配对减去
+        while A:
+            num = A.pop()
+            if cnts[num]>0 and cnts[2*num]>0:
+                cnts[2*num] -= 1
+                cnts[num] -= 1
+        return sum(cnts.values())==0
+
+
+```
+
+#### 114. [738. 单调递增的数字](https://leetcode-cn.com/problems/monotone-increasing-digits/)
+
+```python
+class Solution:
+    def monotoneIncreasingDigits(self, N: int) -> int:
+        digit = list(str(N))
+        n = len(digit)
+        for i in range(n - 1, 0, -1):
+            if digit[i] < digit[i - 1]:
+                digit[i - 1] = str(int(digit[i - 1]) - 1)
+                digit[i:] = ['9'] * (n - i)  #此处能否再优化下？                    
+        return int(''.join(digit))
+
+```
+
 
 
 
