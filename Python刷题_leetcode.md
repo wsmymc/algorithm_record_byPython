@@ -3120,7 +3120,32 @@ class Solution:
 
 
 
+#### 123. [290. 单词规律](https://leetcode-cn.com/problems/word-pattern/)
 
+
+
+```python
+class Solution:
+    def wordPattern(self, pattern: str, s: str) -> bool:
+        dic_p = {}
+        li = list(s.split(" "))
+        m, n = len(pattern), len(li)
+        if m!=n:
+            return False
+        for i in range(n):
+            #print(dic_p,li[i],pattern[i])
+            if li[i] not in dic_p.keys() and pattern[i] not in dic_p.values():
+                dic_p[li[i]] = pattern[i]
+            elif li[i]  in dic_p.keys() and pattern[i] in dic_p.values():
+                #print(i)
+                if pattern[i] == dic_p[li[i]]:
+                    continue
+                else:
+                    return False
+            else:
+                return False
+        return True
+```
 
 
 
