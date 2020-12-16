@@ -8152,6 +8152,70 @@ def rotate(nums,k):
 
 ```
 
+#### 116. [1254. 统计封闭岛屿的数目](https://leetcode-cn.com/problems/number-of-closed-islands/)
+
+```python
+class Solution:
+    # 经典的dfs图搜索，特别之处在于需要预处理边界岛屿
+    def closedIsland(self, grid: List[List[int]]) -> int:
+        m ,n = len(grid), len(grid[0])
+        moves = [(-1,0),(1,0),(0,1),(0,-1)]
+        def dfs(x,y):
+            if grid[x][y] ==1:
+                return 
+            grid[x][y] = 1
+            for move in moves:
+                mx,my = x+move[0],y+move[1]
+                if 0<= mx<m and 0 <= my <n:
+                    dfs(mx,my)
+        for i in range(m):
+            dfs(i,0)
+            dfs(i,n-1)
+        for j in range(n):
+            dfs(0,j)
+            dfs(m-1,j)
+        res = 0
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] ==0:
+                    dfs(i,j)
+                    res += 1
+        return res
+            
+```
+
+#### 117. [1477. 找两个和为目标值且不重叠的子数组](https://leetcode-cn.com/problems/find-two-non-overlapping-sub-arrays-each-with-target-sum/)
+
+```python
+class Solution:
+    def minSumOfLengths(self, arr: List[int], target: int) -> int:
+        res = len(arr) + 1
+        pre = {}
+        # 预设一个边界，方便i==0的时候，用来记录当前位置之前的前缀和，value是位置索引
+        pre[0] = -1
+        # p用来记录前缀和
+        p = 0
+        # 初始化
+        dp = [float('inf')] * len(arr)# 存放在该位置之前的最短的一个长度
+        for i, a in enumerate(arr):
+            p += a
+            # 先记录一个i-1之前的最小的长度（如果i==0,i-1==-1,因为从前向后改编，所以也是inf,不用担心越界的影响）
+            dp[i] = dp[i-1]
+            # (p - target) in pre  说明  从当前向前走一段，会有target出现。
+            if p-target in pre:
+                cur = i-pre[p-target]
+                #print('cur:', cur)
+                if dp[pre[p-target]] != float('inf'):
+                    #res = min(res, cur+dp[pre[p-target]])
+                    print(res)
+                dp[i] = min(dp[i],cur)
+            pre[p] = i
+        return -1 if res == len(arr)+1 else res
+
+
+
+```
+
 
 
 
