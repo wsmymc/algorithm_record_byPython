@@ -3147,6 +3147,32 @@ class Solution:
         return True
 ```
 
+#### 124. [819. 最常见的单词](https://leetcode-cn.com/problems/most-common-word/)
+
+```python
+class Solution:
+    def mostCommonWord(self, paragraph: str, banned: List[str]) -> str:
+        banset = set(banned)
+        # in 后面可以跟字符串，以及，可以将字符替换成空格，再用split,算是一个技巧
+        for c in "!?',;.":
+            paragraph = paragraph.replace(c, " ")
+        count = collections.Counter(
+            word for word in paragraph.lower().split())
+
+        ans, best = '', 0
+        # 遍历寻找答案
+        for word in count:
+            if count[word] > best and word not in banset:
+                ans, best = word, count[word]
+
+        return ans
+
+
+                
+            
+        
+```
+
 
 
 ## medium
@@ -8217,6 +8243,106 @@ class Solution:
 ```
 
 
+
+#### 118. [714. 买卖股票的最佳时机含手续费](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int], fee: int) -> int:
+        # 老式玩法，之前做过，简单的dp
+        n = len(prices)
+        sell, buy = 0, -prices[0]
+        for i in range(1, n):
+            sell, buy = max(sell, buy + prices[i] - fee), max(buy, sell - prices[i])
+        return sell
+```
+
+#### 119. [667. 优美的排列 II](https://leetcode-cn.com/problems/beautiful-arrangement-ii/)
+
+```python
+# 运气好找到规律了，否则呢？
+class Solution:
+    def constructArray(self, n: int, k: int) -> List[int]:
+        res = []
+        if k == 0:
+            res = [i for i in range(1,n+1)]
+            return res
+        elif k >n-1:
+            return -1
+        res.append(1)
+        s = set()
+        s.add(1)
+        falg = 1
+        for i in range(n-1):
+            if k == 0:break
+            tmp = res[-1] + k*falg
+            if tmp in s:
+                break
+            res.append(tmp)
+            s.add(tmp)
+            k -=1
+            falg *= -1
+        for i in range(1,n+1):
+            if i not in s:
+                res.append(i)
+        return res
+
+
+            
+
+
+```
+
+#### 120.[919. 完全二叉树插入器](https://leetcode-cn.com/problems/complete-binary-tree-inserter/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+# 想法错了，没有完全利用好完全二叉树性质。
+class CBTInserter(object):
+    # 就是堆的玩法
+    def __init__(self, root):
+        #这个队列记录所有缺少子节点的节点
+        self.deque = collections.deque()
+        self.root = root
+        q = collections.deque([root])
+        while q:
+            node = q.popleft()
+            # 如果缺少子节点就入队
+            if not node.left or not node.right:
+                self.deque.append(node)
+            if node.left:
+                q.append(node.left)
+            if node.right:
+                q.append(node.right)
+
+    def insert(self, v):
+        # 依照完全二叉树特性，最早确实节点的，最先被满足
+        node = self.deque[0]
+        self.deque.append(TreeNode(v))
+        if not node.left:
+            #  缺少左，就补充左
+            node.left = self.deque[-1]
+        else:
+            # 缺少右，就补充右，因为圆满了，就可以出队
+            node.right = self.deque[-1]
+            self.deque.popleft()
+        return node.val
+
+    def get_root(self):
+        return self.root
+        
+
+
+# Your CBTInserter object will be instantiated and called as such:
+# obj = CBTInserter(root)
+# param_1 = obj.insert(v)
+# param_2 = obj.get_root()
+```
 
 
 
