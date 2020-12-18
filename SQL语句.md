@@ -64,7 +64,7 @@ select Score ,
 DENSE_RANK() OVER(ORDER BY Score DESC) AS 'RANK' FROM Scores;
 ```
 
-### 4. [180. 连续出现的数字](https://leetcode-cn.com/problems/consecutive-numbers/)
+#### 4. [180. 连续出现的数字](https://leetcode-cn.com/problems/consecutive-numbers/)
 
 ```mysql
 # Write your MySQL query statement below
@@ -79,5 +79,26 @@ WHERE
     AND l2.Id = l3.Id - 1
     AND l1.Num = l2.Num
     AND l2.Num = l3.Num
+```
+
+#### 5. [626. 换座位](https://leetcode-cn.com/problems/exchange-seats/)
+
+```python
+# Write your MySQL query statement below
+SELECT
+    (CASE
+        WHEN MOD(id, 2) != 0 AND counts != id THEN id + 1
+        WHEN MOD(id, 2) != 0 AND counts = id THEN id
+        ELSE id - 1
+    END) AS id,
+    student
+FROM
+    seat,
+    (SELECT
+        COUNT(*) AS counts
+    FROM
+        seat) AS seat_counts
+ORDER BY id ASC;
+
 ```
 

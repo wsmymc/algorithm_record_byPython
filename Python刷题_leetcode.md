@@ -8360,6 +8360,23 @@ class CBTInserter(object):
 # param_2 = obj.get_root()
 ```
 
+#### 121. [442. 数组中重复的数据](https://leetcode-cn.com/problems/find-all-duplicates-in-an-array/)
+
+```python
+class Solution:
+    # 原地使用的话，就要学会使用本身空间，要么数字更换，要么用负号作为标签，见到负号说明访问过了，就添加在res中
+    def findDuplicates(self, nums: List[int]) -> List[int]:
+        res = []
+        for c in nums:
+            c= abs(c)
+            if nums[c-1] <0:
+                res.append(c)
+            else:
+                nums[c-1] *= -1
+        return res
+
+```
+
 
 
 ## hard
