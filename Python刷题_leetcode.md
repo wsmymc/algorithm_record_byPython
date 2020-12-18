@@ -3173,6 +3173,22 @@ class Solution:
         
 ```
 
+#### 125. [389. 找不同](https://leetcode-cn.com/problems/find-the-difference/)
+
+```python
+class Solution:
+    def findTheDifference(self, s: str, t: str) -> str:
+        a = [0 ]* 26
+        b = [0]*26
+        for c in s:
+            a[ord(c)-97] += 1
+        for c in t:
+            b[ord(c)-97] += 1
+        for i in range(26):
+            if b[i]>a[i]:
+                return chr(i+97)
+```
+
 
 
 ## medium
