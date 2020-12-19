@@ -256,6 +256,22 @@ b = a & (-a)
 str.isalnum()
 ```
 
+#### 22. find
+
+```python
+   # 直接使用拼接字符串的玩法，活用find
+    # find:string.find(str, beg=0, end=len(string))检测 str 是否包含在 string 中，如果 beg 和 end 指定范围，则检查是否包含在指定范围内，如果是返回开始的索引值，否则返回-1
+```
+
+#### 23.filter和map
+
+```python
+    """filter() 函数用于过滤序列，过滤掉不符合条件的元素，返回由符合条件元素组成的新列表。
+
+该接收两个参数，第一个为函数，第二个为序列，序列的每个元素作为参数传递给函数进行判断，然后返回 True 或 False，最后将返回 True 的元素放到新列表中。
+        map() 会根据提供的函数对指定序列做映射。第一个参数 function 以参数序列中的每一个元素调用 function 函数，返回包含每次 function 函数返回值的新列表。"""
+```
+
 
 
 ## easy
@@ -3187,6 +3203,27 @@ class Solution:
         for i in range(26):
             if b[i]>a[i]:
                 return chr(i+97)
+```
+
+#### 126. [374. 猜数字大小](https://leetcode-cn.com/problems/guess-number-higher-or-lower/)
+
+```python
+# The guess API is already defined for you.
+# @param num, your guess
+# @return -1 if my number is lower, 1 if my number is higher, otherwise return 0
+# def guess(num: int) -> int:
+
+class Solution:
+    def guessNumber(self, n: int) -> int:
+        l,r = 1, n
+        while l<=n:
+            mid = l + (r-l)//2
+            if guess(mid) == -1:
+                r = mid
+            elif guess(mid) == 1:
+                l = mid + 1
+            else:
+                return mid
 ```
 
 
@@ -8374,6 +8411,247 @@ class Solution:
             else:
                 nums[c-1] *= -1
         return res
+
+```
+
+#### 122. [48. 旋转图像](https://leetcode-cn.com/problems/rotate-image/)
+
+```python
+class Solution:
+    def rotate(self, matrix: List[List[int]]) -> None:
+        """
+        Do not return anything, modify matrix in-place instead.
+        """
+         # 水平翻转
+        n = len(matrix)
+        for i in range(n // 2):
+            for j in range(n):
+                matrix[i][j], matrix[n - i - 1][j] = matrix[n - i - 1][j], matrix[i][j]
+        # 主对角线翻转
+        for i in range(n):
+            for j in range(i):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+
+```
+
+#### 123. [1226. 哲学家进餐](https://leetcode-cn.com/problems/the-dining-philosophers/)
+
+```python
+class DiningPhilosophers:
+    # 最简单的使用threading,然后上一个全局的锁，然后用acquire(),release()控制
+    def __init__(self):
+        import threading
+        self.lock = threading.Lock()
+
+    # call the functions directly to execute, for example, eat()
+    def wantsToEat(self,
+                   philosopher: int,
+                   pickLeftFork: 'Callable[[], None]',
+                   pickRightFork: 'Callable[[], None]',
+                   eat: 'Callable[[], None]',
+                   putLeftFork: 'Callable[[], None]',
+                   putRightFork: 'Callable[[], None]') -> None:
+                   self.lock.acquire()
+                   pickLeftFork()
+                   pickRightFork()
+                   eat()
+                   putLeftFork()
+                   putRightFork()
+                   self.lock.release()
+ 
+## Condition方法，很不熟悉，基本理解成条件锁好了
+import threading
+class DiningPhilosophers:
+    def __init__(self):
+        self.cv = threading.Condition()
+        # self.thread_list = [None for i in ragne(5)]
+        self.d = {}
+        for i in range(5):
+            self.d[i] = False
+
+    # call the functions directly to execute, for example, eat()
+    def wantsToEat(self, philosopher: int, *actions) -> None:
+        """
+        Solution 2, using threading condition
+        """
+        neighbors = [philosopher - 1, philosopher + 1]
+        if neighbors[0] < 0: neighbors[0] = 4
+        if neighbors[1] > 4: neighbors[1] = 0
+
+        with self.cv:
+            self.cv.wait_for(lambda: not self.d[neighbors[0]] and not self.d[neighbors[1]])
+            self.d[philosopher] = True
+## *actions来代替多函数指针参数，遍历时加括号运算符即可执行。
+            [*map(lambda func: func(), actions)]
+        
+        self.d[philosopher] = False
+
+```
+
+#### 124. [722. 删除注释](https://leetcode-cn.com/problems/remove-comments/)
+
+```python
+# 字符串拼接会很麻烦，很多很多边界条件要调试，费时，而且几乎是面向测试用例编程
+class Solution:
+    def removeComments(self, source: List[str]) -> List[str]:
+        res = []
+        flag = 0
+        stk = []
+        skip = False
+        # for i in range(10):
+        #     print(i)
+        #print('-1:',type(source[9]),len(source[9]),type(len(source)))
+        for s in source:
+
+            #print('z:',z)
+            #print(s)
+            # if  s.strip():
+            #     print('fuck')
+            #     continue
+            #print('len:',len(s),z,s)
+            if len(s)==1 and not flag:
+                #print('s:',s)
+                res.append(s)
+                continue
+            for i in range(len(s)-1):
+                if not flag:
+                    if skip:
+                        if i == len(s)-2:
+                            #print(stk)
+                            stk.append(s[-1])
+                            res.append("".join(stk))
+                            skip = False
+                            # print(res,flag,skip,stk)
+                            stk = []
+                            break
+                        skip = False
+                        continue
+                    if s[i:i+2] not in ["//","/*"]:
+                        stk.append(s[i])
+                        if i == len(s)-2:
+                            stk.append(s[-1])
+                            res.append("".join(stk))
+                            stk = []
+                            break
+                    elif s[i:i+2] == "//":
+                        if stk:
+                            res.append("".join(stk))
+                        stk = []
+                        break
+                    elif s[i:i+2] == "/*":
+                        flag = 1
+                        skip = True
+                        continue
+
+                else:
+                    if skip:
+                        if i == len(s)-2:
+                            #print(stk)
+                            stk.append(s[-1])
+                            res.append("".join(stk))
+                            stk = []
+                            break
+                        skip = False
+                        continue
+                    if s[i:i+2] == "*/":
+                        flag = 0
+                        if i == len(s)-2:
+                            if not stk:
+                                break
+                            else:
+                                res.append("".join(stk))
+                                stk=[]
+                                break
+                        #print("i",i)
+                        skip=True
+                        #print("new i",i)
+                        continue
+        return res
+        
+
+                    
+          
+                    
+class Solution(object):
+    # 思路清晰的解法
+    def removeComments(self, source):
+        in_block = False
+        ans = []
+        for line in source:
+            i = 0
+            # 如果不在注释块中，另起一个缓冲区
+            if not in_block:
+                newline = []
+            while i < len(line):
+                # 切片左闭右开，所以不用考虑右边是否越界
+                # 块外见到/*,改变状态，注意要移动一位
+                if line[i:i+2] == '/*' and not in_block:
+                    in_block = True
+                    i += 1
+                # 块内见到*/，也改变状态，注意要移动一位
+                elif line[i:i+2] == '*/' and in_block:
+                    in_block = False
+                    i += 1
+                # 快外见到,舍弃这一行
+                elif not in_block and line[i:i+2] == '//':
+                    break
+                # 除了以上之外，加入缓冲区
+                elif not in_block:
+                    newline.append(line[i])
+                # 统一移动一位
+                i += 1
+            # 一行终结，且不在块中，可以刷新缓冲区
+            if newline and not in_block:
+                ans.append("".join(newline))
+
+        return ans
+
+    
+    
+    
+
+class Solution:
+    # 直接使用拼接字符串的玩法，活用find
+    """filter() 函数用于过滤序列，过滤掉不符合条件的元素，返回由符合条件元素组成的新列表。
+
+该接收两个参数，第一个为函数，第二个为序列，序列的每个元素作为参数传递给函数进行判断，然后返回 True 或 False，最后将返回 True 的元素放到新列表中。
+        map() 会根据提供的函数对指定序列做映射。第一个参数 function 以参数序列中的每一个元素调用 function 函数，返回包含每次 function 函数返回值的新列表。"""
+    # find:string.find(str, beg=0, end=len(string))检测 str 是否包含在 string 中，如果 beg 和 end 指定范围，则检查是否包含在指定范围内，如果是返回开始的索引值，否则返回-1
+    def removeComments(self, source: List[str]) -> List[str]:
+
+
+
+        print('test:')
+        t = '/*adc*/cd'
+        print(t.find('*/'),t[t.find('*/')+3])
+        s = '\n'.join(source) + '\n' #为最后一行的'//'提供闭区间
+        i, n = 1, len(s)
+        ans = ''
+        while i < n:
+            
+            # 找下一行
+            if s[i - 1] + s[i] == '//':
+                print(ans)
+                i = s.find('\n', i) + 1
+            # 找块外
+            elif s[i - 1] + s[i] == '/*':
+                print(i,s[i])
+                # 因为加的是i-1，所以需要直接移动到开始的下一位，在用于判断
+                i = s.find('*/', i + 1) + 3
+                print(i,s[i])
+            else:
+                # 注意这里加的是i-1
+                ans += s[i - 1]
+                i += 1
+        # 检查是不是空字符串
+        def check(s):
+            if len(s)>0:
+                return True
+            return False
+        print(ans)
+        return filter(check, ans.split('\n'))
+
 
 ```
 

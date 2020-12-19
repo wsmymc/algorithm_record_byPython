@@ -649,6 +649,34 @@ public:
 };
 ```
 
+### 32. [374. 猜数字大小](https://leetcode-cn.com/problems/guess-number-higher-or-lower/)
+
+```C++
+class Solution {
+public:
+    int guessNumber(int n) {
+        int l = 1,r = n;
+        while(l<=r){
+            int mid = l + (r-l)/2;
+            //cout<<mid;
+            //cout<<"fuck"<<guess(mid)<<endl;
+            if (guess(mid) < 0) r = mid;
+            else if(guess(mid)>0) l = mid+1 ;
+            else 
+                return mid;
+        }
+        return 0;  //需要多一个return 0
+        
+    }
+};
+```
+
+
+
+
+
+
+
 ## medium
 
 ### 1. [452. 用最少数量的箭引爆气球](https://leetcode-cn.com/problems/minimum-number-of-arrows-to-burst-balloons/)
