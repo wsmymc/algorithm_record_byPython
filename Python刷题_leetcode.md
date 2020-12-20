@@ -272,6 +272,57 @@ str.isalnum()
         map() 会根据提供的函数对指定序列做映射。第一个参数 function 以参数序列中的每一个元素调用 function 函数，返回包含每次 function 函数返回值的新列表。"""
 ```
 
+#### 24. heapq堆
+
+```python
+"""
+heapq.heappush(heap, item)
+将 item 的值加入 heap 中，保持堆的不变性。
+
+heapq.heappop(heap)
+弹出并返回 heap 的最小的元素，保持堆的不变性。如果堆为空，抛出 IndexError 。使用 heap[0] ，可以只访问最小的元素而不弹出它。
+
+heapq.heappushpop(heap, item)
+将 item 放入堆中，然后弹出并返回 heap 的最小元素。该组合操作比先调用  heappush() 再调用 heappop() 运行起来更有效率。
+
+heapq.heapify(x)
+将list x 转换成堆，原地，线性时间内。
+
+heapq.heapreplace(heap, item)
+弹出并返回 heap 中最小的一项，同时推入新的 item。 堆的大小不变。 如果堆为空则引发 IndexError。
+
+这个单步骤操作比 heappop() 加 heappush() 更高效，并且在使用固定大小的堆时更为适宜。 pop/push 组合总是会从堆中返回一个元素并将其替换为 item。
+
+返回的值可能会比添加的 item 更大。 如果不希望如此，可考虑改用 heappushpop()。 它的 push/pop 组合会返回两个值中较小的一个，将较大的值留在堆中。
+
+该模块还提供了三个基于堆的通用功能函数。
+
+heapq.merge(*iterables, key=None, reverse=False)
+将多个已排序的输入合并为一个已排序的输出（例如，合并来自多个日志文件的带时间戳的条目）。 返回已排序值的 iterator。
+
+类似于 sorted(itertools.chain(*iterables)) 但返回一个可迭代对象，不会一次性地将数据全部放入内存，并假定每个输入流都是已排序的（从小到大）。
+
+具有两个可选参数，它们都必须指定为关键字参数。
+
+key 指定带有单个参数的 key function，用于从每个输入元素中提取比较键。 默认值为 None (直接比较元素)。
+
+reverse 为一个布尔值。 如果设为 True，则输入元素将按比较结果逆序进行合并。 要达成与 sorted(itertools.chain(*iterables), reverse=True) 类似的行为，所有可迭代对象必须是已从大到小排序的。
+
+在 3.5 版更改: 添加了可选的 key 和 reverse 形参。
+
+heapq.nlargest(n, iterable, key=None)
+从 iterable 所定义的数据集中返回前 n 个最大元素组成的列表。 如果提供了 key 则其应指定一个单参数的函数，用于从 iterable 的每个元素中提取比较键 (例如 key=str.lower)。 等价于: sorted(iterable, key=key, reverse=True)[:n]。
+
+heapq.nsmallest(n, iterable, key=None)
+从 iterable 所定义的数据集中返回前 n 个最小元素组成的列表。 如果提供了 key 则其应指定一个单参数的函数，用于从 iterable 的每个元素中提取比较键 (例如 key=str.lower)。 等价于: sorted(iterable, key=key)[:n]。
+
+后两个函数在 n 值较小时性能最好。 对于更大的值，使用 sorted() 函数会更有效率。 此外，当 n==1 时，使用内置的 min() 和 max() 函数会更有效率。 如果需要重复使用这些函数，请考虑将可迭代对象转为真正的堆。"""
+
+ # python 是小根堆，所以用负值
+ # heap的类型，在heapify时就决定下来了，所以先将li初始化，用来确定后续添加的元素类型
+# 查看堆顶元素，heap[0],其实就是特殊排序的数组
+```
+
 
 
 ## easy
@@ -348,6 +399,8 @@ class Solution(object):
         for i in candies:
             judge.append(i+extraCandies>=maxi)
         return judge
+    
+  
 ```
 
 #### 6. [1313. 解压缩编码列表](https://leetcode-cn.com/problems/decompress-run-length-encoded-list/)
@@ -3224,6 +3277,30 @@ class Solution:
                 l = mid + 1
             else:
                 return mid
+```
+
+#### 127. [5629. 重新格式化电话号码](https://leetcode-cn.com/problems/reformat-phone-number/)
+
+```python
+# 字符串这种题，需要想明白了再做，就不会浪费那么多时间了
+class Solution:
+    def reformatNumber(self, number: str) -> str:
+        number=number.replace(' ','')
+        number=number.replace('-', '')
+        #print(number)
+        gap = len(number)%3
+        res = []
+        n = len(number)
+        if gap != 1:
+            for i in range(0,n,3):
+                res.append(number[i:i+3])
+        else:
+            for i in range(0,n-4,3):
+                res.append(number[i:i+3])
+            res.append(number[n-4:n-2])
+            res.append(number[n-2:])
+        return "-".join(res)
+
 ```
 
 
@@ -7505,7 +7582,7 @@ class Solution:
             counts[c2] -= 1
             # 之前pop出来了，现在修改完后，需要放回去
             if counts[c1] > 0:
-                heapq.heappush(queue,(-counts[c1],c1))
+                q.heappush(queue,(-counts[c1],c1))
             if counts[c2] > 0:
                 heapq.heappush(queue,(-counts[c2],c2))
         # 每次两个，但是也有可能剩一个的情况
@@ -8652,6 +8729,102 @@ class Solution:
         print(ans)
         return filter(check, ans.split('\n'))
 
+
+```
+
+#### 125. [5630. 删除子数组的最大得分](https://leetcode-cn.com/problems/maximum-erasure-value/)
+
+```python
+class Solution:
+    # 双指针
+    def maximumUniqueSubarray(self, nums: List[int]) -> int:
+        l,r= 0,0
+        n = len(nums)
+        sum = 0
+        res = 0
+        s = set()
+        while r<n:
+            if nums[r] not in s:
+                #print(n,r)
+                s.add(nums[r])
+                sum += nums[r]
+                res = max(res, sum)
+                # print(res)
+                r += 1
+            else:
+                s.remove(nums[l])
+                sum -= nums[l]
+                l += 1
+            #print(s, l, r)
+        return res
+```
+
+#### 126. [316. 去除重复字母](https://leetcode-cn.com/problems/remove-duplicate-letters/)
+
+```python
+class Solution:
+    # 类似这种需要按条件去重，同时还要保存某种顺序的情况下，又得到某些顺序，可以考虑栈
+    # 利用单调栈，可以保存字典序
+    # set,确认，是否使用这个字符串
+    # Counter（）,用来计算各个字符的次数，如果只有一次，就要知道在单调栈中不能舍弃。
+    def removeDuplicateLetters(self, s: str) -> str:
+        stack = []
+        seen = set()
+        remain_counter = collections.Counter(s)
+
+        for c in s:
+            if c not in seen:
+                # 单调栈，栈顶元素比要加入来的大，且即便弹出，后面还剩下，可以将其加上
+                while stack and c < stack[-1] and  remain_counter[stack[-1]] > 0:
+                    seen.discard(stack.pop()) #  比remove要好一些
+                seen.add(c)
+                stack.append(c)
+            # 因为用到了次数-1
+            remain_counter[c] -= 1
+        return ''.join(stack)
+
+
+```
+
+#### 127. [5631. 跳跃游戏 VI](https://leetcode-cn.com/problems/jump-game-vi/)
+
+```python
+class Solution:
+    def maxResult(self, nums: List[int], k: int) -> int:
+        # 比赛时dp超时，优化有想到heap，不过首先是不是很确信，其次是heap的用法没有想明白，因为有k的限制，想将k也操控好
+        #  看到题解才明白，可以在使用堆的时候，可以不用考虑k,直到取用的时候，在考虑。这时候，如果发现尽管是最大值，但是却超过了k的跨度，就pop，因为后面也不会用到了
+        # python 是小根堆，所以用负值
+        # heap的类型，在heapify时就决定下来了，所以先将li初始化，用来确定后续添加的元素类型
+        n = len(nums)
+        li = [(-nums[0], 0)]
+        #pq = heapq.heapify(li)
+        heapq.heapify(li) # 这个没有返回值，直接改变
+        res = nums[0]
+        for i in range(1,n):
+            while i- li[0][1]>k:
+                heapq.heappop(li)
+            res = -li[0][0] + nums[i]
+            heapq.heappush(li,(-res,i))
+        return res
+    
+class Solution:
+    def maxResult(self, nums: List[int], k: int) -> int:
+        """如果i<j,dp[i]<dp[j].那么在j之后，i永远不会再被用到，应为i到不了的，j可以到，i和j能到的，j比i有效
+        所以可以使用单调队列保持这种关系,准确来说是严格单调递减,这样会把大的值尽可能放到队首使用，中间pop就是上面所讲的，i，值又小，覆盖范围也更窄（因为部分已经被算出来，甚至全部算出来）
+        当然，如果之后，出现索引跨度超过k,和heap一样，也要清除掉，因为以后也用不到了"""
+        dq = collections.deque()
+        dq.append((nums[0],0))
+        res = nums[0]
+
+        for i in range(1,len(nums)):
+            while i - dq[0][1] >k:
+                dq.popleft()
+            res = dq[0][0] + nums[i]
+            # 维持单调性
+            while dq and res>= dq[-1][0]:
+                dq.pop()
+            dq.append((res,i))
+        return res
 
 ```
 
