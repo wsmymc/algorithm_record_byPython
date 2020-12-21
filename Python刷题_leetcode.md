@@ -8828,6 +8828,28 @@ class Solution:
 
 ```
 
+#### 128. [503. 下一个更大元素 II](https://leetcode-cn.com/problems/next-greater-element-ii/)
+
+```python
+class Solution:
+    # 单调栈解法
+    def nextGreaterElements(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        stk,res = [],[-1]*n
+
+        for i in range(n):
+            while stk and (nums[stk[-1]] < nums[i]):
+                res[stk.pop()] = nums[i]
+            stk.append(i)
+        # 因为是循环数组，再来一次循环
+        for i in range(n):
+            while stk and (nums[stk[-1]] < nums[i]):
+                res[stk.pop()] = nums[i]
+            if not stk:
+                break
+        return res
+```
+
 
 
 ## hard

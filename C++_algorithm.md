@@ -671,6 +671,26 @@ public:
 };
 ```
 
+### 33. [746. 使用最小花费爬楼梯](https://leetcode-cn.com/problems/min-cost-climbing-stairs/)
+
+```python
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        int n = cost.size();
+        vector<int> dp(n+1);
+        dp[0] = dp[1] =0;
+        for (int i =2;i<=n;i++){
+
+           dp[i] = min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2]);
+        }
+        //cout<<dp;
+        return dp[n];
+
+    }
+};
+```
+
 
 
 
@@ -853,6 +873,79 @@ public:
 ```
 
 
+
+### 6. [1696. 跳跃游戏 VI](https://leetcode-cn.com/problems/jump-game-vi/)
+
+```python
+class Solution {
+public:
+    int maxResult(vector<int>& nums, int k) {
+        int  n = nums.size();
+
+        priority_queue<pair<int, int>> q;
+        q.emplace(nums[0],0);
+        int res = nums[0];
+
+        for(int i=1;i<n;i++){
+            while(i -q.top().second >k){
+                q.pop();
+            }
+            res = q.top().first + nums[i];
+            q.emplace(res,i);
+        }
+        return res;
+
+
+    }
+};
+class Solution {
+public:
+    int maxResult(vector<int>& nums, int k) {
+        int  n = nums.size();
+
+        deque<pair<int, int>> q;
+        q.emplace_back(nums[0],0);
+        int res = nums[0];
+
+        for(int i=1;i<n;i++){
+            while(i -q.front().second >k){
+                q.pop_front();
+            }
+            res = q.front().first + nums[i];
+            while(!q.empty() && res >= q.back().first){
+                q.pop_back();
+            }
+            q.emplace_back(res,i);
+        }
+        return res;
+
+
+    }
+};
+```
+
+### 7. [503. 下一个更大元素 II](https://leetcode-cn.com/problems/next-greater-element-ii/)
+
+```python
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> res(n);
+        stack<int> s;
+        // 两次循环使用这个求余表示
+        for (int i=2*n-1;i>=0;i--){
+            while(!s.empty() && s.top()<= nums[i%n]){
+                s.pop();
+            }
+            res[i%n] =  s.empty()?-1:s.top();
+            s.push(nums[i%n]);
+        }
+        return res;
+
+    }
+};
+```
 
 
 
