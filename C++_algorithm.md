@@ -691,6 +691,28 @@ public:
 };
 ```
 
+### 34. [1441. 用栈操作构建数组](https://leetcode-cn.com/problems/build-an-array-with-stack-operations/)
+
+```python
+class Solution {
+public:
+    vector<string> buildArray(vector<int>& target, int n) {
+        vector<string> res;
+        int nextpush =1;
+        for (int i=0;i<target.size();i++){
+            while(nextpush<target[i]){
+                res.push_back("Push");
+                res.push_back("Pop");
+                nextpush++;
+            }
+            res.push_back("Push");
+            nextpush ++;
+        }
+        return res;
+    }
+};
+```
+
 
 
 

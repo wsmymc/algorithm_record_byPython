@@ -3303,6 +3303,25 @@ class Solution:
 
 ```
 
+#### 128. [1441. 用栈操作构建数组](https://leetcode-cn.com/problems/build-an-array-with-stack-operations/)
+
+```python
+class Solution:
+    def buildArray(self, target: List[int], n: int) -> List[str]:
+        li = [i for i in range(1,n+1)]
+        res = []
+        j = 0
+        for i in li:
+            if j >= len(target): break
+            if  i== target[j]:
+                res.append("Push")
+                j += 1
+            else:
+                res.append("Push")
+                res.append("Pop")
+        return res
+```
+
 
 
 ## medium
