@@ -715,7 +715,80 @@ public:
 
 
 
+### 34. [LCP 11. 期望个数统计](https://leetcode-cn.com/problems/qi-wang-ge-shu-tong-ji/)
 
+```C++
+class Solution {
+public:
+    int expectNumber(vector<int>& scores) {
+        unordered_set<int> set;
+        for (int i : scores) set.insert(i);
+        return set.size();
+
+    }
+};
+```
+
+### 35. [387. 字符串中的第一个唯一字符](https://leetcode-cn.com/problems/first-unique-character-in-a-string/)
+
+```c++
+class Solution {
+public:
+    int firstUniqChar(string s) {
+        unordered_map<int,int> freq;
+        for(char &c : s){
+            freq[c]++;
+        }
+        for(int i =0;i<s.size();i++){
+            if (freq[s[i]] == 1){
+                return i;
+            }
+        }
+        return -1;
+
+    }
+};
+```
+
+
+
+### 36. [LCP 07. 传递信息](https://leetcode-cn.com/problems/chuan-di-xin-xi/)
+
+```C++
+class Solution {
+public:
+    // 逐轮dp解法
+    int numWays(int n, vector<vector<int>>& relation, int k) {
+        int dp[10][15];
+        memset(dp,0,sizeof(dp));
+        dp[0][0] = 1;
+        for( int i =0;i<k;i++){
+            for(auto &r:relation){
+                dp[i+1][r[1]] += dp[i][r[0]];
+            }
+        }
+        return dp[k][n-1];
+
+    }
+};
+```
+
+### 38. [LCP 02. 分式化简](https://leetcode-cn.com/problems/deep-dark-fraction/)
+
+```C++
+class Solution {
+public:
+    vector<int> fraction(vector<int>& cont) {
+        int high = 1, low = cont.back();
+        for(int i =cont.size()-2;i>=0;i--){
+            high += low * cont[i];
+            swap(low,high);
+        }
+        return vector<int>{low,high};
+
+    }
+};
+```
 
 
 
@@ -967,6 +1040,113 @@ public:
 
     }
 };
+```
+
+### 8. [LCP 03. 机器人大冒险](https://leetcode-cn.com/problems/programmable-robot/)
+
+```c++
+class Solution {
+    // 来不及写了，先记录一个调节，和python思路类似，主要熟悉C++语法
+public:
+    bool canReach(vector<vector<bool>> &g, int x, int y, int maxX, int maxY) {
+        // 利用上述坐标推算方法进行推算
+        int numOfLoop = 0;
+        if (maxX != 0) {
+            numOfLoop = x / maxX;
+        }
+        if (maxY != 0) {
+            numOfLoop = min(y / maxY, numOfLoop);
+        }
+        x -= numOfLoop * maxX;
+        y -= numOfLoop * maxY;
+        if (x < 0 || x > maxX || y < 0 || y > maxY) {
+            return false;
+        }
+        return g[x][y];
+    }
+    bool robot(string command, vector<vector<int>>& obstacles, int x, int y) {
+        int n = command.size();        
+        vector<vector<bool>> g = vector<vector<bool>>(n, vector<bool>(n, false));
+        int maxX = 0;
+        int maxY = 0;
+        g[0][0] = true;
+        for (char c : command) {
+            if (c == 'U') {
+                ++maxY;
+            } else {
+                ++maxX;
+            }
+            g[maxX][maxY] = true;
+        }
+        for (auto &o : obstacles) {
+            if (o[0] > x || o[1] > y) {
+                continue;
+            }
+            if (canReach(g, o[0], o[1], maxX, maxY)) {
+                return false;
+            }
+        }
+        return canReach(g, x, y, maxX, maxY);
+    }
+};
+
+作者：potterxu
+链接：https://leetcode-cn.com/problems/programmable-robot/solution/c-oobstaclessize-shi-jian-ocommandsize-commandsize/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 9. [103. 二叉树的锯齿形层序遍历](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/)
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    // 思路明白，但是C++对数，对队列的操作，还是需要熟悉
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> ans;
+        if (!root) {
+            return ans;
+        }
+
+        queue<TreeNode*> nodeQueue;
+        nodeQueue.push(root);
+        bool isOrderLeft = true;
+
+        while (!nodeQueue.empty()) {
+            deque<int> levelList;
+            int size = nodeQueue.size();
+            for (int i = 0; i < size; ++i) {
+                auto node = nodeQueue.front();
+                nodeQueue.pop();
+                if (isOrderLeft) {
+                    levelList.push_back(node->val);
+                } else {
+                    levelList.push_front(node->val);
+                }
+                if (node->left) {
+                    nodeQueue.push(node->left);
+                }
+                if (node->right) {
+                    nodeQueue.push(node->right);
+                }
+            }
+            ans.emplace_back(vector<int>{levelList.begin(), levelList.end()});
+            isOrderLeft = !isOrderLeft;
+        }
+
+        return ans;
+    }
+};
+
 ```
 
 

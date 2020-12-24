@@ -3303,6 +3303,7 @@ class Solution:
 
 ```
 
+
 #### 128. [1441. 用栈操作构建数组](https://leetcode-cn.com/problems/build-an-array-with-stack-operations/)
 
 ```python
@@ -3321,6 +3322,87 @@ class Solution:
                 res.append("Pop")
         return res
 ```
+
+
+#### 129. [LCP 11. 期望个数统计](https://leetcode-cn.com/problems/qi-wang-ge-shu-tong-ji/)
+
+```python
+class Solution:
+    def expectNumber(self, scores: List[int]) -> int:
+        # 实际上是种类个数,不要被迷惑。简单题，出概率的可能性不高
+        return len(collections.Counter(scores).keys())
+```
+
+#### 130. [387. 字符串中的第一个唯一字符](https://leetcode-cn.com/problems/first-unique-character-in-a-string/)
+
+```python
+class Solution:
+    def firstUniqChar(self, s: str) -> int:
+        if not s:
+            return -1
+        a = collections.Counter(s)
+        for i,v in enumerate(s):
+            if a[v] == 1:
+                return i
+        return -1
+```
+
+#### 131. [LCP 07. 传递信息](https://leetcode-cn.com/problems/chuan-di-xin-xi/)
+
+```python
+class Solution:
+    # 无论是dp，还是dfs，貌似不能算简单题了吧？，还是我太菜了
+    def numWays(self, n: int, relation: List[List[int]], k: int) -> int:
+        dp = [0]*n
+        dp[0] = 1
+
+        for t in range(0,k):
+            print(dp)
+            # 每次记录重新记录，不能和上一次累计
+            nxt = [0]*n
+            for x,y in relation:
+                nxt[y] += dp[x]
+            dp = nxt
+        print(dp)
+        return dp[n-1]
+        # res = 0 
+        # dic = collections.defaultdict(list)
+        # def dfs(idx, cnt):
+        #     nonlocal res
+        #     if cnt == k:
+        #         if idx == n-1:
+        #             res += 1
+        #         return 
+        #     for i in dic[idx]:
+        #         dfs(i,cnt+1)
+        # for x,y in relation:
+        #     dic[x].append(y)
+        # dfs(0,0)
+        # return res
+```
+
+#### 132. [LCP 02. 分式化简](https://leetcode-cn.com/problems/deep-dark-fraction/)
+
+```python
+# 做选择的时候太犹豫，还是看到题解才决定
+class Solution:
+    def fraction(self, cont: List[int]) -> List[int]:
+        a = b = -1
+        num_length = len(cont)-1 
+        for i in range(num_length,-1,-1):
+            if i == num_length:
+                a,b = cont[-1],1
+            else:
+                a,b = cont[i]*a+b,a
+
+        return [a,b]
+
+```
+
+
+
+
+
 
 
 
@@ -8868,6 +8950,92 @@ class Solution:
                 break
         return res
 ```
+
+#### 129. [LCP 03. 机器人大冒险](https://leetcode-cn.com/problems/programmable-robot/)
+
+```python
+class Solution:
+    # 不能直白模拟，数字太大，然后边界条件，做之前想清楚，不要反复调试
+    def robot(self, command: str, obstacles: List[List[int]], x: int, y: int) -> bool:
+        i =0
+        n = len(command)
+        s = set()
+        start_x, start_y =0, 0
+        s.add((0,0))
+        for i in command:
+            if i== 'U':
+                start_y += 1
+            else:
+                start_x += 1
+            s.add((start_x,start_y))
+
+        #print(start_x,start_y)
+        m = x//start_x
+        n = y // start_y
+        t = min(m,n)
+        t_x = x -start_x*t
+        t_y =y- start_y*t
+        if (t_x, t_y) not in s:
+            print(x,y)
+            return False
+        if obstacles:
+            #print('fuck')
+            for _x,_y in obstacles:
+                if _x>x or _y>y:
+                    #print('ss')
+                    continue
+                m = _x//start_x
+                n = _y // start_y
+                t = min(m,n)
+                _x -= start_x*t
+                _y -= start_y*t
+                print(_x,_y)
+                if (_x,_y) in s:
+                    print(_x,_y)
+                    return False
+        return True
+```
+
+
+
+#### 130. [103. 二叉树的锯齿形层序遍历](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def zigzagLevelOrder(self, root: TreeNode) -> List[List[int]]:
+        res = []
+        if not root:
+            return res
+        flag = 1
+        q = []
+        q.append(root)
+        while q:
+            n = len(q)
+            tmp = []
+            for i in range(n):             
+                    t= q.pop(0)
+                    if t.left:
+                        q.append(t.left)
+                    if t.right:
+                        q.append(t.right)
+                    tmp.append(t.val)
+            if flag:
+                res.append(tmp)
+            else:
+                res.append(tmp[::-1])
+            flag = 1- flag
+            
+        return res
+```
+
+
 
 
 
