@@ -790,6 +790,54 @@ public:
 };
 ```
 
+### 39.[1018. 可被 5 整除的二进制前缀](https://leetcode-cn.com/problems/binary-prefix-divisible-by-5/)
+
+```C++
+class Solution {
+public:
+    vector<bool> prefixesDivBy5(vector<int>& A) {
+         int temp=0;
+        // 依照二进制性质每次*2，就好，但是由于可能数字溢出，我们实际只关注各位数字，所以取模
+        vector<bool> ans(A.size(),false);
+        for(int i=0;i<A.size();i++){
+            temp=(temp+A[i])%10;
+            if(temp==0 || temp==5) ans[i]=true;
+            temp*=2;
+        }
+        return ans;
+
+
+
+    }
+};
+```
+
+### 40. [455. 分发饼干](https://leetcode-cn.com/problems/assign-cookies/)
+
+```C++
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        int m = g.size(),n= s.size();
+        int i=0,j=0;
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        int cnt =0;
+        while (i<m && j <n){
+            if(s[j]>= g[i]){
+                cnt++;
+                i++;
+                j++;
+            }else{
+                j++;
+            }
+        }
+        return cnt;
+
+    }
+};
+```
+
 
 
 ## medium
@@ -1147,6 +1195,26 @@ public:
     }
 };
 
+```
+
+### 10. [386. 字典序排数](https://leetcode-cn.com/problems/lexicographical-numbers/)
+
+```python
+class Solution {
+    vector<int> ans;
+public:
+// 10 叉树DFS
+    void dfs(int num, int& n) {
+        if (num > n) return;
+        ans.push_back(num);
+        for (int i = 0; i <= 9; ++i) dfs(num * 10 + i, n);
+    }
+
+    vector<int> lexicalOrder(int n) {
+        for (int i = 1; i <= 9; ++i) dfs(i, n);
+        return ans;
+    }
+};
 ```
 
 

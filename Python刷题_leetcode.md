@@ -3403,6 +3403,42 @@ class Solution:
 
 
 
+#### 133. [1018. 可被 5 整除的二进制前缀](https://leetcode-cn.com/problems/binary-prefix-divisible-by-5/)
+
+```python
+class Solution:
+    def prefixesDivBy5(self, A: List[int]) -> List[bool]:
+        # 一开始想用二进制特征，但是没用好，实际证明想复杂了
+        tsum=0
+        for i,num in enumerate(A):
+            tsum=(tsum*2+num)%5
+            A[i]=(tsum%5==0)
+        return A
+
+```
+
+####  134. [455. 分发饼干](https://leetcode-cn.com/problems/assign-cookies/)
+
+```python
+class Solution:
+    def findContentChildren(self, g: List[int], s: List[int]) -> int:
+        g.sort()
+        s.sort()
+        m,n = len(g), len(s)
+        i,j = 0,0
+        cnt = 0
+        #print(g,s)
+        while i<m and j<n:
+            #print(i,j,s[])
+            if s[j]>= g[i]:
+                cnt += 1
+                i += 1
+                j += 1
+            else:
+                j += 1
+        return cnt
+```
+
 
 
 
@@ -9033,6 +9069,35 @@ class Solution:
             flag = 1- flag
             
         return res
+```
+
+#### 131.[386. 字典序排数](https://leetcode-cn.com/problems/lexicographical-numbers/)
+
+```python
+class Solution:
+    def lexicalOrder(self, n: int) -> List[int]:
+        return sorted(list(range(1,n+1)),key=lambda x:str(x))
+    ## 其实上面算是偷懒的解法，正常解法是10叉树dfs
+    
+def dfs(cur,n,res): # cur为根结点
+            if cur > n:
+                return 
+            else:
+                res.append(cur)
+                for i in range(10):
+                    if 10 * cur + i > n: # 比如叶子结点为14，而n是13，dfs就结束了
+                        return 
+                    dfs(10 * cur + i, n, res)
+        res = []
+        # 对每棵树进行dfs
+        for i in range(1,10):
+            dfs(i, n, res)
+        return res
+
+作者：z1m
+链接：https://leetcode-cn.com/problems/lexicographical-numbers/solution/386zi-dian-xu-pai-shu-python-by-ml-zimingmeng/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
 
