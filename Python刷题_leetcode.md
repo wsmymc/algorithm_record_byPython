@@ -3468,6 +3468,32 @@ class Solution:
             
 ```
 
+#### 136.[5637. 判断字符串的两半是否相似](https://leetcode-cn.com/problems/determine-if-string-halves-are-alike/)
+
+```python
+class Solution:
+    # 做题前先想清楚，否则调试很浪费时间
+    def halvesAreAlike(self, s: str) -> bool:
+        n = len(s)
+        mid = n//2
+        pre = s[:mid]
+        after = s[mid:]
+        p = collections.Counter(pre)
+        a = collections.Counter(after)
+        li = ['a','e','i','o','u','A','E','I','O','U']
+        cnt = 0
+        for c in p.keys():
+            if c in li:
+                cnt += p[c]
+        for c in a.keys():
+            if c in li:
+                cnt -= a[c]
+        # print(a,p)
+        # print(cnt)
+        return cnt ==0
+            
+```
+
 
 
 
@@ -9129,7 +9155,171 @@ def dfs(cur,n,res): # cur为根结点
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+#### 132. [5622. 平均等待时间](https://leetcode-cn.com/problems/average-waiting-time/)
 
+```python
+## 有点类似于滑动窗口
+from typing import List
+
+
+class Solution:
+    def averageWaitingTime(self, customers: List[List[int]]) -> float:
+        end = 0
+        n = len(customers)
+        _sum =0
+        for start,cost in customers:
+            print(_sum)
+            if start>= end:
+                _sum += cost
+                end = start+ cost
+            else:
+                _sum += cost + (end -start)
+                end  = end + cost
+        #print(_sum)
+        return _sum/n
+```
+
+
+
+#### 133.[ 修改后的最大二进制字符串](https://leetcode-cn.com/problems/maximum-binary-string-after-change/)
+
+```python
+class Solution:
+    def maximumBinaryString(self, binary: str) -> str:
+        # 其实这里一开始想偏了，这两种操作可以先把所有1，右移，这样前面都是0，就可以用操作1，前x-1 个0，可以变成1
+        n = len(binary)
+        tmp = ['1']*n
+        idx ,cnt =n,0
+        f = True
+        for i,v  in enumerate(binary):
+            print
+            if f:
+                if v == "0":
+                    idx = i
+                    f ^=f
+            if v == '0':
+                cnt += 1
+       # print(idx,cnt)
+        if cnt >0:
+            tmp[idx + cnt -1]='0'
+        return "".join(tmp)
+```
+
+#### 134. [5638. 吃苹果的最大数目](https://leetcode-cn.com/problems/maximum-number-of-eaten-apples/)
+
+```python
+# 运气不错，按照堆的写法写出来了。主要还是python中的heap不熟悉，调试花了些时间
+from typing import List
+import heapq
+
+class Solution:
+    def eatenApples(self, apples: List[int], days: List[int]) -> int:
+        li = [(-1, apples[0])]
+        heapq.heapify(li)
+        res = 0
+        for i in range(len(days)):
+            if apples[i] >0 and days[i]>0:
+                heapq.heappush(li,(i+days[i],apples[i]))
+            if li:
+                x,y = heapq.heappop(li)
+            while len(li) > 0 and (i>=x or y<=0):
+                x, y = heapq.heappop(li)
+            if i<x and y>0:
+                res +=1
+                y -=1
+                heapq.heappush(li,(x,y))
+            else:
+                res +=0
+            #print(res)
+        i = len(days)
+        #print(li)
+        #print(li)
+        while li:
+            #print(res)
+            x, y = heapq.heappop(li)
+            while li and (i >= x or y <= 0):
+                x, y = heapq.heappop(li)
+            if i<x and y>0:
+                res +=1
+                y -=1
+                heapq.heappush(li,(x,y))
+            else:
+                res +=0
+            i += 1
+        return res
+ #### 一种更聪明的解法：
+class Solution:
+    def eatenApples(self, apples: List[int], days: List[int]) -> int:     
+        gain = collections.defaultdict(int)
+        res = 0
+        n = len(apples)        
+        count = 0
+        for i in range(n):
+            gain[i] += apples[i]
+            gain[i+days[i]] -= apples[i]
+
+        for i in range(max(sorted(gain))):
+            count += gain[i]
+            if count > 0:   res += 1
+
+        if n == 1:  return min(apples[0],days[0])   
+
+        return res
+
+作者：zackcai
+链接：https://leetcode-cn.com/problems/maximum-number-of-eaten-apples/solution/python3-bian-jie-suan-fa-by-zackcai-t97w/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### [5210. 球会落何处](https://leetcode-cn.com/problems/where-will-the-ball-fall/)
+
+````python
+# 相较于上一道题，这个就是完全的模拟了。除了实际做的时候，不断调试试错花了些时间，确实，代码还是写少了
+from typing import List
+
+
+class Solution:
+    def findBall(self, grid: List[List[int]]) -> List[int]:
+        res = []
+        m = len(grid)
+        n = len(grid[0])
+        def check(pre,x,y):
+            #print(pre,x,y)
+            if x>=m:
+                return y
+            if y<0 or y>=n:
+                return -1
+            if grid[x][y]==1:
+                if pre[1]>=y:
+                    new_x = x
+                    new_y = y+1
+                else:
+                    new_x = x+1
+                    new_y =y
+
+                if new_x == pre[0] and new_y==pre[1]:
+                    return -1
+            else:
+                if pre[1]>y:
+                    new_x = x+1
+                    new_y = y
+                else:
+                    new_x = x
+                    new_y =y-1
+                if new_x == pre[0] and new_y == pre[1]:
+                    return -1
+            #print(new_x,new_y)
+            return check((x,y),new_x,new_y)
+        for i in range(n):
+            #print('i',i)
+            t = check((-1,i),0,i)
+            #print(t)
+            res.append(t)
+        return res
+
+
+````
 
 
 

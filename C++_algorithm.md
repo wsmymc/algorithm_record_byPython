@@ -6,27 +6,38 @@
 
 ## 零碎语法点
 
-1. 内置算法：swap
+#### 1.内置算法：swap
 
-2. to_string：
+#### 2 .to_string：
 
-   ```c++
-   string to_string(int val);
-   string to_string(long val);
-   string to_string(long long val);
-   string to_string(unsigned val);
-   string to_string(unsigned long val);
-   string to_string(unsigned long long val);
-   string to_string(float val);
-   string to_string(double val);
-   string to_string(long double val);
-   ```
+```c++
+string to_string(int val);
+string to_string(long val);
+string to_string(long long val);
+string to_string(unsigned val);
+string to_string(unsigned long val);
+string to_string(unsigned long long val);
+string to_string(float val);
+string to_string(double val);
+string to_string(long double val);
+```
 
-3. stoi()   string-->int
+#### 3.stoi()   string-->int
 
-4. for (auto &i : numStr) 和for (auto i : numStr) 一致。区别在于前者可以改变numStr自身的内容，而后者只能够只读？
+#### 4.  for (auto &i : numStr) 和for (auto i : numStr) 一致。区别在于前者可以改变numStr自身的内容，而后者只能够只读？
 
-5. // 内置函数sort(),排序使用
+#### 5. // 内置函数sort(),排序使用
+
+#### 6. 优先队列使用
+
+```C++
+  // 这是C++的预处理器，方便使用
+    #define PII pair<int, int> 
+ // 优先队列使用， 参数分别是数据类型， 容器类型，以及仿函数greater，less（数据类型）
+        priority_queue<PII, vector<PII>, greater<PII> > save;
+```
+
+
 
 
 
@@ -882,6 +893,59 @@ public:
 };
 ```
 
+### 42. [205. 同构字符串](https://leetcode-cn.com/problems/isomorphic-strings/)
+
+```C++
+class Solution {
+public:
+    bool isIsomorphic(string s, string t) {
+        unordered_map<char,char> s2t;
+        unordered_map<char,char> t2s;
+        int len= s.length();
+        for (int i=0;i<len;i++){
+            char x = s[i],y= t[i];
+            // 首先已经在表里，其次不匹配，两者条件都满足之后，才能return false
+            if((s2t.count(x)&& s2t[x] != y)|| (t2s.count(y) && t2s[y] != x)){
+                return false;
+            }
+            s2t[x] = y;
+            t2s[y] = x;
+        }
+        return true;
+
+        
+    }
+};
+```
+
+### 43. [5637. 判断字符串的两半是否相似](https://leetcode-cn.com/problems/determine-if-string-halves-are-alike/)
+
+```C++
+class Solution {
+public:
+    bool halvesAreAlike(string s) {
+       int  n = s.length();
+       unordered_set<int> _s = {'a','e','i','o','u','A','E','I','O','U'};
+       int cnt =0,mid = n/2;
+       for(int i=0;i<n;i++){
+           if (i<mid){
+               if (_s.count(s[i])){
+                   cnt++;
+               }
+           }else{
+               if (_s.count(s[i])){
+                   cnt--;
+               }
+           }
+           //cout<<cnt;
+       }
+       return cnt ==0;
+
+
+    }
+};
+```
+
 
 
 ## medium
@@ -1259,6 +1323,135 @@ public:
         return ans;
     }
 };
+```
+
+### 11. [5622. 平均等待时间](https://leetcode-cn.com/problems/average-waiting-time/)
+
+```C++
+class Solution {
+public:
+    double averageWaitingTime(vector<vector<int>>& customers) {
+        // 思路和python一致，注意的是，这里res 用int会移溢出，考虑情况使用long , 或者unsigned long
+        unsigned long res =0;
+        int n = customers.size();
+        for(int i =0,t=0;i<n;i++){
+            t = max(customers[i][0],t);
+            t += customers[i][1];
+            res +=(t - customers[i][0]);
+        }
+        return double(res)/n;
+
+    }
+};
+```
+
+### 12. [5623. 修改后的最大二进制字符串](https://leetcode-cn.com/problems/maximum-binary-string-after-change/)
+
+```C++
+class Solution {
+public:
+    string maximumBinaryString(string binary) {
+        int n = binary.size();
+        // C++字符串初始化的一种方式
+        // 第一个0 之前的1，不用动，之后的一，右移，这样中间的都是1，然后用操作1，使之出现一个0
+        string res(n,'1');
+        bool flag = false;
+        int cnt = 0;
+        int t = n;
+        for(int i=0; i<n; i++){
+            if(binary[i] == '0'){
+                flag = true;
+                t = min(t,i);
+                cnt++;
+            }
+        }
+        if (!flag){
+            return res;
+        }
+        res[t+cnt-1]='0';
+        return res;
+
+        
+
+    }
+};
+```
+
+### 13. [5638. 吃苹果的最大数目](https://leetcode-cn.com/problems/maximum-number-of-eaten-apples/)
+
+```c++
+class Solution {
+public:
+    // 这是C++的预处理器，方便使用
+    #define PII pair<int, int> 
+    int eatenApples(vector<int>& apples, vector<int>& days) {
+        int res = 0;
+        // 优先队列使用， 参数分别是数据类型， 容器类型，以及仿函数greater，less（数据类型）
+        priority_queue<PII, vector<PII>, greater<PII> > save; //按过期日期升序
+        // 这里的循环判定条件是是两个，其中empty实际上是扩大边界，过了n继续数
+        for (int i = 0; i < apples.size() || !save.empty(); i++) {
+            //到了过期那一天就删掉
+            while(!save.empty() 
+            && save.top().first == i){ //到了过期的日子
+                save.pop();
+            }
+            //加入今天产出的果子
+            if(i<apples.size()&&apples[i]!=0)
+                save.push(make_pair(i+days[i], apples[i]));
+            //如果有果子的话，吃果子
+            if(!save.empty()){
+                PII tmp = save.top();
+                save.pop();
+                res++;
+                tmp.second--;
+                if(tmp.second>0){   //果子没吃完，放回去
+                    save.push(tmp);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+```
+
+### 14. [5210. 球会落何处](https://leetcode-cn.com/problems/where-will-the-ball-fall/)
+
+```C++
+class Solution {
+public:
+    vector<int> findBall(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+        vector<int> ans(n, -1);
+        for(int j = 0; j < n; j++) 
+        {
+            int x = 0, y = j;
+            cout<<j<<endl;
+            while(x != m)
+            {   cout<<x<<y<<endl;
+                if(grid[x][y] == 1 && y == n-1)
+                    break;//右边有墙
+                else if(grid[x][y] == -1 && y == 0)
+                    break;//左边有墙
+                else if(grid[x][y] == 1 && grid[x][y+1] == -1)
+                    break;//V字形的左边
+                else if(grid[x][y] == -1 && grid[x][y-1] == 1)
+                    break;//V字形的右边
+                // 和我在python 里写的不同，这里在排出了上线的卡主情况以外，一定可以把球放到有右下。或者这么说，因为球在没有卡主的情况，也就晒前面几种情况以外，一定会向下，所以x++，
+                // 然后根据情况，是1，-1，决定y的偏移方向
+                else if(grid[x][y] == 1)
+                    x++,y++;//向右下走
+                else
+                    x++,y--;//向左下走
+            }
+            if(x == m)
+                ans[j] = y;
+        }
+        return ans;
+    }
+};
+
+
 ```
 
 
