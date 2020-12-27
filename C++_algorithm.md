@@ -838,6 +838,50 @@ public:
 };
 ```
 
+### 41.[653. 两数之和 IV - 输入 BST](https://leetcode-cn.com/problems/two-sum-iv-input-is-a-bst/)
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+// set 中 ，s.count(key) == 0 or 1    s.find(key)  返回一个迭代器，根据是否是s.end() 。 确定是否找到
+class Solution {
+public:
+    unordered_set<int> s;
+    bool flag = false;
+    int K;
+    bool findTarget(TreeNode* root, int k) {
+        K=k;
+        inorder(root);
+        return flag;
+
+        
+    }
+    void inorder(TreeNode* root){
+        if(root->left){
+            inorder(root->left);
+        }
+        //cout<< to_string(s.find(K-root->val) == s.end())<<endl;
+        if (s.find(K-root->val) != s.end()){
+            flag = true;
+            return;
+        }
+        s.insert(root->val);
+        if(root->right){
+            inorder(root->right);
+        }
+    }
+};
+```
+
 
 
 ## medium

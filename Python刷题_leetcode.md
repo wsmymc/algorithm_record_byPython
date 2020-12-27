@@ -3439,6 +3439,35 @@ class Solution:
         return cnt
 ```
 
+#### 135. [653. 两数之和 IV - 输入 BST](https://leetcode-cn.com/problems/two-sum-iv-input-is-a-bst/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def findTarget(self, root: TreeNode, k: int) -> bool:
+        res = set()
+        flag = False 
+        def dfs(node):
+            nonlocal res,flag
+            if node.left:
+                dfs(node.left)
+            if k - node.val in res:
+                flag = True
+                return 
+            else:
+                res.add(node.val)
+            if node.right:
+                dfs(node.right)
+        dfs(root)
+        return flag
+            
+```
+
 
 
 
