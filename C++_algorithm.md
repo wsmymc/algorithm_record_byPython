@@ -946,6 +946,27 @@ public:
 };
 ```
 
+### 44. [961. 重复 N 次的元素](https://leetcode-cn.com/problems/n-repeated-element-in-size-2n-array/)
+
+```C++
+class Solution {
+public:
+    int repeatedNTimes(vector<int>& A) {
+        int n = A.size();
+        unordered_set<int> hash;
+        for (auto c :A){
+            if(hash.count(c)){
+                return c;
+            }
+            // 貌似对set类型的，不能用push_back
+            hash.insert(c);
+        }
+        return 0;
+
+    }
+};
+```
+
 
 
 ## medium
@@ -1457,6 +1478,61 @@ public:
 
 
 ## hard
+
+### 1. [188. 买卖股票的最佳时机 IV](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iv/)
+
+```C++
+class Solution {
+public:
+    // C++的报错信息，经常会出现溢出，这就要考虑好正负号
+    int maxProfit(int k, vector<int>& prices) {
+        if(prices.empty()){
+            return 0;
+        }
+
+        int n = prices.size();
+        k = min(k,n/2);
+        // 相较于python中的三维维，这里把买卖拆开，分成了两个二维
+        vector<vector<int>> buy(n,vector<int>(k+1));
+        vector<vector<int>> sell(n,vector<int>(k+1));
+        // 第0天，想要手上有股票，只能现买
+        buy[0][0] = -prices[0];
+        sell[0][0] = 0;
+        for(int i=1;i<=k;i++){
+            buy[0][i] = -prices[0];
+            sell[0][i] = 0;
+        }
+
+        for(int i=1;i<n;++i){
+            // 在j = 0 时，j-1== -1 ，不合法，所以特殊处理：令其为0 
+            //buy没有这个问题，可以不处理
+            for(int j=0;j<=k;++j){
+                if(j ==0){
+                    sell[i][0] = 0;
+                }
+                else{
+                    //buy[i][j] = max(buy[i-1][j], sell[i-1][j] - prices[i]);
+                    sell[i][j] = max(sell[i - 1][j], buy[i - 1][j - 1] + prices[i]); 
+                }
+                buy[i][j] = max(buy[i-1][j], sell[i-1][j] - prices[i]);
+            }
+
+        }
+        //  for (int i = 1; i < n; ++i) {
+        //     buy[i][0] = max(buy[i - 1][0], sell[i - 1][0] - prices[i]);
+        //     for (int j = 1; j <= k; ++j) {
+        //         buy[i][j] = max(buy[i - 1][j], sell[i - 1][j] - prices[i]);
+        //         sell[i][j] = max(sell[i - 1][j], buy[i - 1][j - 1] + prices[i]);   
+        //     }
+        // }
+
+        return *max_element(sell[n-1].begin(),sell[n-1].end());
+
+
+
+    }
+};
+```
 
 
 
