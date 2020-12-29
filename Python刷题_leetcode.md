@@ -327,7 +327,7 @@ heapq.nsmallest(n, iterable, key=None)
 
 ## easy
 
-#### 1. https://leetcode-cn.com/problems/guess-numbers/（猜数字）
+#### 1. [LCP 01. 猜数字](https://leetcode-cn.com/problems/guess-numbers/)
 
 ```python
 class Solution:
@@ -339,7 +339,7 @@ class Solution:
         return count
 ```
 
-#### 2. https://leetcode-cn.com/problems/delete-middle-node-lcci/(删除中间节点)
+#### 2. [面试题 02.03. 删除中间节点](https://leetcode-cn.com/problems/delete-middle-node-lcci/)
 
 ```python
 class Solution:
@@ -353,7 +353,7 @@ class Solution:
         # 思路是覆写，然后丢弃下一节点
 ```
 
-#### 3.https://leetcode-cn.com/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/（左旋字符串）
+#### 3.[剑指 Offer 58 - II. 左旋转字符串](https://leetcode-cn.com/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/)
 
 ```python
 class Solution:
@@ -363,7 +363,7 @@ class Solution:
         return b+a
 ```
 
-#### 4. https://leetcode-cn.com/problems/shuffle-the-array/(重新排列数组----1470)
+#### 4. [1470. 重新排列数组](https://leetcode-cn.com/problems/shuffle-the-array/)
 
 ```python
 class Solution:
@@ -375,7 +375,7 @@ class Solution:
         return res
 ```
 
-#### 5. https://leetcode-cn.com/problems/kids-with-the-greatest-number-of-candies/(拥有最多糖果的孩子)
+#### 5. [1431. 拥有最多糖果的孩子](https://leetcode-cn.com/problems/kids-with-the-greatest-number-of-candies/)
 
 ```python
 class Solution(object):
@@ -3582,6 +3582,40 @@ class Solution:
         
 
         return cnt == numCourses
+   
+
+
+## 上面的是bfs算法，这个是dfs的玩法
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        edges = collections.defaultdict(list)
+        visited = [0] * numCourses
+        res = list()
+        valid = True
+
+        for i,j in prerequisites:
+            edges[i].append(j)
+        def dfs(i):
+            nonlocal valid
+            #  表示正在搜索中
+            visited[i] = 1
+            for j in edges[i]:
+                # 如果没有搜素，那那么开始搜索
+                if visited[j] == 0:
+                    dfs(j)
+                    # 如果找到循环依赖的话，直接返回
+                    if not valid:
+                        return 
+                # 1 表示搜索中,出现循环嵌套了
+                elif visited[j] == 1:
+                    valid = False
+                    return
+            visited[i] =2 # 表示搜索完毕
+            res.append(i)
+        for i in range(numCourses):
+            if valid and not visited[i]:
+                dfs(i)
+        return valid
 ```
 
 #### 2. [43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
@@ -10693,7 +10727,68 @@ class Solution:
 
 ```
 
+#### 32. [1703. 得到连续 K 个 1 的最少相邻交换次数](https://leetcode-cn.com/problems/minimum-adjacent-swaps-for-k-consecutive-ones/)
 
+```python
+class Solution:
+    def minMoves(self, nums: List[int], k: int) -> int:
+        if k ==1:
+            return 0
+        n = len(nums)
+        g, total ,count = list(),[0],-1
+        for i,num in enumerate(nums):
+            if num == 1:
+                count +=1
+                g.append(i-count)
+                total.append(total[-1]+g[-1])
+        m, res = len(g),float('inf')
+        for i in range(m-k+1):
+            mid = (i+i+k-1)//2
+            q = g[mid]
+            res = min(res,(2*(mid-i)-k+1)*q + total[i+k]-total[mid+1] - (total[mid] - total[i]))
+        return res
+```
+
+
+
+#### 33. [421. 数组中两个数的最大异或值](https://leetcode-cn.com/problems/maximum-xor-of-two-numbers-in-an-array/)
+
+```python
+class Solution:
+    def findMaximumXOR(self, nums: List[int]) -> int:
+        # 二叉字典树，叫前缀树也可以，0,1分叉
+        L = len(bin(max(nums)))-2 # 为了规避Ox
+        # 构造每一位的序列，同时因为权重问题，需要左右颠倒
+        nums = [[(x>>i)&1 for i in range(L,-1,-1)] for x in nums ]
+        max_xor = 0
+        # 构造字典树
+        trie = {}
+        for num in nums:
+            # 每一次都从根部找
+            node = trie
+            xor_node = trie
+            curr_xor = 0 # 每次的最大值
+            for bit in num:
+                # 这算是一次遍历，一边构建树，一边比较产生较大值
+                # 不用担心前边构建的比较不了后边，异或a^b 和 b^a 实质是一样的，后面的比较中，实际上就是在和前边的异或
+                #
+                if not bit in node:
+                    node[bit] = {}
+                node = node[bit]
+                target = bit^1
+                # 开始比较
+                # 如果能够异或，curr 进位取1，走target的路线
+                if target in xor_node:
+                    curr_xor = (curr_xor<<1)|1
+                    xor_node = xor_node[target]
+                # 否则走自己的落线，curr 进位不取1 ， 实际上是取0了
+                else:
+                    curr_xor= curr_xor<<1
+                    xor_node = xor_node[bit]
+            max_xor = max(max_xor,curr_xor)
+        return max_xor
+
+```
 
 
 

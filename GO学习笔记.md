@@ -641,3 +641,52 @@ default:
 
 * 调用counter（naturals）时，naturals的类型将隐式地从chan int转换成chan<- int。
 
+
+
+
+
+## 基于共享变量的并发
+
+### 竞争条件
+
+* 我们来重复一下数据竞争的定义，因为实在太重要了：数据竞争会在两个以上的goroutine并发访问相同的变量且至少其中一个为写操作时发生。根据上述定义，有三种方式可以避免数据竞争：
+
+  * 第一种方法是不要去写变量
+
+  * 第二种避免数据竞争的方法是，避免从多个goroutine访问变量。某个变量绑定一个goroutine,其他goroutine需要的时候，使用channel 通信
+
+  * 第三种避免数据竞争的方法是允许很多goroutine去访问变量，但是在同一个时刻最多只有一个goroutine在访问。这种方式被称为“互斥”
+
+  * 这种互斥很实用，而且被sync包里的Mutex类型直接支持。它的Lock方法能够获取到token(这里叫锁)，并且Unlock方法会释放这个token：
+
+    ```go
+    import "sync"
+    
+    var (
+        mu      sync.Mutex // guards balance
+        balance int
+    )
+    
+    func Deposit(amount int) {
+        mu.Lock()
+        balance = balance + amount
+        mu.Unlock()
+    }
+    
+    func Balance() int {
+        mu.Lock()
+        b := balance
+        mu.Unlock()
+        return b
+    }
+    ```
+
+    
+
+## 测试
+
+### go test
+
+* go test命令是一个按照一定的约定和组织来测试代码的程序。在包目录内，所有以`_test.go`为后缀名的源文件在执行go build时不会被构建成包的一部分，它们是go test测试的一部分。
+
+  在`*_test.go`文件中，有三种类型的函数：测试函数、基准测试（benchmark）函数、示例函数。一个测试函数是以Test为函数名前缀的函数，用于测试程序的一些逻辑行为是否正确；go test命令会调用这些测试函数并报告测试结果是PASS或FAIL。基准测试函数是以Benchmark为函数名前缀的函数，它们用于衡量一些函数的性能；go test命令会多次运行基准测试函数以计算一个平均的执行时间。示例函数是以Example为函数名前缀的函数，提供一个由编译器保证正确性的示例文档。我们将在11.2节讨论测试函数的所有细节，并在11.4节讨论基准测试函数的细节，然后在11.6节讨论示例函数的细节。
