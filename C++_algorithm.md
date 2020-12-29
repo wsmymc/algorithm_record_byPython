@@ -967,6 +967,25 @@ public:
 };
 ```
 
+### 45. [1037. 有效的回旋镖](https://leetcode-cn.com/problems/valid-boomerang/)
+
+```C++
+class Solution {
+public:
+    bool isBoomerang(vector<vector<int>>& points) {
+        // 这是我想的另一种方法，用三角形判定
+        double a,b,c;
+        a=sqrt((points[1][0]-points[0][0])*(points[1][0]-points[0][0])+(points[1][1]-points[0][1])*(points[1][1]-points[0][1]));
+        b=sqrt((points[2][0]-points[0][0])*(points[2][0]-points[0][0])+(points[2][1]-points[0][1])*(points[2][1]-points[0][1]));
+        c=sqrt((points[2][0]-points[1][0])*(points[2][0]-points[1][0])+(points[2][1]-points[1][1])*(points[2][1]-points[1][1]));
+        return a+b>c&&a+c>b&&b+c>a;
+
+
+
+    }
+};
+```
+
 
 
 ## medium

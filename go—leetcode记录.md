@@ -1,4 +1,4 @@
-# go—leetcode记录
+# go_leetcode记录
 
 ## easy
 
@@ -23,6 +23,27 @@ func repeatedNTimes(A []int) int {
 
 
 
+
+### 2. [1037. 有效的回旋镖](https://leetcode-cn.com/problems/valid-boomerang/)
+
+```go
+func isBoomerang(points [][]int) bool {
+    var res = true
+    if points[0][0] == points[1][0] && points[0][0] == points[2][0] || 
+            points[0][0] == points[1][0] && points[0][1] == points[1][1] || 
+            points[0][0] == points[2][0] && points[0][1] == points[2][1] || 
+            points[1][0] == points[2][0] && points[1][1] == points[2][1]{
+        res = false
+        return res
+    }
+    if float64(points[0][1]-points[1][1])/float64(points[0][0]-points[1][0]) == float64(points[0][1]-points[2][1])/float64(points[0][0]-points[2][0]){
+        res = false
+    }
+    return res
+}
+
+
+```
 
 
 

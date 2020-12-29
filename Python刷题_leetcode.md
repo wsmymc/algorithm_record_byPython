@@ -3508,6 +3508,15 @@ class Solution:
 
 
 
+#### 138. [1037. 有效的回旋镖](https://leetcode-cn.com/problems/valid-boomerang/)
+
+```python
+class Solution:
+    def isBoomerang(self, points: List[List[int]]) -> bool:
+        # 斜率计算，考虑分母为零，所以转换成交叉相乘
+         return (points[1][1] - points[0][1]) * (points[2][0] - points[0][0]) != (points[2][1] - points[0][1]) * (points[1][0] - points[0][0])
+```
+
 
 
 
