@@ -3587,6 +3587,22 @@ class Solution:
 
 
 
+#### 141. [1518. 换酒问题](https://leetcode-cn.com/problems/water-bottles/)
+
+```python
+class Solution:
+    def numWaterBottles(self, numBottles: int, numExchange: int) -> int:
+        res = numBottles
+        last = numBottles
+        while last>=numExchange:
+            #print(last)
+            res += last//numExchange
+            last = last//numExchange + last%numExchange
+        return res
+            
+
+```
+
 
 
 

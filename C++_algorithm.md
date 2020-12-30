@@ -1011,7 +1011,7 @@ public:
 };
 ```
 
-### [1360. 日期之间隔几天](https://leetcode-cn.com/problems/number-of-days-between-two-dates/)
+### 47.[1360. 日期之间隔几天](https://leetcode-cn.com/problems/number-of-days-between-two-dates/)
 
 ```c++
 class Solution {
@@ -1045,6 +1045,31 @@ public:
    
 };
 ```
+
+### 48. [1518. 换酒问题](https://leetcode-cn.com/problems/water-bottles/)
+
+```C++
+class Solution {
+public:
+    /*第一步，首先我们一定可以喝到 bb 瓶酒，剩下 bb 个空瓶。
+
+第二步，接下来我们来考虑空瓶换酒，换完再喝，喝完再换的过程——每次换到一瓶酒就意味着多一个空瓶，所以每次损失的瓶子的数量为 e - 1e−1，我们要知道这个过程能得到多少瓶酒，即希望知道第一个打破下面这个条件的 nn 是多少：
+
+*/
+    //b−n(e−1)≥e
+    // ==>b−n(e−1)<e
+    // n(min) = [(b-e)/(c-1) + 1]
+    int numWaterBottles(int numBottles, int numExchange) {
+        return numBottles >= numExchange ? (numBottles - numExchange) / (numExchange - 1) + 1 + numBottles : numBottles;
+    }
+};
+
+
+```
+
+
+
+
 
 
 
