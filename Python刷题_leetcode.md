@@ -3517,6 +3517,74 @@ class Solution:
          return (points[1][1] - points[0][1]) * (points[2][0] - points[0][0]) != (points[2][1] - points[0][1]) * (points[1][0] - points[0][0])
 ```
 
+#### 139. [1046. 最后一块石头的重量](https://leetcode-cn.com/problems/last-stone-weight/)
+
+```python
+class Solution:
+    def lastStoneWeight(self, stones: List[int]) -> int:
+        
+        while len(stones)>1:
+            stones.sort()
+            #print(stones)
+            x, y = stones.pop(),stones.pop()
+            if x!=y:
+                stones.append(x-y)
+        if len(stones)<1:
+            return 0
+        return stones[0]
+    
+ class Solution:
+    def lastStoneWeight(self, stones: List[int]) -> int:
+        # sb如我，忘记了堆的特性
+        heap = [-stone for stone in stones]
+        heapq.heapify(heap)
+
+        # 模拟
+        while len(heap) > 1:
+            x,y = heapq.heappop(heap),heapq.heappop(heap)
+            if x != y:
+                heapq.heappush(heap,x-y)
+
+        if heap: return -heap[0]
+        return 0
+
+
+```
+
+
+
+#### 140. [1360. 日期之间隔几天](https://leetcode-cn.com/problems/number-of-days-between-two-dates/)
+
+```python
+class Solution:
+    def daysBetweenDates(self, date1: str, date2: str) -> int:
+        month = [0,31,28,31,30,31,30,31,31,30,31,30,31]
+        date1 = [int(t) for t in date1.split('-')]
+        date2 = [int(t) for t in date2.split('-')]
+        cnt1,cnt2= 0,0
+        def get_cnt(date):
+            cnt=0
+            for i in range(1971,date[0]):
+                if (i %4 == 0 and  i%100!=0) or( i%400 ==0):
+                    cnt += 366
+                else:
+                    cnt +=365
+            for i in range(1,date[1]):
+                if i == 2 :
+                    if (date[0] %4 == 0 and  date[0]%100!=0) or( date[0]%400 ==0):
+                        cnt += 29
+                    else:
+                        cnt += 28
+                else:
+                    cnt += month[i]
+            cnt += date[2]
+            return cnt 
+        cnt1 = get_cnt(date1)
+        cnt2 = get_cnt(date2)
+        # print(cnt1,cnt2)
+        return abs(cnt2-cnt1)
+```
+
 
 
 
@@ -9341,7 +9409,7 @@ class Solution:
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
-#### [5210. 球会落何处](https://leetcode-cn.com/problems/where-will-the-ball-fall/)
+#### 135. [5210. 球会落何处](https://leetcode-cn.com/problems/where-will-the-ball-fall/)
 
 ````python
 # 相较于上一道题，这个就是完全的模拟了。除了实际做的时候，不断调试试错花了些时间，确实，代码还是写少了
@@ -9389,6 +9457,45 @@ class Solution:
 
 
 ````
+
+#### 136. [421. 数组中两个数的最大异或值](https://leetcode-cn.com/problems/maximum-xor-of-two-numbers-in-an-array/)
+
+```python
+class Solution:
+    def findMaximumXOR(self, nums: List[int]) -> int:
+        # 二叉字典树，叫前缀树也可以，0,1分叉
+        L = len(bin(max(nums)))-2 # 为了规避Ox
+        # 构造每一位的序列，同时因为权重问题，需要左右颠倒
+        nums = [[(x>>i)&1 for i in range(L,-1,-1)] for x in nums ]
+        max_xor = 0
+        # 构造字典树
+        trie = {}
+        for num in nums:
+            # 每一次都从根部找
+            node = trie
+            xor_node = trie
+            curr_xor = 0 # 每次的最大值
+            for bit in num:
+                # 这算是一次遍历，一边构建树，一边比较产生较大值
+                # 不用担心前边构建的比较不了后边，异或a^b 和 b^a 实质是一样的，后面的比较中，实际上就是在和前边的异或
+                #
+                if not bit in node:
+                    node[bit] = {}
+                node = node[bit]
+                target = bit^1
+                # 开始比较
+                # 如果能够异或，curr 进位取1，走target的路线
+                if target in xor_node:
+                    curr_xor = (curr_xor<<1)|1
+                    xor_node = xor_node[target]
+                # 否则走自己的落线，curr 进位不取1 ， 实际上是取0了
+                else:
+                    curr_xor= curr_xor<<1
+                    xor_node = xor_node[bit]
+            max_xor = max(max_xor,curr_xor)
+        return max_xor
+
+```
 
 
 
@@ -10751,44 +10858,64 @@ class Solution:
 
 
 
-#### 33. [421. 数组中两个数的最大异或值](https://leetcode-cn.com/problems/maximum-xor-of-two-numbers-in-an-array/)
+#### 33. [440. 字典序的第K小数字](https://leetcode-cn.com/problems/k-th-smallest-in-lexicographical-order/)
 
 ```python
 class Solution:
-    def findMaximumXOR(self, nums: List[int]) -> int:
-        # 二叉字典树，叫前缀树也可以，0,1分叉
-        L = len(bin(max(nums)))-2 # 为了规避Ox
-        # 构造每一位的序列，同时因为权重问题，需要左右颠倒
-        nums = [[(x>>i)&1 for i in range(L,-1,-1)] for x in nums ]
-        max_xor = 0
-        # 构造字典树
-        trie = {}
-        for num in nums:
-            # 每一次都从根部找
-            node = trie
-            xor_node = trie
-            curr_xor = 0 # 每次的最大值
-            for bit in num:
-                # 这算是一次遍历，一边构建树，一边比较产生较大值
-                # 不用担心前边构建的比较不了后边，异或a^b 和 b^a 实质是一样的，后面的比较中，实际上就是在和前边的异或
-                #
-                if not bit in node:
-                    node[bit] = {}
-                node = node[bit]
-                target = bit^1
-                # 开始比较
-                # 如果能够异或，curr 进位取1，走target的路线
-                if target in xor_node:
-                    curr_xor = (curr_xor<<1)|1
-                    xor_node = xor_node[target]
-                # 否则走自己的落线，curr 进位不取1 ， 实际上是取0了
-                else:
-                    curr_xor= curr_xor<<1
-                    xor_node = xor_node[bit]
-            max_xor = max(max_xor,curr_xor)
-        return max_xor
+    def findKthNumber(self, n: int, k: int) -> int:
+        # 思考模型是十叉树，但是实际执行的不能够真的遍历，会有超时的，需要使用数学方法计算，逐层统计
+        def cal_steps(n, n1, n2):
+            step = 0
+            while n1 <= n:
+                step += min(n2, n + 1) - n1
+                n1 *= 10
+                n2 *= 10
+            return step
+                
+        cur = 1
+        k -= 1
+        
+        while k > 0:
+            steps = cal_steps(n, cur, cur + 1)
+            if steps <= k:
+                k -= steps
+                cur += 1
+            else:
+                k -= 1
+                cur *= 10
+        
+        return cur
 
 ```
+
+#### 34. [330. 按要求补齐数组](https://leetcode-cn.com/problems/patching-array/)
+
+```python
+class Solution:
+    def minPatches(self, nums: List[int], n: int) -> int:
+        """如果区间 [1,x-1][1,x−1] 内的所有数字都已经被覆盖，则从贪心的角度考虑，补充 x 之后即可覆盖到 x，且满足补充的数字个数最少。在补充 xx 之后，区间 [1,2x-1] 内的所有数字都被覆盖，下一个缺失的数字一定不会小于 2x。
+
+由此可以提出一个贪心的方案。每次找到未被数组nums 覆盖的最小的整数 x，在数组中补充 x，然后寻找下一个未被覆盖的最小的整数，重复上述步骤直到区间 [1,n] 中的所有数字都被覆盖。
+"""
+        cnt , i = 0,1
+        # i 代表被覆盖的右边界，从1开始
+        length, idx = len(nums),0
+
+        while i<=n:
+            # 如果nums[idx] <i ，说明idx所指向的数字已经被i所覆盖，这时候更新右边界，然后让idx指向下一位
+            # 这里不用考虑，nums[idx]>i ,因为逻辑放在了else 里，大于的话，说明，超出边界，就需要补足了
+            if idx <length and nums[idx] <= i:
+                i += nums[idx]
+                idx += 1
+            else:
+                # 大于，说明没有i，这时候i就加到nums中了，但是不用考虑这个”加“这个动作，因为只用来计数，不是看结果。在这个贪心的逻辑里没有用。cnt +=1
+                # 既然已经加入了，就要更新右边界,i = 2*i,这里使用位移更快
+                i <<=1
+                cnt += 1
+        return cnt
+```
+
+
 
 
 

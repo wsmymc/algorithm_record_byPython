@@ -986,6 +986,66 @@ public:
 };
 ```
 
+### 46. [1046. 最后一块石头的重量](https://leetcode-cn.com/problems/last-stone-weight/)
+
+```C++
+class Solution {
+public:
+    int lastStoneWeight(vector<int>& stones) {
+        priority_queue<int> q;
+        for (int s: stones) {
+            q.push(s);
+        }
+
+        while (q.size() > 1) {
+            int a = q.top();
+            q.pop();
+            int b = q.top();
+            q.pop();
+            if (a > b) {
+                q.push(a - b);
+            }
+        }
+        return q.empty() ? 0 : q.top();
+    }
+};
+```
+
+### [1360. 日期之间隔几天](https://leetcode-cn.com/problems/number-of-days-between-two-dates/)
+
+```c++
+class Solution {
+     bool leap_year(int n ){
+        return ((n%4==0)  || ( n %4==0 && n%100 !=0));
+    }
+    int getdate(string date){
+        int tab[]={-1,31,28,31,30,31,30,31,31,30,31,30,31};
+        int y,m,d,r =0;
+        sscanf(date.c_str(),"%d-%d-%d", &y,&m,&d);
+        for(int i=1970;i<y;i++){
+            if (leap_year(i)){
+                r += 366;
+            }
+            else{
+                r+=365;
+            }
+        }
+        for (int i=0;i<m;i++){
+            r += tab[i];
+            if (leap_year(y)) r++;
+        }
+        r +=d;
+        return r;
+    }
+public:
+    int daysBetweenDates(string date1, string date2) {
+        return abs(getdate(date1)-getdate(date2));
+
+    }
+   
+};
+```
+
 
 
 ## medium
@@ -1554,4 +1614,65 @@ public:
 ```
 
 
+
+### 2. [330. 按要求补齐数组](https://leetcode-cn.com/problems/patching-array/)
+
+```c++
+class Solution {
+public:
+    int minPatches(vector<int>& nums, int n) {
+        int patches = 0;
+        long long x = 1;
+        int length = nums.size(),index =0;
+        while(x<=n){
+            if (index <length && nums[index]<=x){
+                x +=nums[index];
+                index++;
+            }else{
+                x<<=1;
+                patches++;
+            }
+        }
+
+        return patches;
+    }
+};
+```
+
+### 3. [440. 字典序的第K小数字](https://leetcode-cn.com/problems/k-th-smallest-in-lexicographical-order/)
+
+```c++
+class Solution {
+public:
+    #define  LL long long
+    int findKthNumber(int n, int k) {
+        int prefix = 1;
+        k--;
+        while (k>0){
+            int cnt = getCnt(n,prefix);
+            if (cnt<=k){ // 向右
+                k -= cnt;
+                prefix++;
+            }else{      //向下
+                k--;
+                prefix *= 10;
+            }
+        }
+        return prefix;
+        
+
+
+    }
+    int getCnt(LL n,LL prefix){
+        LL cnt =0;
+        for(LL first = prefix,second= prefix+1;first<=n; first *= 10 , second*=10){
+            cout << first<<endl;
+            cnt += min(n+1,second) - first;
+            cout<<"cnt:"<<cnt<<endl;
+        }
+        return cnt;
+    }
+
+};
+```
 
