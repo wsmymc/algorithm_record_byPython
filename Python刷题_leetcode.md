@@ -9540,6 +9540,106 @@ class Solution:
             else:
                 right = intervals[i][1] 
         return res
+    
+class Solution:
+    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+        n = len(intervals)
+        if n==0:
+            return 0
+        dp = [1]*n
+        intervals.sort(key = lambda x:x[0])
+        # 一种变相的递增子序列问题，实际上在排序之后，比较的是前一节的末尾和后一节的首尾，<= 的话，就是“递增”可以增加长度
+        for i in range(n):
+            # 因为开始时间的，所以这里是倒着走的，一旦遇到合适的就可以剪枝
+            for j in range(i-1,-1,-1):
+                if intervals[i][0] >= intervals[j][1]:
+                    dp[i] = max(dp[i], dp[j]+1)
+                    break
+        return n - max(dp)
+    
+
+
+        
+```
+
+#### 138. [300. 最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)
+
+```python
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        # 以i为结尾的最长子序列长度，从左到右动态规划
+        n = len(nums)
+        if n==0:
+            return 0
+        dp =[1] *n 
+        res = 1
+        for i in range(n):
+            for j in range(i):
+                if nums[i]>nums[j]:
+                    dp[i] = max(dp[i],dp[j]+1)
+                    res = max(res,dp[i])
+        return res
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        # 维护一个增长梯度最小的数组，新来的数如果大于最后一个，就加进来，否则用二分查找的方式，找到第一个大于它的数字，替换掉。最后的答案是长度
+        d = []
+        for n in nums:
+            if not d or n > d[-1]:
+                d.append(n)
+            else:
+                l, r = 0, len(d) - 1
+                loc = r
+                while l <= r:
+                    mid = (l + r) // 2
+                    if d[mid] >= n:
+                        loc = mid
+                        r = mid - 1
+                    else:
+                        l = mid + 1
+                d[loc] = n
+        return len(d)
+
+
+```
+
+#### 139. [646. 最长数对链](https://leetcode-cn.com/problems/maximum-length-of-pair-chain/)
+
+```python
+class Solution:
+    def findLongestChain(self, pairs: List[List[int]]) -> int:
+        n = len(pairs)
+        if n== 0: return 0
+        dp = [1]*n
+        res = 1
+        pairs.sort(key = lambda x:(x[0],x[1]))
+        
+        for i in range(n):
+            # 因为之前的排序，所以可以倒着走，进而可以剪枝，省去无用计算
+            for j in range(i-1,-1,-1):
+                if pairs[i][0] >pairs[j][1]:
+                    dp[i] =max(dp[i],dp[j]+1)
+                    break
+                    
+
+        return max(dp)
+    
+    
+    
+### 贪心方法
+class Solution:
+    def findLongestChain(self, pairs: List[List[int]]) -> int:
+        n = len(pairs)
+        if n== 0: return 0
+        res = 1
+        pairs.sort(key = lambda x:(x[1]))
+        print(pairs)
+        
+        right = pairs[0][1]
+        for i in range(1,n):
+            if pairs[i][0]>right:
+                res +=1
+                right = pairs[i][1]
+        return res
 ```
 
 
