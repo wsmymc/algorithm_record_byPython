@@ -1725,6 +1725,54 @@ public:
         for(int i=1;i<=n;i++){
             s[i] = s[i-1] + a[i-1];
         }
+        cout<<"=================="<<endl;
+        for (int i=0;i<=n;i++){
+            cout<<s[i]<<endl;
+        }
+        LL res = 1e18;
+        // for(int i =k;i<=n;i++){
+        //     int l = i-k+1,r=i;
+        //     int mid = (l+r)/2;
+        //     // s的坐标相对a的坐标偏移了1，所以这里要减1 
+        //     LL x = a[mid-1];
+        //     LL left = x* (mid-l) -(s[mid-1] - s[l-1]);
+        //     LL right = (s[r] - s[mid]) - x*(r-mid);
+        //     res =min(res,left+right);
+        // }
+        //调整一下偏移，更易懂一些
+        for(int i =0;i+k<=n;i++){
+            int l = i,r = i+k-1;
+            int mid = (l+r)/2;
+            
+            LL x = a[mid];
+            LL left = x* (mid-l) -(s[mid] - s[l]);
+            LL right = (s[r+1] - s[mid+1]) - x*(r-mid);
+            res =min(res,left+right);
+        }
+        return res;
+
+    }
+};class Solution {
+public:
+    int minMoves(vector<int>& nums, int k) {
+        // 实际上结果将连续的1放在一起，1的相对顺序不能变，如果变的话，1和1交换没有意义，就不是最优解
+        vector<int> a;
+        for(int i=0;i<nums.size();i++){
+            if (nums[i]){
+                // 这是实际上是在做映射，将计算把每个1贴合在一起的间距，之所以-size是因为等差的，依次放到相邻的下一格
+                a.push_back(i-a.size());
+            }
+        }
+        int n = a.size();
+        for (int i =0 ;i<n;i++){
+            cout<<a[i]<<endl;
+        }
+        // 为了后面计算方便，这里搞了一个前缀和，统计相对最开始0的偏移距离,可以理解为把1从左到右码齐，每码齐一个1，所需要的总的移动次数
+        typedef long long LL;
+        vector<LL> s(n+1);
+        for(int i=1;i<=n;i++){
+            s[i] = s[i-1] + a[i-1];
+        }
         for (int i=0;i<=n;i++){
             cout<<s[i]<<endl;
         }

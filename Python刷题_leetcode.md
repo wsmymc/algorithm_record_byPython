@@ -9513,6 +9513,35 @@ class Solution:
 
 ```
 
+#### 137. [435. 无重叠区间](https://leetcode-cn.com/problems/non-overlapping-intervals/)
+
+```python
+class Solution:
+    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+        if not intervals:
+            return 0
+        # intervals.sort(key= lambda x:x[1])
+        # n = len(intervals)
+        # right = intervals[0][1]
+        # res = 1
+        # for i in range(1,n):
+        #     if intervals[i][0] >= right:
+        #         res += 1
+        #         right = intervals[i][1]
+        # return n -res
+        # 只用关注什么时候结束的，不用关心什么时候开始的，否则，（1,10）（3,4）这种情况会结果就不对了
+        intervals.sort(key= lambda x: (x[1]))
+        n = len(intervals)
+        right = intervals[0][1]
+        res =0 
+        for i in range(1,n):
+            if right> intervals[i][0]:
+                res += 1
+            else:
+                right = intervals[i][1] 
+        return res
+```
+
 
 
 ## hard
