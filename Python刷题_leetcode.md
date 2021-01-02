@@ -3607,6 +3607,44 @@ class Solution:
 
 
 
+#### 142. [669. 修剪二叉搜索树](https://leetcode-cn.com/problems/trim-a-binary-search-tree/)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def trimBST(self, root: TreeNode, low: int, high: int) -> TreeNode:
+        _root = TreeNode()
+        def dfs(node,l,r):
+            print('===============')
+            print(node.val, l,r)
+            
+            if node.val <l:
+                if node.right:
+                    print('go right')
+                    return dfs(node.right,l,r)
+                return None
+            if node.val>r:
+                if node.left:
+                    print('go left')
+                    return dfs(node.left,l,r)
+                return None
+            tmp = TreeNode(node.val)
+            if node.left:
+                    tmp.left = dfs(node.left,l,r)
+            if node.right:
+                    tmp.right= dfs(node.right,l,r)
+            return tmp
+        _root = dfs(root,low,high)
+        return _root
+
+            
+```
+
 
 
 
@@ -9642,6 +9680,36 @@ class Solution:
         return res
 ```
 
+#### 140. [673. 最长递增子序列的个数](https://leetcode-cn.com/problems/number-of-longest-increasing-subsequence/)
+
+```python
+class Solution:
+    def findNumberOfLIS(self, nums: List[int]) -> int:
+        n = len(nums)
+        dp = [1] *n
+        # 最长递增子序列的变种
+        # 需要记录每个i结尾的长度的次数
+        cnt = [1]*n
+        for i in range(1,n):
+            for j in range(i):
+                if nums[i]>nums[j]:
+                    t = dp[j]+1
+                    # 这里不能使用max,是因为需要统计长度，如果dp[j]+1 <dp[j] ,本来不要考虑的，使用max以后，作为dp[i],干扰结果
+                    # if the value show the first time,flush the dp[i],and add the cnt bofore
+                    if t>dp[i]:
+                        dp[i] = t
+                        cnt[i] = cnt[j]
+                    # if the value show more times,add the cnt bofore
+                    elif t == dp[i]:
+                        cnt[i] += cnt[j]
+        length = max(dp)
+        res = 0
+        for i in range(n):
+            if dp[i] == length:
+                res += cnt[i]
+        return resa
+```
+
 
 
 ## hard
@@ -11059,6 +11127,92 @@ class Solution:
                 cnt += 1
         return cnt
 ```
+
+#### 35. [239. 滑动窗口最大值](https://leetcode-cn.com/problems/sliding-window-maximum/)
+
+```python
+class Solution:
+    # 堆解法
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        n = len(nums)
+        q = [(-nums[i], i ) for i in range(k)]
+        heapq.heapify(q)
+
+        res = [-q[0][0]]
+        for i in range(k, n):
+            heapq.heappush(q,(-nums[i],i))
+            while q[0][1]<= i-k:
+                heapq.heappop(q)
+            res.append(-q[0][0])
+        return res
+    
+    
+class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        # 能够用堆解决的题的，大概都能用单调队列解决
+
+        n = len(nums)
+        q = collections.deque()
+        for i in range(k):
+            while q and nums[i] >= nums[q[-1]]:
+                q.pop()
+            q.append(i)
+
+        res = [nums[q[0]]]
+        for i in range(k,n):
+            while q and nums[i]>=nums[q[-1]]:
+                q.pop()
+            q.append(i)
+            while q[0]<= i-k:
+                q.popleft()
+            res.append(nums[q[0]])
+        return res
+        
+        
+        
+class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        # 稀疏表法，具体看题解
+        n = len(nums)
+        prefixMax, suffixMax = [0] * n, [0] * n
+        for i in range(n):
+            if i % k == 0:
+                prefixMax[i] = nums[i]
+            else:
+                prefixMax[i] = max(prefixMax[i - 1], nums[i])
+        for i in range(n - 1, -1, -1):
+            if i == n - 1 or (i + 1) % k == 0:
+                suffixMax[i] = nums[i]
+            else:
+                suffixMax[i] = max(suffixMax[i + 1], nums[i])
+
+        ans = [max(suffixMax[i], prefixMax[i + k - 1]) for i in range(n - k + 1)]
+        return ans
+
+# 作者：LeetCode-Solution
+# 链接：https://leetcode-cn.com/problems/sliding-window-maximum/solution/hua-dong-chuang-kou-zui-da-zhi-by-leetco-ki6m/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 36. [960. 删列造序 III](https://leetcode-cn.com/problems/delete-columns-to-make-sorted-iii/)
+
+```python
+class Solution:
+    def minDeletionSize(self, A: List[str]) -> int:
+        # 本质上是多个数组的最长递增子序列，递增的是字典序
+        keep= 1
+        m,n = len(A),len(A[0])
+        dp = [1]*n
+        for j in range(n):
+            for k in range(j+1,n):
+                if all([A[i][k] >= A[i][j] for i in range(m)]):
+                    dp[k] = max(dp[k],dp[j]+1)
+                    keep = max(keep, dp[k])
+        return n-keep
+```
+
+
 
 
 
