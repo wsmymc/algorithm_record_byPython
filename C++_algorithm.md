@@ -1069,6 +1069,28 @@ public:
 
 
 
+### 49. [5641. 卡车上的最大单元数](https://leetcode-cn.com/problems/maximum-units-on-a-truck/)
+
+```c++
+class Solution {
+public:
+    int maximumUnits(vector<vector<int>>& b, int m) {
+        // 匿名函数写法。可以再熟悉一下
+        sort(b.begin(),b.end(),[](vector<int> a, vector<int>b){
+            return a[1]>b[1];
+        });
+        int res =0;
+        for (int i=0;i<b.size();i++){
+            int cur = min(b[i][0], m);
+            res += cur * b[i][1];
+            m -= cur;
+        }
+        return res;
+
+    }
+};
+```
+
 
 
 
@@ -1579,6 +1601,58 @@ public:
 
 ```
 
+### 15. [5642. 大餐计数](https://leetcode-cn.com/problems/count-good-meals/)
+
+```C++
+class Solution {
+public:
+    int countPairs(vector<int>& d) {
+        unordered_map<int,int> map;
+        int res =0, mod= 1e9+7;
+        for(auto x:d){
+            for (int i=0;i<=21;i++){
+                int t= (1<<i) - x;
+                if(map.count(t))
+                    res = (res + map[t]) % mod;
+
+            }
+            map[x] ++;
+        }
+        return res;
+
+    }
+};
+```
+
+### 16. [5643. 将数组分成三个子数组的方案数](https://leetcode-cn.com/problems/ways-to-split-array-into-three-subarrays/)
+
+```c++
+class Solution {
+public:
+    int waysToSplit(vector<int>& nums) {
+        // 前缀和 + 双指针算法
+        // 首先用前缀和方便后面计算
+        int n = nums.size(), mod= 1e9+7;
+        vector<int> s(n+1);
+        for(int i=1;i<=n;i++) s[i] = s[i-1] + nums[i-1];
+        int res =0;
+        // 实际是两个双指针，i表示靠右的分界，从最小值3 不断右移.  j,k表示靠左分界的上下界限，每一次确定i以后，通过不断符合条件的判定，确定j,k的位置，进而确定在当前i的情况下，有几种可能
+        for(int i=3,j=2,k=2;i<=n;i++){
+            while (s[n]- s[i-1] < s[i-1]-s[j-1])  j++;
+            while (k+1<i && s[i-1]-s[k] >= s[k]) k++;
+            if (j<=k &&  (s[n]- s[i-1]) >= s[i-1]-s[j-1]  && s[i-1]-s[k-1] >= s[k-1])
+                res = (res+ k-j+1) % mod;
+
+        }
+        return res;
+
+
+
+
+    }
+};
+```
+
 
 
 ## hard
@@ -1787,6 +1861,41 @@ public:
             res =min(res,left+right);
         }
         return res;
+
+    }
+};
+```
+
+### 5.[5644. 得到子序列的最少操作次数](https://leetcode-cn.com/problems/minimum-operations-to-make-a-subsequence/)
+
+```C++
+// 转化成最长公共子序列问题，貌似需要模板，稍后看看
+class Solution {
+public:
+    int minOperations(vector<int>& target, vector<int>& arr) {
+        unordered_map<int, int> pos;
+        for (int i=0;i<target.size();i++){
+            pos[target[i]] =i;
+        }
+        vector<int> a;
+        for(auto x:arr){
+            if (pos.count(x)){
+                a.push_back(pos[x]);
+            }
+        }
+        int len =0;
+        vector<int> q(a.size()+1);
+        for(int i=0;i<a.size();i++){
+            int l=0,r = len;
+            while(l<r){
+                int mid = (l+r+1)>>1;
+                if(q[mid]<a[i]) l =mid;
+                else r =mid-1;
+            }
+            len = max(len,r+1);
+            q[r+1] = a[i];
+        }
+        return target.size()-len;
 
     }
 };

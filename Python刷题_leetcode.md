@@ -3647,6 +3647,29 @@ class Solution:
 
 
 
+#### 143. [5641. 卡车上的最大单元数](https://leetcode-cn.com/problems/maximum-units-on-a-truck/)
+
+```python
+from typing import List
+
+
+class Solution:
+    def maximumUnits(self, boxTypes: List[List[int]], truckSize: int) -> int:
+        boxTypes.sort(key=lambda x: -x[1])
+        res = 0
+        n = len(boxTypes)
+        for i in range(n):
+            if boxTypes[i][0]<truckSize:
+                res += boxTypes[i][0] * boxTypes[i][1]
+                truckSize -= boxTypes[i][0]
+            else:
+                res += truckSize*boxTypes[i][1]
+                break
+        return res
+
+
+```
+
 
 
 
@@ -9708,6 +9731,143 @@ class Solution:
             if dp[i] == length:
                 res += cnt[i]
         return resa
+```
+
+#### 141. [5642. 大餐计数](https://leetcode-cn.com/problems/count-good-meals/)
+
+```python
+from typing import List
+import collections
+
+class Solution:
+    def countPairs(self, deliciousness: List[int]) -> int:
+        pin = 10**9 +7
+        rc= []
+        i = 0
+        _max = 2*(10**5)
+        t = 0
+        # 直接按照数量级最小估计，在大数据中没有超时，但是，没有数字没有枚举全，所以出错，竞赛时，可以考虑枚举的多一点，覆盖全
+        while i <= 21:
+            t = 2**i
+            rc.append(t)
+            i +=1
+        #print(rc)
+        res = 0
+        cnt = collections.Counter(deliciousness)
+        tmp = list(cnt.keys())
+        tmp.sort()
+        n = len(tmp)
+        s = set(tmp)
+        # print(tmp)
+        # print(cnt)
+        used = set()
+        for i in range(n):
+            for j in range(len(rc)):
+                t = rc[j] - tmp[i]
+                if t in s and t not in used:
+                    # print('res:',res)
+                    if t == tmp[i]:
+                        res += (cnt[tmp[i]] - 1) * cnt[tmp[i]] // 2
+                        res %=pin
+                    else:
+                        # print(tmp[i],t)
+                        res += cnt[tmp[i]] * cnt[t]
+                        res %=pin
+                    used.add(tmp[i])
+            # for j in range(i,n):
+            #     t = tmp[i]+ tmp[j]
+            #     if bin(t).count('1') == 1:
+            #         if i ==j:
+            #             res += (cnt[tmp[i]]-1) * cnt[tmp[i]] //2
+            #             res %=pin
+            #         else:
+            #             res += cnt[tmp[i]] * cnt[tmp[j]]
+            #             res %=pin
+        return res
+
+### 另一种更普遍的解法，运行不快，但是好想
+class Solution:
+    def countPairs(self, deliciousness: List[int]) -> int:
+        dic = collections.defaultdict(int)
+        res =0 
+        mod= int(1e9+7)
+        for x in deliciousness:
+            for i in range(22):
+                t = (1<<i)-x
+                if t in dic:
+                    res  = (res + dic[t]) % mod
+            dic[x] +=1
+        return res
+
+```
+
+#### 142. [5643. 将数组分成三个子数组的方案数](https://leetcode-cn.com/problems/ways-to-split-array-into-three-subarrays/)
+
+```python
+class Solution:
+    # 方法可行，从C++“翻译”过来的，不过在python中貌似超时了
+    def waysToSplit(self, nums: List[int]) -> int:
+        n = len(nums)
+        mod = 10**9+7
+        s= [0]*(n+1)
+        for i in range(1,n+1):
+            s[i] = s[i-1] + nums[i-1]
+        res = 0
+        for i in range(3,n+1):
+            j=k=2
+            # 第一个符合条件的
+            while s[n]-s[i-1]<s[i-1] - s[j-1]: j+=1
+            # 最后一个符合条件的
+            while k+1<i and s[i-1] - s[k]>= s[k]: k+=1
+            if j<=k and (s[n]-s[i-1]>=s[i-1]-s[j-1]) and (s[i-1] -s[k-1] >= s[k-1]):
+                res = (res + k-j+1) % mod
+        return res
+    
+    
+    
+## 看评论区提到二分，在上面的基础上，写了两个二分，一点剪枝，终于AC了
+class Solution:
+    def waysToSplit(self, nums: List[int]) -> int:
+        n = len(nums)
+        mod = 10**9+7
+        s= [0]
+        for i in range(1,n+1):
+            s.append(s[-1] +nums[i-1])
+        def bin_search(l,r):
+            while l<r:
+                mid = (l+r)>>1
+                if s[n] - s[i-1] < s[i-1] - s[mid-1]:
+                    l = mid+1
+                else:
+                    r = mid
+            return l
+        def bin_search1(l,r):
+            while l<r:
+                mid = (l+r)>>1
+                if s[i-1] - s[mid] >= s[mid]:
+                    l = mid+1
+                else:
+                    r = mid
+            return l
+
+        res = 0
+        for i in range(3,n+1):
+            j=k=2
+            if (s[n] - s[i-1]) * 3 < s[n]:
+                break
+            # 第一个符合条件的
+            # while s[n]-s[i-1]<s[i-1] - s[j-1]: j+=1
+            j = bin_search(2,i)
+            #print(i,j)
+
+            # 最后一个符合条件的
+            k =j
+            #while k+1<i and s[i-1] - s[k]>= s[k]: k+=1
+            k = bin_search1(j,i-1)
+            #print(i,k)
+            if j<=k and (s[n]-s[i-1]>=s[i-1]-s[j-1]) and (s[i-1] -s[k-1] >= s[k-1]):
+                res = (res + k-j+1) % mod
+        return res
 ```
 
 
