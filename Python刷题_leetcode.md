@@ -323,6 +323,33 @@ heapq.nsmallest(n, iterable, key=None)
 # 查看堆顶元素，heap[0],其实就是特殊排序的数组
 ```
 
+#### 25. bisect 模块
+
+```python
+# 用于二分的模块，熟练使用的话，刷题节省时间
+"""
+bisect.bisect_left(a, x, lo=0, hi=len(a))
+在 a 中找到 x 合适的插入点以维持有序。参数 lo 和 hi 可以被用于确定需要考虑的子集；默认情况下整个列表都会被使用。如果 x 已经在 a 里存在，那么插入点会在已存在元素之前（也就是左边）。如果 a 是列表（list）的话，返回值是可以被放在 list.insert() 的第一个参数的。
+
+返回的插入点 i 可以将数组 a 分成两部分。左侧是 all(val < x for val in a[lo:i]) ，右侧是 all(val >= x for val in a[i:hi]) 。
+
+bisect.bisect_right(a, x, lo=0, hi=len(a))¶
+bisect.bisect(a, x, lo=0, hi=len(a))
+类似于 bisect_left()，但是返回的插入点是 a 中已存在元素 x 的右侧。
+
+返回的插入点 i 可以将数组 a 分成两部分。左侧是 all(val <= x for val in a[lo:i])，右侧是 all(val > x for val in a[i:hi]) for the right side。
+
+
+=====================上面是查询位置，并不会实际插入，下面的方法会实际插入=======
+
+bisect.insort_left(a, x, lo=0, hi=len(a))
+将 x 插入到一个有序序列 a 里，并维持其有序。如果 a 有序的话，这相当于 a.insert(bisect.bisect_left(a, x, lo, hi), x)。要注意搜索是 O(log n) 的，插入却是 O(n) 的。
+
+bisect.insort_right(a, x, lo=0, hi=len(a))
+bisect.insort(a, x, lo=0, hi=len(a))
+类似于 insort_left()，但是把 x 插入到 a 中已存在元素 x 的右侧。"""
+```
+
 
 
 ## easy
@@ -3666,6 +3693,39 @@ class Solution:
                 res += truckSize*boxTypes[i][1]
                 break
         return res
+
+
+```
+
+#### 144. [1337. 矩阵中战斗力最弱的 K 行](https://leetcode-cn.com/problems/the-k-weakest-rows-in-a-matrix/)
+
+```python
+class Solution:
+    def kWeakestRows(self, mat: List[List[int]], k: int) -> List[int]:
+        m, n = len(mat), len(mat[0])
+        res = []
+        for i in range(m):
+            t = sum(mat[i])
+            res.append((t, i))
+        res.sort(key = lambda x:(x[0],x[1]))
+        r = []
+        for i in range(k):
+            r.append(res[i][1])
+        return r
+
+## 二分写法
+class Solution:
+    def kWeakestRows(self, mat: List[List[int]], k: int) -> List[int]:
+        m, n = len(mat), len(mat[0])
+        res = []
+        rc= []
+        for i in range(m):
+            t = sum(mat[i])
+            idx = bisect.bisect_right(rc,t)
+            rc.insert(idx,t)
+            res.insert(idx,i)
+        return res[:k]
+            
 
 
 ```
@@ -9867,6 +9927,34 @@ class Solution:
             #print(i,k)
             if j<=k and (s[n]-s[i-1]>=s[i-1]-s[j-1]) and (s[i-1] -s[k-1] >= s[k-1]):
                 res = (res + k-j+1) % mod
+        return res
+```
+
+#### 143. [1019. 链表中的下一个更大节点](https://leetcode-cn.com/problems/next-greater-node-in-linked-list/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def nextLargerNodes(self, head: ListNode) -> List[int]:
+        stack = []
+        stack_pos=  []
+        pos= -1
+        res =[]
+        while head:
+            pos +=1
+            res.append(0)  # 先拿0 填充，后面操作栈的时候可以刷新
+            while stack and stack[-1] <head.val:
+                res[stack_pos[-1]] = head.val
+                stack.pop()
+                stack_pos.pop()
+            stack.append(head.val)
+            stack_pos.append(pos)
+            head = head.next
         return res
 ```
 
