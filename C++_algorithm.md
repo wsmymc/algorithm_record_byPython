@@ -1091,7 +1091,31 @@ public:
 };
 ```
 
+###  [1337. 矩阵中战斗力最弱的 K 行](https://leetcode-cn.com/problems/the-k-weakest-rows-in-a-matrix/)
 
+```c++
+class Solution {
+public:
+    vector<int> kWeakestRows(vector<vector<int>>& mat, int k) {
+        int n = mat.size();
+        vector<pair<int, int>> power;
+        for (int i = 0; i < n; ++i) {
+            // 累计算法
+            int sum = accumulate(mat[i].begin(), mat[i].end(), 0);
+            power.emplace_back(sum, i);
+        }
+
+        sort(power.begin(), power.end());
+        vector<int> ans;
+        for (int i = 0; i < k; ++i) {
+            ans.push_back(power[i].second);
+        }
+        return ans;
+    }
+};
+
+
+```
 
 
 
@@ -1653,7 +1677,58 @@ public:
 };
 ```
 
+ ### 17. [1019. 链表中的下一个更大节点](https://leetcode-cn.com/problems/next-greater-node-in-linked-list/)
 
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> nextLargerNodes(ListNode *head)
+    {
+        int count = 0; //计数，作为下标
+        vector<int> result;
+        stack<pair<int, int>> tmp; //first为val，second为下标
+        while (head)
+        {
+            result.push_back(0); //给result数组后面+0，1为保证长度，2是默认值（后无更大的值的话）为0
+            while (!tmp.empty() &&
+                   head->val > tmp.top().first) //栈不为空且head指针的val值大于栈顶的元素的值
+            {
+                result[tmp.top().second] = head->val; //result数组修改，满足题意要求的最大值，然后出栈，继续循环
+                tmp.pop();
+            }
+            tmp.push(make_pair(head->val, count++)); //count++计数
+            head = head->next; //下一个节点
+        }
+        return result;
+    }
+};
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 ## hard
 

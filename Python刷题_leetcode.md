@@ -9940,6 +9940,7 @@ class Solution:
 #         self.next = None
 
 class Solution:
+    # 单调栈玩法，记录位置和值，到达触发条件后更新结果集
     def nextLargerNodes(self, head: ListNode) -> List[int]:
         stack = []
         stack_pos=  []
