@@ -154,6 +154,33 @@ func deleteNode(node *ListNode) {
 
 
 
+### 8. [278. 第一个错误的版本](https://leetcode-cn.com/problems/first-bad-version/)
+
+```go
+/** 
+ * Forward declaration of isBadVersion API.
+ * @param   version   your guess about first bad version
+ * @return 	 	      true if current version is bad 
+ *			          false if current version is good
+ * func isBadVersion(version int) bool;
+ */
+
+func firstBadVersion(n int) int {
+    l := 1
+    r := n
+    for l <r {
+        mid := (l+r )>>1
+        if isBadVersion(mid){
+            r = mid
+        }else{
+            l = mid +1
+        }
+    }
+    return l
+    
+}
+```
+
 
 
 
@@ -200,6 +227,42 @@ func canFinish(numCourses int, prerequisites [][]int) bool {
     return valid
 }
 ```
+
+
+
+### 2. [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/)
+
+```go
+func smallestSubsequence(s string) string {
+    count := [26]int{}
+    exist := [26]bool{}
+
+    for i:=0;i<len(s);i++{
+        count[s[i]-'a']++
+    }
+    res := make([]byte,0)
+    for _,ch := range s{
+        if !exist[ch-'a']{
+            for len(res)>0 && uint8(ch) < res[len(res)-1] && count[res[len(res)-1] - 'a']>0{
+                exist[res[len(res)-1]-'a'] = false
+                res = res[:len(res)-1]
+            }
+            res = append(res,uint8(ch))
+            exist[res[len(res)-1]-'a'] = true
+        }
+        count[ch-'a']--
+
+    }
+    return string(res)
+
+}
+```
+
+
+
+
+
+
 
 
 

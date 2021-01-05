@@ -1091,7 +1091,7 @@ public:
 };
 ```
 
-###  [1337. 矩阵中战斗力最弱的 K 行](https://leetcode-cn.com/problems/the-k-weakest-rows-in-a-matrix/)
+### 50. [1337. 矩阵中战斗力最弱的 K 行](https://leetcode-cn.com/problems/the-k-weakest-rows-in-a-matrix/)
 
 ```c++
 class Solution {
@@ -1115,6 +1115,56 @@ public:
 };
 
 
+```
+
+### 51. [830. 较大分组的位置](https://leetcode-cn.com/problems/positions-of-large-groups/)
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> largeGroupPositions(string s) {
+        int pre= 0;
+        vector<vector<int>> res ;
+        int i;
+        for ( i =1;i<s.size();i++)
+        {
+            if(s[i] == s[i-1]) continue;
+            else
+            {
+                if (i-pre  >=3)
+                {
+                    res.push_back(vector<int>{pre,i-1});
+                }
+                pre = i;
+            }
+        }
+        if(i-pre>=3) res.push_back(vector<int>{pre,i-1});
+        return res;
+
+    }
+};
+```
+
+### 52. [278. 第一个错误的版本](https://leetcode-cn.com/problems/first-bad-version/)
+
+```c++
+// The API isBadVersion is defined for you.
+// bool isBadVersion(int version);
+
+class Solution {
+public:
+    int firstBadVersion(int n) {
+        long long l=1, r= n;
+        while (l<r)
+        {
+            long long mid = (l+r)>>1;
+            if (isBadVersion(mid)) r =mid;
+            else l =  mid+1;
+        }
+        return int(l);
+        
+    }
+};
 ```
 
 
@@ -1716,7 +1766,131 @@ public:
 
 
 
+### 18. [402. 移掉K位数字](https://leetcode-cn.com/problems/remove-k-digits/)
 
+```C++
+class Solution {
+public:
+    string removeKdigits(string num, int k) {
+        int  n = num.size();
+        if (n <=k)
+        {
+            return "0";
+        }
+        vector<char> stk;
+        for (auto &c:num)
+        {
+            while( k && !stk.empty() && stk.back() > c)
+            {
+                stk.pop_back();
+                k--;
+            }
+            stk.push_back(c);
+        }
+        string res = "";
+        //for (int i =0;i<stk.size();i++) cout<<stk[i]<<endl;
+        //这里的k在上面循环中被改变了，所以需要用size来减
+        int last = stk.size() -k;
+        bool leadingZero = true;
+        for(auto c : stk){
+            //cout<<"last"<<last<<endl;
+            if (leadingZero && c == '0'){
+                last--;
+                if (last == 0){
+                    break;
+                }
+                continue;
+            }
+            leadingZero = false;
+            res += c;
+            last--;
+            if (last == 0){
+                    break;
+                }
+        }
+        return res==""?"0":res;
+
+
+
+    }
+};
+```
+
+
+
+### 19. [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/)
+
+```C++
+class Solution {
+public:
+    // C++的pop不返回东西，所以需要提前取
+    // set的删除是erase
+    string smallestSubsequence(string s) {
+        unordered_map <char ,int> hash;
+        for (auto c : s){
+            hash[c]++;
+        }
+        set<char> used;
+        vector<char> stk;
+        for(auto c:s){
+            if(used.count(c) == 0){
+                while(!stk.empty() && stk.back()>c && hash[stk.back()]>=1){
+                    char t= stk.back();
+                    stk.pop_back();
+                    used.erase(t);             
+                }
+                used.insert(c);
+                stk.push_back(c);
+
+            }
+            hash[c]--;
+        }
+        string res ="";
+        for (auto c:stk){
+            res += c;
+        }
+        return res;
+        
+
+
+    }
+};
+
+
+// 集合可预测的情况，用vector可能比set更快
+// C++的string类型一定程度上可以视为vector，empty(), back(),push_back/pop_back()都可以
+
+class Solution {
+public:
+    string smallestSubsequence(string s) {
+        vector<int> vis(26), num(26);
+        for (char ch : s) {
+            num[ch - 'a']++;
+        }
+
+        string stk;
+        for (char ch : s) {
+            if (!vis[ch - 'a']) {
+                while (!stk.empty() && stk.back() > ch) {
+                    if (num[stk.back() - 'a'] > 0) {
+                        vis[stk.back() - 'a'] = 0;
+                        stk.pop_back();
+                    } else {
+                        break;
+                    }
+                }
+                vis[ch - 'a'] = 1;
+                stk.push_back(ch);
+            }
+            num[ch - 'a'] -= 1;
+        }
+        return stk;
+
+
+
+    }
+};
+```
 
 
 

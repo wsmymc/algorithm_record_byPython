@@ -3730,6 +3730,31 @@ class Solution:
 
 ```
 
+#### 145. [278. 第一个错误的版本](https://leetcode-cn.com/problems/first-bad-version/)
+
+```python
+# The isBadVersion API is already defined for you.
+# @param version, an integer
+# @return an integer
+# def isBadVersion(version):
+
+class Solution:
+    def firstBadVersion(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        l = 1
+        r= n
+        while l<r:
+            mid = l+r >>1
+            if isBadVersion(mid):
+                r = mid
+            else:
+                l = mid +1
+        return l
+```
+
 
 
 
@@ -9958,6 +9983,64 @@ class Solution:
             head = head.next
         return res
 ```
+
+#### 144. [402. 移掉K位数字](https://leetcode-cn.com/problems/remove-k-digits/)
+
+```python
+class Solution:
+    def removeKdigits(self, num: str, k: int) -> str:
+        """对于两个数 123a456 和 123b456，如果 a > b， 那么数字 123a456 大于 数字 123b456，否则数字             123a456 小于等于数字 123b456。也就说，两个相同位数的数字大小关系取决于第一个不同的数的大小。
+
+            因此我们的思路就是：
+
+            从左到右遍历
+            对于遍历到的元素，我们选择保留。
+            但是我们可以选择性丢弃前面相邻的元素。
+            丢弃与否的依据如上面的前置知识中阐述中的方法。
+        """
+        if k >= len(num):
+            return '0'
+        stack = []
+        remain = len(num) - k
+        # 维持一个递增的单调栈，最后取前n个，避免原序列本身就是递增的，栈中元素超过k的尴尬
+        # 不用担心后面的值不符合栈的规则，因为只能删除k个，且数字的相对位置不变，所以这里有一定贪心的想法——使开始部分为递增（也就是最小值）最优，因为这部分的权重最大
+        for digit in num:
+            # 删除k次完成以后，后面的数字就自然加入了，不走while 了
+            while k and stack and stack[-1]>digit:
+                stack.pop()
+                k -=1
+            stack.append(digit)
+        return "".join(stack[:remain]).lstrip('0') or '0' # lstrip 去除前导0，如果是去除之后是空字符串，就直接返回‘0’
+        
+```
+
+#### 135. [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/)
+
+```python
+class Solution:
+    def smallestSubsequence(self, s: str) -> str:
+        stack = []
+        seen = set()
+        cnt = collections.Counter(s)
+
+        for c in s:
+            if c not in seen:
+                while stack and c<stack[-1] and cnt[stack[-1]] >=1:
+                    seen.discard(stack.pop())
+                seen.add(c)
+                stack.append(c)
+            cnt[c] -=1
+        return "".join(stack)
+
+```
+
+
+
+
+
+
+
+
 
 
 
