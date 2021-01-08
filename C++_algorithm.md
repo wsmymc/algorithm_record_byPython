@@ -1167,6 +1167,85 @@ public:
 };
 ```
 
+### 53. [367. 有效的完全平方数](https://leetcode-cn.com/problems/valid-perfect-square/)
+
+```c++
+class Solution {
+public:
+    bool isPerfectSquare(int num) {
+        typedef long long LL;
+        LL l = 1,r = num/2+1;
+        while (l<r){
+            LL mid = (l+r)>>1;
+            if (mid*mid>=num) r = mid;
+            else l =mid+1;
+        }
+        return l*l ==num;
+
+    }
+};
+```
+
+### 54.[345. 反转字符串中的元音字母](https://leetcode-cn.com/problems/reverse-vowels-of-a-string/)
+
+```python
+class Solution {
+public:
+    string reverseVowels(string s) {
+        if (s.empty()) {
+            return s;
+        }
+        unordered_set<char> vowelDict = {'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'};
+        int N = s.size();
+        int i = 0;
+        int j = N - 1;
+        while (i < j) {
+            while (i < j && !vowelDict.count(s[i])) {
+                i++; // find a vowel from left
+            }
+            while (j > i && !vowelDict.count(s[j])) {
+                j--; // find a vowel from right; 
+            }
+            // 还是那句话，c++里的stirng当成vector，数组，不要当成其他语言里面不可变的字符串
+            swap(s[i], s[j]);
+            i++;
+            j--;
+        }
+
+        return s;
+
+
+    }
+};
+```
+
+
+
+### 55. [342. 4的幂](https://leetcode-cn.com/problems/power-of-four/)
+
+```C++
+class Solution {
+public:
+    bool isPowerOfFour(int n) {
+        // 位运算优先级很低，记得带括号
+        // 4的幂首先是2的幂，所以用lowbit判断二进制中是否只有1格1
+        // 4 进制是2的偶数次幂，2^(2k) = 4^(k) = (3+1)^k 
+        // (3+1)^k mod 3 ==1
+        return (n>0) && ((n&(n-1)) == 0) && (n %3==1);
+        
+
+    }
+};
+```
+
+
+
+
+
+
+
+
+
 
 
 ## medium

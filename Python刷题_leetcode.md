@@ -3755,6 +3755,74 @@ class Solution:
         return l
 ```
 
+#### 146.[345. 反转字符串中的元音字母](https://leetcode-cn.com/problems/reverse-vowels-of-a-string/)
+
+```python
+class Solution:
+    def reverseVowels(self, s: str) -> str:
+        # stk = []
+        # sc = []
+        # idx = []
+        # for i,c in enumerate(s):
+        #     if c in ['a','e','i','o','u','A','E','I','O','U']:
+        #         stk.append(c)
+        #         idx.append(i)
+        #     sc.append(c)
+        # stk.reverse()
+        # # print(sc)
+        # # print(stk)
+        # # print(idx)
+        # for i in range(len(idx)):
+
+        #     sc[idx[i]] = stk[i]
+        # return "".join(sc)
+        array = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']
+        sList = list(s)
+        left, right = 0, len(s)-1
+        while left < right:
+            if sList[left] in array and sList[right] in array:
+                sList[left], sList[right] = sList[right], sList[left]
+                left += 1
+                right -= 1
+            if sList[right] not in array:
+                right -= 1
+            if sList[left] not in array:
+                left += 1
+        return ''.join(sList)
+```
+
+#### 147. [367. 有效的完全平方数](https://leetcode-cn.com/problems/valid-perfect-square/)
+
+```python
+class Solution:
+    def isPerfectSquare(self, num: int) -> bool:
+        if num ==1:
+            return True
+        l = 1
+        r =num
+        while l<r:
+            mid = (l+r)>>1
+            if (mid*mid)>=num:
+                r = mid
+            else:
+                l = mid+1
+        return l*l == num
+```
+
+#### 148. [342. 4的幂](https://leetcode-cn.com/problems/power-of-four/)
+
+```python
+class Solution:
+    def isPowerOfFour(self, n: int) -> bool:
+        # while n >1:
+        #     if n%4 == 0:
+        #         n //=4
+        #     else:
+        #         return False
+        # return n ==1
+        return log2(n)%2 == 0
+```
+
 
 
 
@@ -10014,7 +10082,7 @@ class Solution:
         
 ```
 
-#### 135. [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/)
+#### 145. [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/)
 
 ```python
 class Solution:
@@ -10035,6 +10103,64 @@ class Solution:
 ```
 
 
+
+#### 146. [399. 除法求值](https://leetcode-cn.com/problems/evaluate-division/)
+
+```python
+class Solution:
+    # 带权并查集不是很好做
+    # 虽然是中等，实际是hard难度
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        uf = UnionFind()
+        for (x,y),val in zip(equations,values):
+            uf.add(x)
+            uf.add(y)
+            uf.merge(x,y,val)
+        res = [-1.0]* len(queries)
+        for i, (a,b) in enumerate(queries):
+            if uf.is_connected(a,b):
+                res[i] = uf.value[a]/uf.value[b]
+        return res
+class UnionFind:
+    def __init__(self):
+        """记录每个节点的父节点，记录每个节点到根节点的权重"""
+        self.father= {}
+        self.value = {}
+    def find(self, x):
+        """查找根节点，路径压缩， 更新权重"""
+        root = x
+        # 节点更新时需要放大的倍数
+        base = 1
+        while self.father[root] != None:
+            root = self.father[root]
+            base *= self.value[root]
+        
+        while x != root:
+            origin_father = self.father[x]
+            self.value[x] *= base
+            base /=self.value[origin_father]
+            self.father[x] = root
+            x = origin_father
+        return root
+    def merge(self, x,y,val):
+        """合并两个节点"""
+        root_x,root_y = self.find(x), self.find(y)
+        if root_x != root_y:
+            self.father[root_x] = root_y
+            #print(root_x)
+            # print(self.value[root_x])
+            self.value[root_x] = self.value[y] * val/self.value[x]
+
+    def is_connected(self,x,y):
+        return x in self.value and y in self.value and self.find(x)== self.find(y)
+    
+    def add(self,x):
+        if x not in self.father:
+            self.father[x] = None
+            self.value[x] = 1.0
+
+
+```
 
 
 
