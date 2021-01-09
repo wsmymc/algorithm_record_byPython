@@ -11672,6 +11672,24 @@ class Solution:
 
 
 
+#### 37. [123. 买卖股票的最佳时机 III](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/)
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        dp_i10 = 0 # 2次交易完成没有股票
+        dp_i20 =0 # 1次交易完成没有股票
+        dp_i11 = float('-inf') # 1次交易完成有股票
+        dp_i21 = float('-inf') # 2次交易完成有股票
+        for p in prices:
+            # 状态轮转
+            dp_i20 = max(dp_i20, dp_i21+ p)
+            dp_i21 = max(dp_i21, dp_i10 - p)
+            dp_i10 = max(dp_i10, dp_i11 + p)
+            dp_i11 = max(dp_i11, -p)
+        return dp_i20
+```
+
 
 
 
