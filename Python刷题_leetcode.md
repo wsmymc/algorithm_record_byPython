@@ -3825,6 +3825,17 @@ class Solution:
 
 
 
+#### 149. 5649. 解码异或后的数组
+
+```python
+class Solution:
+    def decode(self, encoded: List[int], first: int) -> List[int]:
+        res = [first]
+        for i in encoded:
+            res.append(res[-1]^i)
+        return res
+```
+
 
 
 
@@ -10160,6 +10171,57 @@ class UnionFind:
             self.value[x] = 1.0
 
 
+```
+
+#### 147. 5652. 交换链表中的节点
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def swapNodes(self, head: ListNode, k: int) -> ListNode:
+        res= []
+        while head:
+            res.append(head.val);
+            head = head.next;
+        
+        res[k-1], res[len(res)-k] = res[len(res)-k], res[k-1]
+        head = ListNode()
+        cur =head
+        for i in range(len(res)):
+            tmp = ListNode(res[i])
+            cur.next = tmp
+            cur = tmp
+        return head.next
+## 不用取巧的解法，需要使用5个指针
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def swapNodes(self, head: ListNode, k: int) -> ListNode:
+        dummy = ListNode(-1)
+        dummy.next =head
+        p1,p2 =dummy,head
+        for i in range(k-1):
+            p1 = p1.next;
+            p2 = p2.next;
+        p3 = head
+        p4 =p2
+        p5 = dummy
+        while p4.next:
+            p3 = p3.next
+            p4 = p4.next
+            p5 = p5.next
+        p1.next, p5.next= p5.next,p1.next
+        p2.next, p3.next = p3.next,p2.next
+        return dummy.next
+      
+        
 ```
 
 

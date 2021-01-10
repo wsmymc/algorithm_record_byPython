@@ -1240,6 +1240,55 @@ public:
 
 
 
+### 56. [228. 汇总区间](https://leetcode-cn.com/problems/summary-ranges/)
+
+```c++
+class Solution {
+public:
+    vector<string> summaryRanges(vector<int>& nums) {
+        vector<string> res;
+        int i=0, n = nums.size();
+        while(i <n){
+            int low =i;
+            i ++;
+            while(i<n && nums[i] == nums[i-1] + 1){
+                i++;
+            }
+            int high = i-1;
+            string tmp = to_string(nums[low]);
+            if(low<high){
+                tmp.append("->");
+                tmp.append(to_string(nums[high]));
+
+            }
+            res.push_back(tmp);
+        }
+        return res;
+   
+
+
+
+    }
+};
+```
+
+### 57. 5649. 解码异或后的数组
+
+```c++
+class Solution {
+public:
+    vector<int> decode(vector<int>& encoded, int first) {
+        vector<int> res;
+        res.push_back(first);
+        for (auto i : encoded){
+            res.push_back(res.back()^i);
+        }
+        return res;
+
+    }
+};
+```
+
 
 
 
@@ -1973,9 +2022,120 @@ public:
 
 
 
+### 20 5652. 交换链表中的节点
+
+```C++
+// 竞赛时候的做法，时间为王
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* swapNodes(ListNode* head, int k) {
+        vector<int> a;
+        for(auto p =head;p;p = p->next)  a.push_back(p->val);
+        swap(a[k-1], a[a.size()-k]);
+        head = new ListNode(a[0]);
+        auto cur= head;
+        for(int i=1;i<a.size();i++){
+            cur = cur ->next = new ListNode(a[i]);
+        }
+        return head;
+
+    }
+};
+
+
+// 也可以先推前一个指针，然后在得到结果后，下一位就是交换的目标
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* swapNodes(ListNode* head, int k) {
+        auto dummy = new ListNode(-1);
+        dummy->next = head;
+        int n =0;
+        for(auto p =dummy;p;p=p->next) n++;
+        k ++;
+        auto a= dummy;
+        for(int i=0;i<k-2;i++) a= a->next;
+        auto b = dummy;
+        for(int i=0;i<n-k;i++) b = b->next;
+        swap(a->next,b->next);
+        swap(a->next->next,b->next->next);
+        // auto p1= a->next, p2 = b->next;
+        // //cout<<p1->val<<p2->val<<endl;
+        // a->next = p2, b->next = p1;
+        // auto tmp = p1->next;
+        // p1->next = p2->next;
+        // p2->next = tmp;
+        return dummy->next;
+        
+        
+        
+
+    }
+};
+```
 
 
 
+### 21. 5650. 执行交换操作后的最小汉明距离
+
+
+
+```c++
+class Solution {
+public:
+    vector<int> p;
+    
+    // 并查集find
+    int find(int x){
+        if (p[x] != x) p[x] = find(p[x]);
+        return p[x];
+    }
+    
+    int minimumHammingDistance(vector<int>& a, vector<int>& b, vector<vector<int>>& as) {
+        //需要找到一个特殊性质：可以把多个可交换相连的数对作为联通块，然后在一个连通块内部的数对，顺序可以随意变换。这里需要用到并查集
+        int n = a.size();
+        for(int i=0;i<n;i++) p.push_back(i);
+        for(auto &t:as) p[find(t[0])] = find(t[1]);
+        
+        vector<unordered_multiset<int>> hash(n);
+        for(int i=0;i<n;i++)
+            hash[find(i)].insert(a[i]);
+        int res =0;
+        for(int i=0;i<n;i++){
+            auto& h = hash[find(i)];
+            //cout<<str(h.find(b[i])<<endl;
+            if (h.count(b[i])) {
+                // 这里的find不是并查集里的find，而是set里的，返回一个迭代器，需要加* 才能看到值
+                h.erase(h.find(b[i]));
+                
+            }
+            else res ++;
+        }
+        return res;
+            
+
+    }
+};
+```
 
 
 
@@ -2244,6 +2404,47 @@ public:
             sell2 = max(sell2, buy2+p);
         }
         return sell2;
+
+    }
+};
+```
+
+### 7. 5639. 完成所有工作的最短时间
+
+```c++
+class Solution {
+public:
+    vector<int> jobs;
+    vector<int> s;
+    int res = 1e9;
+    // 暴力搜索，考虑两种可能，一种将当前任务交给之前选中的人，dfs
+    // 另一种，另开一个新的工人（假如还有工人没有任务），新开一个
+    void dfs(int a,int b, int c){
+        // 剪枝
+        if(c>res) return;
+        if(a==jobs.size()){
+            res = c;
+            return;
+            
+        }
+        for (int i=0;i<b;i++){
+            s[i]+=jobs[a];
+            dfs(a+1, b,max(c,s[i]));
+            s[i] -= jobs[a];
+        }
+        if(b<s.size()){
+            s[b] = jobs[a];
+            dfs(a+1, b+1, max(c,s[b]));
+            s[b] = 0;
+        }
+    }
+    int minimumTimeRequired(vector<int>& _jobs, int k) {
+        jobs = _jobs;
+        s.resize(k);
+        dfs(0,0,0);
+        return res;
+        
+        
 
     }
 };
