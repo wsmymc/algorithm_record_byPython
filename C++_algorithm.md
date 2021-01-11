@@ -1291,6 +1291,25 @@ public:
 
 
 
+### 58. [1716. 计算力扣银行的钱](https://leetcode-cn.com/problems/calculate-money-in-leetcode-bank/)
+
+```C++
+class Solution {
+public:
+    int totalMoney(int n) {
+         int res = 0;
+        for(int i=1, money=1; i<=n; i++){
+            res += money++;
+            if(i % 7 == 0) money = i/7 + 1;
+        }
+        return res;
+
+
+
+    }
+};
+```
+
 
 
 
@@ -2191,9 +2210,56 @@ public:
 };
 ```
 
+### 23. [1717. 删除子字符串的最大得分](https://leetcode-cn.com/problems/maximum-score-from-removing-substrings/)
+
+```c++
+class Solution {
+public:
+    int maximumGain(string a, int x, int y) {
+        stack<char> s, t;
+        int ret = 0;
+        // 处理优化
+        if(x > y) {
+            swap(x, y);
+            reverse(a.begin(), a.end());
+        } 
+        // 先处理 ba
+        for(char c : a) {
+            if(c != 'a') s.push(c);
+            else {
+                // 形成 ba 子字符串
+                if(!s.empty() && s.top() == 'b') {
+                    s.pop();
+                    ret += y;
+                } else {
+                    s.push(c);
+                }
+            }
+        }
+        // 再处理 ab
+        while(!s.empty()) {
+            char c = s.top();
+            s.pop();
+            if(c != 'a') t.push(c);
+            else {
+                if(!t.empty() && t.top() == 'b') {
+                    t.pop();
+                    ret += x;
+                } else {
+                    t.push(c);
+                }
+            }
+        }
+        return ret;
 
 
- 
+    }
+};
+```
+
+
+
+
 
 ## hard
 

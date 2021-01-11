@@ -3836,6 +3836,23 @@ class Solution:
         return res
 ```
 
+#### 150. [1716. 计算力扣银行的钱](https://leetcode-cn.com/problems/calculate-money-in-leetcode-bank/)
+
+```python
+class Solution:
+    def totalMoney(self, n: int) -> int:
+        w, d = n//7, n%7
+        # print(w,d)
+        res = 0
+        for i in range(1,w+1):
+            res += 28 + (i-1)*7
+        for i in range(1,d+1):
+            res += (w+i)
+        return res
+
+
+```
+
 
 
 
@@ -10272,6 +10289,36 @@ class Solution:
         
         return "".join(ans)
 
+```
+
+
+
+#### 149. [1717. 删除子字符串的最大得分](https://leetcode-cn.com/problems/maximum-score-from-removing-substrings/)
+
+```python
+class Solution:
+    def maximumGain(self, s: str, x: int, y: int) -> int:
+# 贪心玩法，有限去除分值高的，具体用栈
+        res=0
+        def count(s,target,score):
+            nonlocal res
+            n=len(s)
+            stack=[]
+            for i in range(n):
+                if stack and stack[-1]+s[i]==target:
+                    stack.pop()
+                    res+=score
+                else:
+                    stack.append(s[i])
+            return stack
+        
+        if x>y:
+            stack=count(s,"ab",x)
+            count(stack,"ba",y)
+        else:            
+            stack=count(s,"ba",y)
+            count(stack,"ab",x)    
+        return res
 ```
 
 
