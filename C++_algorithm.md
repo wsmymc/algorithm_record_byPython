@@ -2139,6 +2139,58 @@ public:
 
 
 
+### 22. [1202. 交换字符串中的元素](https://leetcode-cn.com/problems/smallest-string-with-swaps/)
+
+```c++
+class Solution {
+public:
+    vector<int> t;
+    int find(int x){
+        if (t[x] != x){
+            t[x] = find(t[x]);
+        }
+        return t[x];
+    }
+    void union_(int x,int y){
+        if (find(t[x]) == find(t[y])) return;
+        else{
+            t[find(t[y])] = find(t[x]);
+        }
+    }
+
+    string smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
+        int n = s.size();
+        for(int i=0;i<n;i++) t.push_back(i);
+        for(auto& p:pairs){
+            union_(p[0], p[1]);
+        }
+        unordered_map<int,vector<char>> hash;
+        for(int i=0;i<n;i++){
+            int j = find(i);
+            if(hash.count(j)) hash[j].push_back(s[i]);
+            else{
+                vector<char> tmp;
+                tmp.push_back(s[i]);
+                hash[j]=tmp;
+
+            }
+        }
+        for (auto& [x,vec] : hash){
+            sort(vec.begin(), vec.end(),greater<int>());
+        }
+        //for(int i=0;i<n;i++) cout<<t[i]<<" "<<find(i)<<endl;
+        for(int i =0;i<s.size();i++){
+            int x = find(i);
+            s[i] = hash[x].back();
+            hash[x].pop_back();
+        }
+        return s;
+
+
+    }
+};
+```
+
 
 
  
