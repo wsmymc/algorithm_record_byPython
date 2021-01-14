@@ -3853,7 +3853,40 @@ class Solution:
 
 ```
 
+#### 151. [383. 赎金信](https://leetcode-cn.com/problems/ransom-note/)
 
+```python
+class Solution:
+    def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        a  = collections.Counter(ransomNote)
+        b = collections.Counter(magazine)
+        for c in a.keys():
+            if a[c] and b[c]:
+                if a[c] <= b[c]:
+                    continue
+                else: return False
+            return False
+        return True
+```
+
+
+
+#### 152. [371. 两整数之和](https://leetcode-cn.com/problems/sum-of-two-integers/)
+
+```python
+class Solution:
+    def getSum(self, a: int, b: int) -> int:
+        a &= 0xFFFFFFFF
+        b &= 0xFFFFFFFF
+        while b:
+            carry = a & b
+            a ^= b
+            b = ((carry) << 1) & 0xFFFFFFFF
+            # print((a, b))
+        return a if a < 0x80000000 else ~(a^0xFFFFFFFF)
+
+
+```
 
 
 

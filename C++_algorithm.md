@@ -1312,7 +1312,55 @@ public:
 
 
 
+### 59. [383. 赎金信](https://leetcode-cn.com/problems/ransom-note/)
 
+```C++
+class Solution {
+public:
+    bool canConstruct(string ransomNote, string magazine) {
+        //vector<int> a(26);
+        int a[26] = {0};
+        int b[26] = {0};
+        //vector<int> b(26);
+        for(auto c:ransomNote){
+            //cout<<c-'a'<<endl;
+            a[c-'a']++;
+        }
+        for(auto c: magazine) cout<<c-'a'<<endl,b[c-'a']++;
+        for(int i=0;i<26;i++){
+            //cout<<i<<"a[i]"<<a[i]<<"b[i] "<<b[i]<<endl;
+            if (a[i]>b[i]){
+                cout<<(char)(i+97)<<endl;
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+
+
+### 60. [371. 两整数之和](https://leetcode-cn.com/problems/sum-of-two-integers/)
+
+```c++
+class Solution {
+public:
+    int getSum(int a, int b) {
+        /*对于unsigned整型溢出，C的规范是有定义的——“溢出后的数会以2^(8*sizeof(type))作模运算”，也就是说，如果一个unsigned char（1字符，8bits）溢出了，会把溢出的值与256求模。
+         对于signed整型的溢出，C的规范定义是“undefined behavior”，也就是说，编译器爱怎么实现就怎么实现*/
+        while (b){
+            //cout<<(( unsigned int)(a&b)<<1);
+            auto carry =( unsigned int)(a&b)<<1;
+            a ^=b;
+            b = carry;
+        }
+        return a;
+
+    }
+};
+```
 
 
 
