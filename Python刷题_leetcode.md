@@ -3888,6 +3888,51 @@ class Solution:
 
 ```
 
+#### 153 [1668. 最大重复子字符串](https://leetcode-cn.com/problems/maximum-repeating-substring/)
+
+```python
+# 不难但是遍历比较有漏洞，实际上是利用API做题
+class Solution:
+    def maxRepeating(self, sequence: str, word: str) -> int:
+        res = 0
+        #不断创造新字符串，看在不在原字符串中
+        while word * (res + 1) in sequence:
+            res += 1
+        return res
+```
+
+#### 154. [551. 学生出勤记录 I](https://leetcode-cn.com/problems/student-attendance-record-i/)
+
+```python
+class Solution:
+    def checkRecord(self, s: str) -> bool:
+        cnt_A, cnt_LL = 0, 0
+        pre = "  "
+        for c in s:
+            if c == 'A':
+                cnt_A +=1
+            if (pre + c) == "LLL":
+                return False
+            pre = pre[1] + c
+            if cnt_A>1:
+                return False
+        return True
+
+```
+
+#### 155. [575. 分糖果](https://leetcode-cn.com/problems/distribute-candies/)
+
+```python
+class Solution:
+    def distributeCandies(self, candyType: List[int]) -> int:
+        n = len(candyType)//2
+        a = collections.Counter(candyType)
+        if len(a)>=n:
+            return n
+        else:
+            return len(a)
+```
+
 
 
 

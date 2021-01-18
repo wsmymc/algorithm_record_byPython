@@ -1362,6 +1362,69 @@ public:
 };
 ```
 
+### 61. [1668. 最大重复子字符串](https://leetcode-cn.com/problems/maximum-repeating-substring/)
+
+```c++
+class Solution {
+public:
+    int maxRepeating(string sequence, string word) {
+          int count=0;
+        string s(word);
+        // C++的find方法返回的迭代器是末尾，而不是-1
+        while(sequence.find(s)<sequence.size()){
+            s+=word;
+            count++;
+        }
+        return count;
+
+
+    }
+};
+```
+
+### 62. [551. 学生出勤记录 I](https://leetcode-cn.com/problems/student-attendance-record-i/)
+
+```c++
+class Solution {
+public:
+    bool checkRecord(string s) {
+        string pre=" 1 ";
+        int cnt_A = 0;
+        for(auto c:s){
+            if (c == 'A') cnt_A++;
+            pre[2] = c;
+            if ((pre) == "LLL") return false;
+            if (cnt_A>1) return false;
+            pre[0]=pre[1];
+            pre[1]=pre[2];
+        }
+        return true;
+
+    }
+};
+```
+
+### 63. [575. 分糖果](https://leetcode-cn.com/problems/distribute-candies/)
+
+```C++
+class Solution {
+public:
+    int distributeCandies(vector<int>& candyType) {
+        unordered_set<int> set;
+        for(auto i:candyType){
+            set.insert(i);
+        }
+        return candyType.size()/2<= set.size()? candyType.size()/2:set.size();
+
+
+    }
+};
+```
+
+
+
+
+
 
 
 ## medium
