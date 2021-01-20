@@ -1421,9 +1421,69 @@ public:
 };
 ```
 
+### 64. [1154. 一年中的第几天](https://leetcode-cn.com/problems/day-of-the-year/)
+
+```python
+class Solution {
+public:
+    int dayOfYear(string date) {
+         vector<int> Month{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    vector<int> sum_month(13,0);
+    for (int i = 1; i <= Month.size(); ++i)
+    {
+        sum_month[i] += Month[i-1] + sum_month[i-1];
+    }
+    int year=stoi(date.substr(0,4)); //// stoi()字符转数字， s.substr(0,4)，c++里的字符产截取
+    int month=stoi(date.substr(5,2));
+    int month=stoi(date.substr(5,2));
+    int day=stoi(date.substr(8,2));
+    return sum_month[month-1]+day+(year%4==0&&year!=1900&&month>=3);//当月之前的日期数+当月日期+闰年补偿
+
+
+    }
+};
+```
 
 
 
+###  
+
+### 65. [1275. 找出井字棋的获胜者](https://leetcode-cn.com/problems/find-winner-on-a-tic-tac-toe-game/)
+
+```C++
+class Solution {
+public:
+    // 比枚举的解法聪明很多，从最后一步入手，分析最后一步对应的那个的成功或者失败，再通过总的步数决定是胜败，还是平局，又或者是进行中
+    string tictactoe(vector<vector<int>>& moves) {
+         vector<int> count(8,0);
+        int size = moves.size();
+        for(int i = size-1; i >= 0; i-=2){
+            //对井字棋的行做记录
+            count[moves[i][0]]++;
+            //对井字棋的列做记录
+            count[moves[i][1]+3]++;
+            //对井字棋的主对角线做记录
+            if(moves[i][0] - moves[i][1] == 0)
+                count[6]++;
+            //对井字棋的副对角线做记录
+            if(moves[i][0] + moves[i][1] == 2)
+                count[7]++;
+            //满三个棋子则获胜
+            if(count[moves[i][0]]==3 || count[moves[i][1]+3]==3 || count[6]==3 || count[7]==3)
+                  return (size%2==0) ? "B" : "A";
+
+        }
+        if(size < 9)
+            return "Pending";
+        else
+            return "Draw";
+
+
+    }
+};
+
+
+```
 
 
 
