@@ -350,6 +350,13 @@ bisect.insort(a, x, lo=0, hi=len(a))
 类似于 insort_left()，但是把 x 插入到 a 中已存在元素 x 的右侧。"""
 ```
 
+####  26. zfill
+
+```python
+#Python zfill() 方法返回指定长度的字符串，原字符串右对齐，前面填充0。
+str.zfill(width)
+```
+
 
 
 ## easy
@@ -3931,6 +3938,38 @@ class Solution:
             return n
         else:
             return len(a)
+```
+
+#### 156. [1507. 转变日期格式](https://leetcode-cn.com/problems/reformat-date/)
+
+```python
+class Solution:
+    def reformatDate(self, date: str) -> str:
+        s2month = {
+            "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05", "Jun": "06", 
+            "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"
+        }
+        
+        date = date.split(" ")
+        
+        date[0] = date[0][: -2].zfill(2)
+        date[1] = s2month.get(date[1])
+        date.reverse()
+        
+        return "-".join(date)
+
+```
+
+### 157. [1071. 字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)
+
+```python
+class Solution:
+    def gcdOfStrings(self, str1: str, str2: str) -> str:
+        candidate_len = math.gcd(len(str1), len(str2))
+        candidate = str1[: candidate_len]
+        if str1 + str2 == str2 + str1:
+            return candidate
+        return ''
 ```
 
 

@@ -39,6 +39,23 @@ string to_string(long double val);
 
 
 
+####  7. stringstream
+
+```C++
+/*stringstream 是 C++ 提供的另一个字串型的串流(stream)物件，和之前学过的 iostream、fstream 有类似的操作方式。要使用 stringstream， 必須先加入這一行：
+
+#include <sstream>
+stringstream 主要是用在將一個字串分割，可以先用 clear( )以及 str( ) 將指定字串設定成一开始的內容，再用 >> 把个別的资料输出，例如：*/
+#include <sstream>
+string s;
+stringstream ss;
+int a, b, c;
+getline(cin, s);
+ss.clear();
+ss.str(s);
+ss >> a >> b >> c;
+```
+
 
 
 
@@ -1421,7 +1438,103 @@ public:
 };
 ```
 
+### 64. [1507. 转变日期格式](https://leetcode-cn.com/problems/reformat-date/)
 
+```C++
+class Solution {
+public:
+    string reformatDate(string date) {
+        unordered_map<string, string> s2month = {
+            {"Jan", "01"},
+            {"Feb", "02"},
+            {"Mar", "03"},
+            {"Apr", "04"},
+            {"May", "05"},
+            {"Jun", "06"},
+            {"Jul", "07"},
+            {"Aug", "08"},
+            {"Sep", "09"},
+            {"Oct", "10"},
+            {"Nov", "11"},
+            {"Dec", "12"}
+        };
+
+        stringstream ss(date); // 串式输入输出，用于分割字符串
+        string year, month, day;
+        ss >> day >> month >> year;
+        month = s2month[month];
+        day.pop_back();
+        day.pop_back();
+        if (day.size() == 1) {
+            day = "0" + day;
+        }
+        return year + "-" + month + "-" + day;
+    }
+};
+
+
+```
+
+### 65. [1496. 判断路径是否相交](https://leetcode-cn.com/problems/path-crossing/)
+
+```c++
+class Solution {
+public:
+    bool isPathCrossing(string path) {
+        int x=0,y=0;
+        set<pair<int, int>> ms;
+        ms.insert({x,y});
+        for(auto c:path){
+            if (c=='N') x++;
+            if(c=='S') x--;
+            if(c=='E') y++;
+            if (c=='W') y--;
+            if (ms.count({x,y})) return true;
+            ms.insert({x,y});
+            
+        }
+        return false;
+
+    }
+};
+```
+
+
+
+### 66 .[1078. Bigram 分词](https://leetcode-cn.com/problems/occurrences-after-bigram/)
+
+```C++
+class Solution {
+public:
+    vector<string> findOcurrences(string text, string first, string second) {
+        stringstream words(text); // 也是使用串流分割字符串，貌似是C++的常用工具需要熟悉
+        string w;
+        vector<string> tmp, ans;
+        while (words >> w) tmp.push_back(w);
+        for (int i = 0, j = 1; j < tmp.size() - 1; ++i, ++j) 
+            if (tmp[i] == first && tmp[j] == second) ans.push_back(tmp[j + 1]);
+
+        return ans;
+    }
+};
+
+
+```
+
+### 67. [1071. 字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)
+
+```C++
+class Solution {
+public:
+    string gcdOfStrings(string str1, string str2) {
+        /*如果能够相除，必然由X组成的str1， str2,因此先前后颠倒连接，比较是否是相等排出一部分必然不是的
+        然后，求取最大公约数，__gcd是c++内置的最大公约数函数，从开头截取，str1和str2都可以*/
+        if (str1 + str2 != str2 + str1) return "";
+        return str2.substr(0, __gcd((int)str1.length(), (int)str2.length())); // __gcd() 为c++自带的求最大公约数的函数
+
+    }
+};
+```
 
 
 
