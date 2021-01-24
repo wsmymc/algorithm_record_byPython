@@ -10438,6 +10438,30 @@ class Solution:
         return res
 ```
 
+#### 150 [5662. 满足三条件之一需改变的最少字符数](https://leetcode-cn.com/problems/change-minimum-characters-to-satisfy-one-of-three-conditions/)
+
+```python
+class Solution:
+    def minCharacters(self, a: str, b: str) -> int:
+        s1, s2 = [0]*26, [0]*26
+        m,n = len(a),len(b)
+        for c in a: s1[ord(c)-97]+=1
+        for c in b: s2[ord(c)-97] += 1
+        res = float('inf')
+        #print(s1,s2)
+        for i in range(26):
+            res=min(res,m+n-s1[i]-s2[i])
+        def change(s1,s2):
+            res = float('inf')
+            for i in range(1,26):
+                cnt =0
+                for j in range(i,26): cnt+=s1[j]
+                for j in range(i): cnt +=s2[j]
+                res = min(res, cnt)
+            return res
+        return min(res, change(s1,s2),change(s2,s1))
+```
+
 
 
 

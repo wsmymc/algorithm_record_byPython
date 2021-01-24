@@ -2481,6 +2481,44 @@ public:
 };
 ```
 
+### 24. [5662. 满足三条件之一需改变的最少字符数](https://leetcode-cn.com/problems/change-minimum-characters-to-satisfy-one-of-three-conditions/)
+
+```c++
+class Solution {
+    /*一开始想用最大最小值定界，反而想错了，这题本质上是暴力枚举，先计算出频次数组，然后遍历找到可能*/
+public:
+    int work(vector<int> s1, vector<int> s2){
+        //让s1中所有字符小于s2中所有字符
+        int res = INT_MAX;
+        for(int i=1;i<26;i++){//只能从1开始，因为没有比a更小的字母
+            int cnt=0;
+            for(int j =i;j<26;j++) cnt +=s1[j];//计算s1中》=i的数，这是需要变的
+            for(int j=0;j<i;j++) cnt+=s2[j];//count the number of aphpa which <i,which should also be changed
+            res =  min(res,cnt);
+
+        }
+        return res;
+
+
+    }
+
+
+    int minCharacters(string a, string b) {
+        vector<int> s1(26),s2(26);
+        for(auto c:a) s1[c-'a']++;
+        for (auto c:b) s2[c-'a']++;
+        int res = INT_MAX;
+        int m= a.size(),n= b.size();
+        //条件3
+        for(int i=0;i<26;i++) res = min(res,n+m-(s1[i]+s2[i]));
+
+        return min(res,min(work(s1,s2), work(s2,s1)));
+        
+
+    }
+};
+```
+
 
 
 
