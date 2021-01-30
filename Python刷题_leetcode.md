@@ -350,6 +350,13 @@ bisect.insort(a, x, lo=0, hi=len(a))
 类似于 insort_left()，但是把 x 插入到 a 中已存在元素 x 的右侧。"""
 ```
 
+####  26. zfill
+
+```python
+#Python zfill() 方法返回指定长度的字符串，原字符串右对齐，前面填充0。
+str.zfill(width)
+```
+
 
 
 ## easy
@@ -3931,6 +3938,55 @@ class Solution:
             return n
         else:
             return len(a)
+```
+
+#### 156. [1507. 转变日期格式](https://leetcode-cn.com/problems/reformat-date/)
+
+```python
+class Solution:
+    def reformatDate(self, date: str) -> str:
+        s2month = {
+            "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05", "Jun": "06", 
+            "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"
+        }
+        
+        date = date.split(" ")
+        
+        date[0] = date[0][: -2].zfill(2)
+        date[1] = s2month.get(date[1])
+        date.reverse()
+        
+        return "-".join(date)
+
+```
+
+#### 157. [1071. 字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)
+
+```python
+class Solution:
+    def gcdOfStrings(self, str1: str, str2: str) -> str:
+        candidate_len = math.gcd(len(str1), len(str2))
+        candidate = str1[: candidate_len]
+        if str1 + str2 == str2 + str1:
+            return candidate
+        return ''
+```
+
+#### 158. [594. 最长和谐子序列](https://leetcode-cn.com/problems/longest-harmonious-subsequence/)
+
+```python
+# 用哈希解法，就是简单数个数，不要想复杂
+class Solution:
+    def findLHS(self, nums: List[int]) -> int:
+        dicts={}
+        for i in nums:
+            dicts[i]=dicts.get(i,0)+1
+        res=0
+        for i in dicts:
+            if i+1 in dicts:
+                res=max(res,dicts[i]+dicts[i+1])
+        return res
+
 ```
 
 
@@ -10399,6 +10455,30 @@ class Solution:
         return res
 ```
 
+#### 150 [5662. 满足三条件之一需改变的最少字符数](https://leetcode-cn.com/problems/change-minimum-characters-to-satisfy-one-of-three-conditions/)
+
+```python
+class Solution:
+    def minCharacters(self, a: str, b: str) -> int:
+        s1, s2 = [0]*26, [0]*26
+        m,n = len(a),len(b)
+        for c in a: s1[ord(c)-97]+=1
+        for c in b: s2[ord(c)-97] += 1
+        res = float('inf')
+        #print(s1,s2)
+        for i in range(26):
+            res=min(res,m+n-s1[i]-s2[i])
+        def change(s1,s2):
+            res = float('inf')
+            for i in range(1,26):
+                cnt =0
+                for j in range(i,26): cnt+=s1[j]
+                for j in range(i): cnt +=s2[j]
+                res = min(res, cnt)
+            return res
+        return min(res, change(s1,s2),change(s2,s1))
+```
+
 
 
 
@@ -11923,6 +12003,79 @@ class Solution:
             dp_i10 = max(dp_i10, dp_i11 + p)
             dp_i11 = max(dp_i11, -p)
         return dp_i20
+```
+
+#### 38. [1728. 猫和老鼠 II](https://leetcode-cn.com/problems/cat-and-mouse-ii/)
+
+```python
+#记忆化搜索，分类讨论，思路可以看C++，基本就是暴力dp，同样的需要限制k的循环次数，不能真的搞1000，python本来就慢，k那么大会超时。
+
+class Solution:
+    def canMouseWin(self, grid: List[str], catJump: int, mouseJump: int) -> bool:
+        f = {}
+        def dp(cx, cy, mx, my, k):
+            if (cx,cy,mx,my,k) in f.keys():
+                return f[(cx,cy,mx,my,k)]
+            if k >= 70:
+                return 0
+            dx = [0 , -1, 0 , 1]
+            dy = [1, 0, -1, 0]
+            if k&1:
+                for i in range(4):
+                    for j in range(catJump+1):
+                        x = cx + dx[i]*j
+                        y = cy + dy[i]*j
+                        if x < 0 or x >= len(grid) or y < 0 or y >= len(grid[0]) or grid[x][y] == "#":
+                            break
+                        if x == mx and y == my:
+                            f[(cx,cy,mx,my,k)] = 0
+                            return 0
+                        if grid[x][y] == "F":
+                            f[(cx,cy,mx,my,k)] = 0
+                            return 0
+                        if not dp(x ,y ,mx, my, k + 1):
+                            f[(cx,cy,mx,my,k)] = 0
+                            return 0
+                f[(cx,cy,mx,my,k)] = 1
+                return 1
+            else:
+                for i in range(4):
+                    for j in range(mouseJump+1):
+                        x = mx + dx[i]*j
+                        y = my + dy[i]*j
+                        if x < 0 or x >= len(grid) or y < 0 or y >= len(grid[0]) or grid[x][y] == "#":
+                            break
+                        if x == cx and y == cy:
+                            continue
+                        if grid[x][y] == "F":
+                            f[(cx,cy,mx,my,k)] = 1
+                            return 1
+                        if dp(cx ,cy ,x, y, k + 1):
+                            f[(cx,cy,mx,my,k)] = 1
+                            return 1
+                f[(cx,cy,mx,my,k)] = 0
+                return 0
+
+        startcx = 0
+        startcy = 0
+        startmx = 0
+        startmy = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == "C":
+                    startcx = i
+                    startcy = j
+                if grid[i][j] == "M":
+                    startmx = i
+                    startmy = j
+        res = dp(startcx, startcy, startmx, startmy, 0)
+        if res == 1:
+            return True
+        else:
+            return False 
+
+
+
 ```
 
 

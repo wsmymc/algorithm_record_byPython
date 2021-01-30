@@ -39,6 +39,31 @@ string to_string(long double val);
 
 
 
+####  7. stringstream
+
+```C++
+/*stringstream 是 C++ 提供的另一个字串型的串流(stream)物件，和之前学过的 iostream、fstream 有类似的操作方式。要使用 stringstream， 必須先加入這一行：
+
+#include <sstream>
+stringstream 主要是用在將一個字串分割，可以先用 clear( )以及 str( ) 將指定字串設定成一开始的內容，再用 >> 把个別的资料输出，例如：*/
+#include <sstream>
+string s;
+stringstream ss;
+int a, b, c;
+getline(cin, s);
+ss.clear();
+ss.str(s);
+ss >> a >> b >> c;
+```
+
+#### 8. toupper & tolower
+
+```C++
+ high+=toupper(word[i]);
+ low+=tolower(word[i]);
+// 文字转换大小写
+```
+
 
 
 
@@ -1421,9 +1446,173 @@ public:
 };
 ```
 
-### 64. [1154. 一年中的第几天](https://leetcode-cn.com/problems/day-of-the-year/)
+<<<<<<< HEAD
 
-```python
+### 64. [1154. 一年中的第几天](https://leetcode-cn.com/problems/day-of-the-year/)
+=======
+
+### 64. [1507. 转变日期格式](https://leetcode-cn.com/problems/reformat-date/)
+
+```C++
+class Solution {
+public:
+    string reformatDate(string date) {
+        unordered_map<string, string> s2month = {
+            {"Jan", "01"},
+            {"Feb", "02"},
+            {"Mar", "03"},
+            {"Apr", "04"},
+            {"May", "05"},
+            {"Jun", "06"},
+            {"Jul", "07"},
+            {"Aug", "08"},
+            {"Sep", "09"},
+            {"Oct", "10"},
+            {"Nov", "11"},
+            {"Dec", "12"}
+        };
+
+        stringstream ss(date); // 串式输入输出，用于分割字符串
+        string year, month, day;
+        ss >> day >> month >> year;
+        month = s2month[month];
+        day.pop_back();
+        day.pop_back();
+        if (day.size() == 1) {
+            day = "0" + day;
+        }
+        return year + "-" + month + "-" + day;
+    }
+};
+
+
+```
+
+### 65. [1496. 判断路径是否相交](https://leetcode-cn.com/problems/path-crossing/)
+
+```c++
+class Solution {
+public:
+    bool isPathCrossing(string path) {
+        int x=0,y=0;
+        set<pair<int, int>> ms;
+        ms.insert({x,y});
+        for(auto c:path){
+            if (c=='N') x++;
+            if(c=='S') x--;
+            if(c=='E') y++;
+            if (c=='W') y--;
+            if (ms.count({x,y})) return true;
+            ms.insert({x,y});
+            
+        }
+        return false;
+
+    }
+};
+```
+
+
+
+### 66 .[1078. Bigram 分词](https://leetcode-cn.com/problems/occurrences-after-bigram/)
+>>>>>>> 062daddfe47d0d1a850786aea2a04df81f319803
+
+```C++
+
+    vector<string> findOcurrences(string text, string first, string second) {
+        stringstream words(text); // 也是使用串流分割字符串，貌似是C++的常用工具需要熟悉
+        string w;
+        vector<string> tmp, ans;
+        while (words >> w) tmp.push_back(w);
+        for (int i = 0, j = 1; j < tmp.size() - 1; ++i, ++j) 
+            if (tmp[i] == first && tmp[j] == second) ans.push_back(tmp[j + 1]);
+
+        return ans;
+    }
+};
+
+
+```
+
+### 67. [1071. 字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)
+
+```C++
+class Solution {
+public:
+    string gcdOfStrings(string str1, string str2) {
+        /*如果能够相除，必然由X组成的str1， str2,因此先前后颠倒连接，比较是否是相等排出一部分必然不是的
+        然后，求取最大公约数，__gcd是c++内置的最大公约数函数，从开头截取，str1和str2都可以*/
+        if (str1 + str2 != str2 + str1) return "";
+        return str2.substr(0, __gcd((int)str1.length(), (int)str2.length())); // __gcd() 为c++自带的求最大公约数的函数
+
+    }
+};
+```
+
+
+
+
+
+### 68. [594. 最长和谐子序列](https://leetcode-cn.com/problems/longest-harmonious-subsequence/)
+
+```C++
+class Solution 
+{
+    // map是有序哈希表，可以利用和这个特性
+public:
+    int findLHS(vector<int>& nums) 
+    {
+        if (nums.size()==0)  //数组为空直接返回0
+        {
+            return 0;
+        }
+        int max_length=0;  //最长河蟹子序列的长度
+        map<int,int>temp;
+        for (int i=0;i!=nums.size();i++)
+        {
+            temp[nums[i]]++;
+        }
+        auto next=temp.begin();  //代表map容器中的后一个位置，这是迭代器
+        auto before=temp.begin();  //代表map容器中的前一个位置
+        next++;  //next在before的下一个位置
+        for (;next!=temp.end();next++)  //两两比较相邻的key
+        {
+            if (next->first-before->first==1)  //如果后一个位置的key比前一个位置的key大1
+            {
+                max_length=max(max_length,next->second+before->second);  //更新max_length
+            }
+            before++;
+        }
+        return max_length;
+    }
+};
+
+
+
+// 也可以单纯使用哈希表
+class Solution {
+public:
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int>mp;
+		int maxx = 0;
+		for (int i : nums) {
+			mp[i]++;
+		}
+		for (auto i : mp) {
+            // 这里取到的i是key-value
+			if (mp.count(i.first + 1))
+				maxx = max(maxx, i.second + mp[i.first + 1]);
+		}
+		return maxx;
+    }
+};
+
+
+```
+
+### 69. [1154. 一年中的第几天](https://leetcode-cn.com/problems/day-of-the-year/)
+
+```C++
 class Solution {
 public:
     int dayOfYear(string date) {
@@ -1446,11 +1635,9 @@ public:
 
 
 
-###  
+### 70  [1275. 找出井字棋的获胜者](https://leetcode-cn.com/problems/find-winner-on-a-tic-tac-toe-game/)
 
-### 65. [1275. 找出井字棋的获胜者](https://leetcode-cn.com/problems/find-winner-on-a-tic-tac-toe-game/)
-
-```C++
+```c++
 class Solution {
 public:
     // 比枚举的解法聪明很多，从最后一步入手，分析最后一步对应的那个的成功或者失败，再通过总的步数决定是胜败，还是平局，又或者是进行中
@@ -1477,11 +1664,6 @@ public:
             return "Pending";
         else
             return "Draw";
-
-
-    }
-};
-
 
 ```
 
@@ -2423,6 +2605,44 @@ public:
         }
         return ret;
 
+
+    }
+};
+```
+
+### 24. [5662. 满足三条件之一需改变的最少字符数](https://leetcode-cn.com/problems/change-minimum-characters-to-satisfy-one-of-three-conditions/)
+
+```c++
+class Solution {
+    /*一开始想用最大最小值定界，反而想错了，这题本质上是暴力枚举，先计算出频次数组，然后遍历找到可能*/
+public:
+    int work(vector<int> s1, vector<int> s2){
+        //让s1中所有字符小于s2中所有字符
+        int res = INT_MAX;
+        for(int i=1;i<26;i++){//只能从1开始，因为没有比a更小的字母
+            int cnt=0;
+            for(int j =i;j<26;j++) cnt +=s1[j];//计算s1中》=i的数，这是需要变的
+            for(int j=0;j<i;j++) cnt+=s2[j];//count the number of aphpa which <i,which should also be changed
+            res =  min(res,cnt);
+
+        }
+        return res;
+
+
+    }
+
+
+    int minCharacters(string a, string b) {
+        vector<int> s1(26),s2(26);
+        for(auto c:a) s1[c-'a']++;
+        for (auto c:b) s2[c-'a']++;
+        int res = INT_MAX;
+        int m= a.size(),n= b.size();
+        //条件3
+        for(int i=0;i<26;i++) res = min(res,n+m-(s1[i]+s2[i]));
+
+        return min(res,min(work(s1,s2), work(s2,s1)));
+        
 
     }
 };
