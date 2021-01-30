@@ -56,6 +56,14 @@ ss.str(s);
 ss >> a >> b >> c;
 ```
 
+#### 8. toupper & tolower
+
+```C++
+ high+=toupper(word[i]);
+ low+=tolower(word[i]);
+// 文字转换大小写
+```
+
 
 
 
@@ -1537,6 +1545,63 @@ public:
 ```
 
 
+
+### 68. [594. 最长和谐子序列](https://leetcode-cn.com/problems/longest-harmonious-subsequence/)
+
+```C++
+class Solution 
+{
+    // map是有序哈希表，可以利用和这个特性
+public:
+    int findLHS(vector<int>& nums) 
+    {
+        if (nums.size()==0)  //数组为空直接返回0
+        {
+            return 0;
+        }
+        int max_length=0;  //最长河蟹子序列的长度
+        map<int,int>temp;
+        for (int i=0;i!=nums.size();i++)
+        {
+            temp[nums[i]]++;
+        }
+        auto next=temp.begin();  //代表map容器中的后一个位置，这是迭代器
+        auto before=temp.begin();  //代表map容器中的前一个位置
+        next++;  //next在before的下一个位置
+        for (;next!=temp.end();next++)  //两两比较相邻的key
+        {
+            if (next->first-before->first==1)  //如果后一个位置的key比前一个位置的key大1
+            {
+                max_length=max(max_length,next->second+before->second);  //更新max_length
+            }
+            before++;
+        }
+        return max_length;
+    }
+};
+
+
+
+// 也可以单纯使用哈希表
+class Solution {
+public:
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int>mp;
+		int maxx = 0;
+		for (int i : nums) {
+			mp[i]++;
+		}
+		for (auto i : mp) {
+            // 这里取到的i是key-value
+			if (mp.count(i.first + 1))
+				maxx = max(maxx, i.second + mp[i.first + 1]);
+		}
+		return maxx;
+    }
+};
+
+
+```
 
 
 
