@@ -10479,6 +10479,40 @@ class Solution:
         return min(res, change(s1,s2),change(s2,s1))
 ```
 
+#### 151. [5665. 从相邻元素对还原数组](https://leetcode-cn.com/problems/restore-the-array-from-adjacent-pairs/)
+
+```python
+from typing import List
+import collections
+
+class Solution:
+    def restoreArray(self, adjacentPairs: List[List[int]]) -> List[int]:
+        dic = collections.defaultdict(list)
+        for i,j in adjacentPairs:
+            dic[i].append(j)
+            dic[j].append(i)
+        start = 0
+        for i,j in adjacentPairs:
+            if len(dic[i]) ==1:
+                start = i
+                break
+            if len(dic[j]) == 1:
+                start = j
+                break
+        n = len(adjacentPairs)+1
+        res =[0]*n
+        res[0] = start
+        i = 1
+        while i <n:
+            next = dic[start][0]
+            dic[next].remove(start)
+            start = next
+            res[i]= start
+            i +=1
+        return  res
+
+```
+
 
 
 

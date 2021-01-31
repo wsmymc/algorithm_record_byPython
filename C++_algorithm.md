@@ -34,7 +34,8 @@ string to_string(long double val);
   // 这是C++的预处理器，方便使用
     #define PII pair<int, int> 
  // 优先队列使用， 参数分别是数据类型， 容器类型，以及仿函数greater，less（数据类型）
-        priority_queue<PII, vector<PII>, greater<PII> > save;
+priority_queue<PII, vector<PII>> // 默认大根堆
+         priority_queue<PII, vector<PII>, greater<PII> > save; // 小根堆
 ```
 
 
@@ -2648,6 +2649,74 @@ public:
 };
 ```
 
+### 25. [5665. 从相邻元素对还原数组](https://leetcode-cn.com/problems/restore-the-array-from-adjacent-pairs/)
+
+```c++
+class Solution {
+public:
+    unordered_map<int, vector<int>> g;
+    vector<int> path;
+    void dfs(int u,int father){
+        path.push_back(u);
+        for(int x:g[u]){
+            if(x != father){
+                dfs(x,u);
+            }
+        }
+    }
+
+    vector<int> restoreArray(vector<vector<int>>& ap) {
+        unordered_map<int, int> cnt;
+        for(auto& e:ap){
+            int a = e[0], b= e[1];
+            g[a].push_back(b), g[b].push_back(a);
+            cnt[a]++, cnt[b]++;
+        }
+        int root =0 ;
+        for(auto [k,v]: cnt){
+            if (v==1){
+                root= k;
+                break;
+            }
+        }
+        dfs(root, -1);
+        return path;
+
+    }
+};
+```
+
+### 26. [5667. 你能在你最喜欢的那天吃到你最喜欢的糖果吗？](https://leetcode-cn.com/problems/can-you-eat-your-favorite-candy-on-your-favorite-day/)
+
+```C++
+
+typedef long long LL;
+
+class Solution {
+public:
+    bool check(LL a, LL b, LL c, LL d){
+        if(b<c|| d<a) return false;
+        return true;
+    }
+    vector<bool> canEat(vector<int>& w, vector<vector<int>>& queries) {
+        int n = w.size();
+        vector<LL> s(n+1); // 数据会溢出，所以要转换
+        for(int i =1;i<=n;i++){
+            s[i] = s[i-1] + w[i-1];
+        }
+        vector<bool> res;
+        for(auto& q: queries){
+            int t =q[0], d= q[1], c = q[2];
+           /// bool t = check(d+1, (LL)(d+1)*c, s[t]+1, s[t+1]);
+            res.push_back(check(d+1, (LL)(d+1)*c, s[t]+1, s[t+1]));
+
+        }
+        return res;
+
+    }
+};
+```
+
 
 
 
@@ -2954,6 +3023,38 @@ public:
         return res;
         
         
+
+    }
+};
+```
+
+### 8. [5666. 回文串分割 IV](https://leetcode-cn.com/problems/palindrome-partitioning-iv/)
+
+```C++
+class Solution {
+public:
+    bool checkPartitioning(string s) {
+        int n = s.size();
+        vector<vector<bool>> f(n, vector<bool>(n));// 初始化二维数组
+        // dp做法
+        // 由于dp特性f[i+1][j-1]需要先被算出来，所以大到小枚举
+        for(int i=n-1;i>=0;i--){
+            for(int j=i;j<n;j++){
+                if(i==j) f[i][j] = true; // 单个字符一定是
+                else if(i +1 ==j) f[i][j] = s[i] ==s[j];//两个字母，判断是否相等
+                else f[i][j] = s[i]==s[j] && f[i+1][j-1]; // 其他情况，首先考虑两端是否，相等，然后考虑内部的情况，由于之前遍历过，所以这里直接取值就好
+
+            }
+        }
+        for(int i=0;i<n;i++){
+            for(int j =i+1;j+1<n;j++) {// 要保证最后一段存在，所以这个j+1<n
+                if(f[0][i] &&f[i+1][j] &&f[j+1][n-1])
+                    return true;
+
+            }
+        }
+        return false;
+
 
     }
 };
