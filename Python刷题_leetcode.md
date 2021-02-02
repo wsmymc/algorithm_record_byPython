@@ -10513,7 +10513,30 @@ class Solution:
 
 ```
 
+#### 152. [424. 替换后的最长重复字符](https://leetcode-cn.com/problems/longest-repeating-character-replacement/)(类型题集合，待看)
 
+
+
+```python
+class Solution:
+    def characterReplacement(self, s: str, k: int) -> int:
+        # 不要考虑真的换字母，实际是一个数个数的问题：
+        # 某一段长度 - 该段字母频次最多的数字 和 k的比较
+        # 如果<=k， 这段可以延伸，否则，长度超标，需要截断，左边界右移一格
+        # 根据思路得到双指针，或者说是滑动窗口的写法
+        num = [0] * 26
+        n = len(s)
+        max_n = left = right = 0
+        while right <n:
+            num[ord(s[right]) - 65] +=1
+            max_n = max(max_n, num[ord(s[right]) - 65])# 需要注意这里的max_n 是一直增大的，也是因为这个，最终的结果才是right-left.说明一下这里只是right-left的值符合答案，并不是说最后这一段的字符串，符合答案。
+            # 还是重复前言，这是一个数数问题，不是一个字符串操作问题。
+            if right - left +1 -max_n > k:
+                num[ord(s[left]) - 65] -=1 # 移除窗口，频次-1
+                left +=1
+            right +=1
+        return right - left
+```
 
 
 
