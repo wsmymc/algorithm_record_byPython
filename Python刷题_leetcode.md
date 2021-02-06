@@ -3989,6 +3989,52 @@ class Solution:
 
 ```
 
+#### 159. [1422. 分割字符串的最大得分](https://leetcode-cn.com/problems/maximum-score-after-splitting-a-string/)
+
+```python
+class Solution:
+    def maxScore(self, s: str) -> int:
+        right = s.count('1')  # 代表右侧的 1 的个数
+        left = 0  # 代表左侧的 0 的个数
+        score = 0
+        for idx in range(len(s) - 1):
+            if s[idx] == '1':
+                score = max(score, (left + right - 1))
+                right -= 1
+            else:
+                score = max(score, (left + 1 + right))
+                left += 1
+        return score
+
+
+```
+
+#### 160 .[1417. 重新格式化字符串](https://leetcode-cn.com/problems/reformat-the-string/)
+
+```python
+class Solution:
+    def reformat(self, s: str) -> str:
+        stk1,stk2 = [],[]
+        for c in s:
+            #if ord(c)>=ord('0') and ord(c)<= ord('9'):
+            if c.isdigit():
+                stk1.append(c)
+            else:
+                stk2.append(c)
+        #print(stk1)
+        if abs(len(stk1) - len(stk2)) >= 2:
+            return ""
+        res= []
+        if len(stk1)<len(stk2):
+            stk1, stk2 = stk2, stk1
+        while stk2 or stk1:
+            if stk1:
+                res.append(stk1.pop())
+            if stk2:
+                res.append(stk2.pop())
+        return "".join(res)
+```
+
 
 
 
@@ -10536,6 +10582,28 @@ class Solution:
                 left +=1
             right +=1
         return right - left
+```
+
+#### 153 [1423. 可获得的最大点数](https://leetcode-cn.com/problems/maximum-points-you-can-obtain-from-cards/)\
+
+```python
+class Solution:
+    def maxScore(self, cardPoints: List[int], k: int) -> int:
+        tmp = cardPoints
+        n = len(cardPoints)
+        for i in range(len(cardPoints)):
+            tmp.append(cardPoints[i])
+        res = 0
+        for i in range(len(cardPoints)-k,len(cardPoints)):
+            res += cardPoints[i]
+        t = res
+        #print(len(cardPoints))
+        for i in range(n, n+k):
+            #print(len(cardPoints))
+           # print(i, i-k)
+            t = t + tmp[i] - tmp[i-k]
+            res = max(res, t)
+        return res
 ```
 
 
