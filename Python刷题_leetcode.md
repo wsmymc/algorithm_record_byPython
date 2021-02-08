@@ -10606,6 +10606,54 @@ class Solution:
         return res
 ```
 
+#### 154 . [978. 最长湍流子数组](https://leetcode-cn.com/problems/longest-turbulent-subarray/)
+
+```python
+class Solution:
+    # 边界条件没有想清楚，面向测试用例编程
+    def maxTurbulenceSize(self, arr: List[int]) -> int:
+        def check1(k):
+            if k%2 ==1:
+                return arr[k]>arr[k+1]
+            else:
+                return arr[k]<arr[k+1]
+        def check2(k):
+            if k%2 ==0:
+                return arr[k]>arr[k+1]
+            else:
+                return arr[k]<arr[k+1]
+        if len(arr)<2:
+            return len(arr)
+        len_ = 0
+        l,r = 0, 0
+        flag = True
+        while r <len(arr)-1:
+            #print(flag, r,l)
+
+            if arr[r] == arr[r+1]:
+                len_ = max(len_, r-l+1)
+                l = r+1
+                r +=1
+                continue
+            if flag:
+                if check1(r):
+                    pass
+                else:
+                    flag = False
+                    len_ = max(len_, r-l+1)
+                    l = r
+            else:
+                if check2(r):
+                    print(r, l)
+                else:
+                    flag = True
+                    len_ = max(len_, r-l+1)
+                    l= r
+            r +=1      
+        return max(len_, r-l+1)
+
+```
+
 
 
 

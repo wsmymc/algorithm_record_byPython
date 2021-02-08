@@ -820,6 +820,34 @@ class DiningPhilosophers {
 
 
 
+
+
+### 33. [1748. 唯一元素的和](https://leetcode-cn.com/problems/sum-of-unique-elements/)
+
+```java
+class Solution {
+    public int sumOfUnique(int[] nums) {
+        Map<Integer, Integer> map = new HashMap<>();
+        int sum = 0;
+        for(int i =0; i<nums.length;i++){
+            if(!map.containsKey(nums[i])){
+                sum += nums[i];
+                map.put(nums[i], 1);
+            }else{
+                if(map.get(nums[i])>0){
+                    sum -= nums[i];
+                    map.put(nums[i], 0);
+                }
+            }
+        }
+        return sum;
+
+    }
+}
+```
+
+
+
 ## mediium
 
 ### 1. [452. 用最少数量的箭引爆气球](https://leetcode-cn.com/problems/minimum-number-of-arrows-to-burst-balloons/)
@@ -1186,6 +1214,39 @@ class Solution {
 ```
 
 
+
+### 8. [978. 最长湍流子数组](https://leetcode-cn.com/problems/longest-turbulent-subarray/)
+
+```java
+class Solution {
+    public int maxTurbulenceSize(int[] arr) {
+        int n = arr.length;
+        int res= 1;
+        int left =0, right = 0;
+        while(right<n-1){
+            if (left == right){
+                if (arr[left] == arr[left+1]){
+                    left++;
+                }
+                right++;
+            }else{
+                if (arr[right-1]>arr[right] && arr[right]< arr[right+1]){
+                    right++;
+                }else if(arr[right-1]<arr[right] && arr[right]> arr[right+1]){
+                    right++;
+                }else{
+                    left = right;
+                }
+            }
+            res = Math.max(res, right - left +1);
+            //System.out.println(right+""+left);
+        }
+        return res;
+        
+
+    }
+}
+```
 
 
 

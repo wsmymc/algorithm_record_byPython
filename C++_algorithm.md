@@ -65,7 +65,16 @@ ss >> a >> b >> c;
 // 文字转换大小写
 ```
 
+#### 9. is_sorted()
 
+is_sorted() 函数有 2 种语法格式，分别是：
+
+```
+//判断 [first, last) 区域内的数据是否符合 std::less<T> 排序规则，即是否为升序序列
+bool is_sorted (ForwardIterator first, ForwardIterator last);
+//判断 [first, last) 区域内的数据是否符合 comp 排序规则  
+bool is_sorted (ForwardIterator first, ForwardIterator last, Compare comp);
+```
 
 
 
@@ -1668,6 +1677,52 @@ public:
 
 ```
 
+### 71. [1748. 唯一元素的和](https://leetcode-cn.com/problems/sum-of-unique-elements/)
+
+```c++
+#include<numeric>
+class Solution {
+public:
+    int sumOfUnique(vector<int>& nums) {
+        unordered_set<int> s;
+        unordered_set<int> rc;
+        for(auto i:nums){
+            if (!s.count(i) && !rc.count(i)){
+                s.insert(i);
+            }
+            else if (s.count(i) && !rc.count(i)){
+                s.erase(i);
+                rc.insert(i);
+            }
+        }
+        return accumulate(s.begin(), s.end(),0);
+
+    }
+};
+```
+
+### 72. [1752. 检查数组是否经排序和轮转得到](https://leetcode-cn.com/problems/check-if-array-is-sorted-and-rotated/)
+
+```c++
+class Solution {
+public:
+    bool check(vector<int>& nums) {
+        if(is_sorted(nums.begin(), nums.end())){
+            return true;
+        }
+        int n = nums.size(), cnt = 0;
+        for(int i = 0; i <= n - 2; ++i){
+            if(nums[i] > nums[ i + 1]){
+                cnt++;
+                if(cnt > 1) return false;
+            }
+        }
+        return nums[n - 1] <= nums[0];
+    }
+};
+
+```
+
 
 
 ## medium
@@ -2768,6 +2823,40 @@ public:
 };
 
 
+```
+
+### 29. [978. 最长湍流子数组](https://leetcode-cn.com/problems/longest-turbulent-subarray/)
+
+```c++
+class Solution {
+public:
+    int maxTurbulenceSize(vector<int>& arr) {
+        int n = arr.size();
+        int ret = 1;
+        int left =0, right=0;
+        while(right<n-1){
+            if(left == right){
+                if (arr[left] == arr[left+1]){
+                    left++;
+                }
+                right++;
+            }
+            else{
+                // 其实不用考虑right的奇偶性，能走下来，就可以确定right-1和right 的大小关系， &&筛选后半部，符合的自然就是，否则，更新左边界
+                if (arr[right -1] <arr[right] && arr[right] > arr[right+1]){
+                    right++;
+                }else if(arr[right -1] >arr[right] && arr[right] < arr[right+1]){
+                    right++;
+                }else{
+                    left = right;
+                }
+            }
+            ret = max(ret, right - left + 1);
+        }
+        return ret;
+
+    }
+};
 ```
 
 
