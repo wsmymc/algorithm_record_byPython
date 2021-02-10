@@ -1723,6 +1723,149 @@ public:
 
 ```
 
+### 73. [704. 二分查找](https://leetcode-cn.com/problems/binary-search/)
+
+```C++
+class Solution {
+  public:
+  int search(vector<int>& nums, int target) {
+    int pivot, left = 0, right = nums.size() - 1;
+    while (left <= right) {
+      pivot = left + (right - left) / 2;
+      if (nums[pivot] == target) return pivot;
+      if (target < nums[pivot]) right = pivot - 1;
+      else left = pivot + 1;
+    }
+    return -1;
+  }
+};
+
+
+```
+
+### 74. [693. 交替位二进制数](https://leetcode-cn.com/problems/binary-number-with-alternating-bits/)
+
+```C++
+class Solution {
+public:
+      bool hasAlternatingBits(int n) {
+        n = (n ^ (n >> 1));  // 貌似右移之后不用担心最左端的情况哈？  ^之后都为·1
+        return (n & ((long)n + 1)) == 0;   //全是1的加1，后溢出，全是0.与运算为0
+    }
+
+};
+```
+
+### 75. [706. 设计哈希映射](https://leetcode-cn.com/problems/design-hashmap/)
+
+```C++
+class MyHashMap {
+    
+private:
+    
+    struct node{
+        
+        int my_key;
+        int my_val;
+        node* next;
+        
+        node(int key, int val):my_key(key),my_val(val),next(NULL){}  
+    };
+    
+    vector<node*> my_map;//用链表为节点的容器构造哈希表
+    
+    int size = 1000;
+    
+public:
+    /** Initialize your data structure here. */
+    MyHashMap() {
+        
+        my_map = vector<node*> (size, new node(-1,-1));//初始化表
+    }
+    
+    /** value will always be non-negative. */
+    void put(int key, int value) {
+        
+        int index = key % size;//通过哈希函数特定新数值对在容器中的相对位置
+        
+        node* temp = my_map[index];//指向这个相对位置的表头
+        
+        node* last_node;//特定当前表的表尾
+        node* new_node = new node(key,value);
+        node* tmp_next = temp -> next;
+        temp->next = new_node;//头插法
+        new_node->next = tmp_next;
+        
+        // while(temp!=NULL){
+            
+        //     if(temp->my_key == key){//如果发现已经存在对应的键，则更新它的值
+                
+        //         temp->my_val = value;
+        //         return;
+        //     }
+            
+        //     last_node = temp;
+        //     temp = temp->next;
+        // }
+        
+        // //将新数值对插入到表尾
+        // node* new_node = new node(key,value);
+        // last_node->next = new_node;
+        
+    }
+    
+    /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
+    int get(int key) {
+        
+        int index = key % size;
+        
+        node* temp = my_map[index];
+        
+        while(temp!=NULL){
+            
+            if(temp->my_key==key){
+                
+                return temp->my_val;
+            }
+            
+            temp = temp->next;
+        }
+        
+        return -1;
+
+        
+    }
+    
+    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+    void remove(int key) {
+        
+        int index = key % size;
+        
+        node* temp = my_map[index];
+
+        
+        while(temp!=NULL){
+            
+            if(temp->my_key==key){
+                
+                temp->my_val = -1;
+                return;
+            }
+            temp = temp->next;
+        }
+    }
+};
+
+/**
+ * Your MyHashMap object will be instantiated and called as such:
+ * MyHashMap* obj = new MyHashMap();
+ * obj->put(key,value);
+ * int param_2 = obj->get(key);
+ * obj->remove(key);
+ */
+
+```
+
 
 
 ## medium
@@ -2859,6 +3002,37 @@ public:
 };
 ```
 
+### 30. [567. 字符串的排列](https://leetcode-cn.com/problems/permutation-in-string/)
+
+```C++
+class Solution {
+public:
+    bool checkInclusion(string s1, string s2) {
+        int n = s1.length(), m = s2.length();
+        if (n > m) {
+            return false;
+        }
+        vector<int> cnt1(26), cnt2(26);
+        for (int i = 0; i < n; ++i) {
+            ++cnt1[s1[i] - 'a'];
+            ++cnt2[s2[i] - 'a'];
+        }
+        if (cnt1 == cnt2) {
+            return true;
+        }
+        for (int i = n; i < m; ++i) {
+            ++cnt2[s2[i] - 'a'];
+            --cnt2[s2[i - n] - 'a'];
+            if (cnt1 == cnt2) { // C++貌似vector直接可以比较，不用0~25挨个比
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+```
+
 
 
 
@@ -3200,5 +3374,54 @@ public:
 
     }
 };
+```
+
+
+
+### 9. [992. K 个不同整数的子数组](https://leetcode-cn.com/problems/subarrays-with-k-different-integers/)
+
+```c++
+class Solution {
+public:
+    int subarraysWithKDistinct(vector<int>& A, int K) {
+        int n = A.size();
+        vector<int> num1(n + 1), num2(n + 1);
+        int tot1 = 0, tot2 = 0;
+        int left1 = 0, left2 = 0, right = 0;
+        int ret = 0;
+        while (right < n) {
+            if (!num1[A[right]]) {
+                tot1++;
+            }
+            num1[A[right]]++;
+            if (!num2[A[right]]) {
+                tot2++;
+            }
+            num2[A[right]]++;
+            while (tot1 > K) {
+                num1[A[left1]]--;
+                if (!num1[A[left1]]) {
+                    tot1--;
+                }
+                left1++;
+            }
+            while (tot2 > K - 1) {
+                num2[A[left2]]--;
+                if (!num2[A[left2]]) {
+                    tot2--;
+                }
+                left2++;
+            }
+            ret += left2 - left1;
+            right++;
+        }
+        return ret;
+    }
+};
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/subarrays-with-k-different-integers/solution/k-ge-bu-tong-zheng-shu-de-zi-shu-zu-by-l-9ylo/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
