@@ -65,6 +65,7 @@ ss >> a >> b >> c;
 // 文字转换大小写
 ```
 
+<<<<<<< HEAD
 #### 9. accumulate
 
 ```C++
@@ -73,7 +74,18 @@ accumulate带有三个形参：头两个形参指定要累加的元素范围，�
 int sum = accumulate(vec.begin() , vec.end() , 42);
 ```
 
+=======
+#### 9. is_sorted()
+>>>>>>> e76228a117d8cf203fe23c53f72d5d25281726da
 
+is_sorted() 函数有 2 种语法格式，分别是：
+
+```
+//判断 [first, last) 区域内的数据是否符合 std::less<T> 排序规则，即是否为升序序列
+bool is_sorted (ForwardIterator first, ForwardIterator last);
+//判断 [first, last) 区域内的数据是否符合 comp 排序规则  
+bool is_sorted (ForwardIterator first, ForwardIterator last, Compare comp);
+```
 
 
 
@@ -1678,6 +1690,7 @@ public:
 ### 71 . [888. 公平的糖果棒交换](https://leetcode-cn.com/problems/fair-candy-swap/)
 
 ```C++
+
 class Solution {
 public:
     vector<int> fairCandySwap(vector<int>& A, vector<int>& B) {
@@ -1697,7 +1710,194 @@ public:
         return ans;
     }
 };
+```
 
+
+
+### 71. [1748. 唯一元素的和](https://leetcode-cn.com/problems/sum-of-unique-elements/)
+
+```c++
+#include<numeric>
+class Solution {
+public:
+    int sumOfUnique(vector<int>& nums) {
+        unordered_set<int> s;
+        unordered_set<int> rc;
+        for(auto i:nums){
+            if (!s.count(i) && !rc.count(i)){
+                s.insert(i);
+            }
+            else if (s.count(i) && !rc.count(i)){
+                s.erase(i);
+                rc.insert(i);
+            }
+        }
+        return accumulate(s.begin(), s.end(),0);
+
+    }
+};
+```
+
+### 72. [1752. 检查数组是否经排序和轮转得到](https://leetcode-cn.com/problems/check-if-array-is-sorted-and-rotated/)
+
+```c++
+class Solution {
+public:
+    bool check(vector<int>& nums) {
+        if(is_sorted(nums.begin(), nums.end())){
+            return true;
+        }
+        int n = nums.size(), cnt = 0;
+        for(int i = 0; i <= n - 2; ++i){
+            if(nums[i] > nums[ i + 1]){
+                cnt++;
+                if(cnt > 1) return false;
+            }
+        }
+        return nums[n - 1] <= nums[0];
+    }
+};
+
+```
+
+### 73. [704. 二分查找](https://leetcode-cn.com/problems/binary-search/)
+
+```C++
+class Solution {
+  public:
+  int search(vector<int>& nums, int target) {
+    int pivot, left = 0, right = nums.size() - 1;
+    while (left <= right) {
+      pivot = left + (right - left) / 2;
+      if (nums[pivot] == target) return pivot;
+      if (target < nums[pivot]) right = pivot - 1;
+      else left = pivot + 1;
+    }
+    return -1;
+  }
+};
+
+
+```
+
+### 74. [693. 交替位二进制数](https://leetcode-cn.com/problems/binary-number-with-alternating-bits/)
+```C++
+
+      bool hasAlternatingBits(int n) {
+        n = (n ^ (n >> 1));  // 貌似右移之后不用担心最左端的情况哈？  ^之后都为·1
+        return (n & ((long)n + 1)) == 0;   //全是1的加1，后溢出，全是0.与运算为0
+    }
+
+};
+```
+
+### 75. [706. 设计哈希映射](https://leetcode-cn.com/problems/design-hashmap/)
+
+```C++
+class MyHashMap {
+    
+private:
+    
+    struct node{
+        
+        int my_key;
+        int my_val;
+        node* next;
+        
+        node(int key, int val):my_key(key),my_val(val),next(NULL){}  
+    };
+    
+    vector<node*> my_map;//用链表为节点的容器构造哈希表
+    
+    int size = 1000;
+    
+public:
+    /** Initialize your data structure here. */
+    MyHashMap() {
+        
+        my_map = vector<node*> (size, new node(-1,-1));//初始化表
+    }
+    
+    /** value will always be non-negative. */
+    void put(int key, int value) {
+        
+        int index = key % size;//通过哈希函数特定新数值对在容器中的相对位置
+        
+        node* temp = my_map[index];//指向这个相对位置的表头
+        
+        node* last_node;//特定当前表的表尾
+        node* new_node = new node(key,value);
+        node* tmp_next = temp -> next;
+        temp->next = new_node;//头插法
+        new_node->next = tmp_next;
+        
+        // while(temp!=NULL){
+            
+        //     if(temp->my_key == key){//如果发现已经存在对应的键，则更新它的值
+                
+        //         temp->my_val = value;
+        //         return;
+        //     }
+            
+        //     last_node = temp;
+        //     temp = temp->next;
+        // }
+        
+        // //将新数值对插入到表尾
+        // node* new_node = new node(key,value);
+        // last_node->next = new_node;
+        
+    }
+    
+    /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
+    int get(int key) {
+        
+        int index = key % size;
+        
+        node* temp = my_map[index];
+        
+        while(temp!=NULL){
+            
+            if(temp->my_key==key){
+                
+                return temp->my_val;
+            }
+            
+            temp = temp->next;
+        }
+        
+        return -1;
+
+        
+    }
+    
+    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+    void remove(int key) {
+        
+        int index = key % size;
+        
+        node* temp = my_map[index];
+
+        
+        while(temp!=NULL){
+            
+            if(temp->my_key==key){
+                
+                temp->my_val = -1;
+                return;
+            }
+            temp = temp->next;
+        }
+    }
+};
+
+/**
+ * Your MyHashMap object will be instantiated and called as such:
+ * MyHashMap* obj = new MyHashMap();
+ * obj->put(key,value);
+ * int param_2 = obj->get(key);
+ * obj->remove(key);
+ */
 
 ```
 
@@ -2750,6 +2950,124 @@ public:
 };
 ```
 
+### 27. [424. 替换后的最长重复字符](https://leetcode-cn.com/problems/longest-repeating-character-replacement/)
+
+```c++
+class Solution {
+public:
+    int characterReplacement(string s, int k) {
+        vector<int> num(26);
+        int n = s.length();
+        int maxn = 0;
+        int left = 0, right = 0;
+        int res = 0;
+        while (right < n) {
+            num[s[right] - 'A']++;
+            maxn = max(maxn, num[s[right] - 'A']);
+            if (right - left + 1 - maxn > k) {
+                num[s[left] - 'A']--;
+                left++;
+                res = max(res, right - left);
+            }
+            right++;
+        }
+        return max(right - left,res);
+    }
+};
+
+
+```
+
+### 28. [1423. 可获得的最大点数](https://leetcode-cn.com/problems/maximum-points-you-can-obtain-from-cards/)
+
+```C++
+class Solution {
+public:
+    int maxScore(vector<int>& cardPoints, int k) {
+        // python正向求解，两段拼接，C++反向求解，取出的最大值，说明剩下的连续段的最小值
+        int n = cardPoints.size();
+        // 滑动窗口大小为 n-k
+        int windowSize = n - k;
+        // 选前 n-k 个作为初始值
+        int sum = accumulate(cardPoints.begin(), cardPoints.begin() + windowSize, 0);
+        int minSum = sum;
+        for (int i = windowSize; i < n; ++i) {
+            // 滑动窗口每向右移动一格，增加从右侧进入窗口的元素值，并减少从左侧离开窗口的元素值
+            sum += cardPoints[i] - cardPoints[i - windowSize];
+            minSum = min(minSum, sum);
+        }
+        return accumulate(cardPoints.begin(), cardPoints.end(), 0) - minSum;
+    }
+};
+
+
+```
+
+### 29. [978. 最长湍流子数组](https://leetcode-cn.com/problems/longest-turbulent-subarray/)
+
+```c++
+class Solution {
+public:
+    int maxTurbulenceSize(vector<int>& arr) {
+        int n = arr.size();
+        int ret = 1;
+        int left =0, right=0;
+        while(right<n-1){
+            if(left == right){
+                if (arr[left] == arr[left+1]){
+                    left++;
+                }
+                right++;
+            }
+            else{
+                // 其实不用考虑right的奇偶性，能走下来，就可以确定right-1和right 的大小关系， &&筛选后半部，符合的自然就是，否则，更新左边界
+                if (arr[right -1] <arr[right] && arr[right] > arr[right+1]){
+                    right++;
+                }else if(arr[right -1] >arr[right] && arr[right] < arr[right+1]){
+                    right++;
+                }else{
+                    left = right;
+                }
+            }
+            ret = max(ret, right - left + 1);
+        }
+        return ret;
+
+    }
+};
+```
+
+### 30. [567. 字符串的排列](https://leetcode-cn.com/problems/permutation-in-string/)
+
+```C++
+class Solution {
+public:
+    bool checkInclusion(string s1, string s2) {
+        int n = s1.length(), m = s2.length();
+        if (n > m) {
+            return false;
+        }
+        vector<int> cnt1(26), cnt2(26);
+        for (int i = 0; i < n; ++i) {
+            ++cnt1[s1[i] - 'a'];
+            ++cnt2[s2[i] - 'a'];
+        }
+        if (cnt1 == cnt2) {
+            return true;
+        }
+        for (int i = n; i < m; ++i) {
+            ++cnt2[s2[i] - 'a'];
+            --cnt2[s2[i - n] - 'a'];
+            if (cnt1 == cnt2) { // C++貌似vector直接可以比较，不用0~25挨个比
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+```
+
 
 
 
@@ -3091,5 +3409,54 @@ public:
 
     }
 };
+```
+
+
+
+### 9. [992. K 个不同整数的子数组](https://leetcode-cn.com/problems/subarrays-with-k-different-integers/)
+
+```c++
+class Solution {
+public:
+    int subarraysWithKDistinct(vector<int>& A, int K) {
+        int n = A.size();
+        vector<int> num1(n + 1), num2(n + 1);
+        int tot1 = 0, tot2 = 0;
+        int left1 = 0, left2 = 0, right = 0;
+        int ret = 0;
+        while (right < n) {
+            if (!num1[A[right]]) {
+                tot1++;
+            }
+            num1[A[right]]++;
+            if (!num2[A[right]]) {
+                tot2++;
+            }
+            num2[A[right]]++;
+            while (tot1 > K) {
+                num1[A[left1]]--;
+                if (!num1[A[left1]]) {
+                    tot1--;
+                }
+                left1++;
+            }
+            while (tot2 > K - 1) {
+                num2[A[left2]]--;
+                if (!num2[A[left2]]) {
+                    tot2--;
+                }
+                left2++;
+            }
+            ret += left2 - left1;
+            right++;
+        }
+        return ret;
+    }
+};
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/subarrays-with-k-different-integers/solution/k-ge-bu-tong-zheng-shu-de-zi-shu-zu-by-l-9ylo/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 

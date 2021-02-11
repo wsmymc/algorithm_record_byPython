@@ -820,6 +820,226 @@ class DiningPhilosophers {
 
 
 
+
+
+### 33. [1748. 唯一元素的和](https://leetcode-cn.com/problems/sum-of-unique-elements/)
+
+```java
+class Solution {
+    public int sumOfUnique(int[] nums) {
+        Map<Integer, Integer> map = new HashMap<>();
+        int sum = 0;
+        for(int i =0; i<nums.length;i++){
+            if(!map.containsKey(nums[i])){
+                sum += nums[i];
+                map.put(nums[i], 1);
+            }else{
+                if(map.get(nums[i])>0){
+                    sum -= nums[i];
+                    map.put(nums[i], 0);
+                }
+            }
+        }
+        return sum;
+
+    }
+}
+```
+
+### 34. [704. 二分查找](https://leetcode-cn.com/problems/binary-search/)
+
+```java
+
+class Solution {
+    public int search(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while(left<=right) {
+            int mid = left + (right - left) / 2;
+            if(nums[mid] == target) {
+                return mid;
+            } else if(nums[mid] > target) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return -1;
+    }
+}
+
+```
+
+### 35. [705. 设计哈希集合](https://leetcode-cn.com/problems/design-hashset/)
+
+```Java
+算法：
+
+正如我们在上面讨论的，这里将采用 LinkedList 实现 HashSet 中的桶。
+
+对于每个功能 add，remove，contains，我们首先生成桶的散列值，操作相对应的桶。
+
+PythonJava
+
+class MyHashSet {
+  private Bucket[] bucketArray;
+  private int keyRange;
+
+  /** Initialize your data structure here. */
+  public MyHashSet() {
+    this.keyRange = 769;
+    this.bucketArray = new Bucket[this.keyRange];
+    for (int i = 0; i < this.keyRange; ++i)
+      this.bucketArray[i] = new Bucket();
+  }
+
+  protected int _hash(int key) {
+    return (key % this.keyRange);
+  }
+
+  public void add(int key) {
+    int bucketIndex = this._hash(key);
+    this.bucketArray[bucketIndex].insert(key);
+  }
+
+  public void remove(int key) {
+    int bucketIndex = this._hash(key);
+    this.bucketArray[bucketIndex].delete(key);
+  }
+
+  /** Returns true if this set contains the specified element */
+  public boolean contains(int key) {
+    int bucketIndex = this._hash(key);
+    return this.bucketArray[bucketIndex].exists(key);
+  }
+}
+
+
+class Bucket { // 桶下是链表
+  private LinkedList<Integer> container;
+
+  public Bucket() {
+    container = new LinkedList<Integer>(); // 链表
+  }
+
+  public void insert(Integer key) {
+    int index = this.container.indexOf(key); //链表的API
+    if (index == -1) {
+      this.container.addFirst(key);
+    }
+  }
+
+  public void delete(Integer key) {
+    this.container.remove(key);
+  }
+
+  public boolean exists(Integer key) {
+    int index = this.container.indexOf(key);
+    return (index != -1);
+  }
+}
+
+作者：LeetCode
+链接：https://leetcode-cn.com/problems/design-hashset/solution/she-ji-ha-xi-ji-he-by-leetcode/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 36. [706. 设计哈希映射](https://leetcode-cn.com/problems/design-hashmap/)
+
+```java
+
+class Pair<U, V> {   //  类似C++中的pair
+  public U first;
+  public V second;
+
+  public Pair(U first, V second) {
+    this.first = first;
+    this.second = second;
+  }
+}
+
+
+class Bucket {
+  private List<Pair<Integer, Integer>> bucket;  // 列表
+
+  public Bucket() {
+    this.bucket = new LinkedList<Pair<Integer, Integer>>();// 每个桶实际上就是一个数组
+  }
+
+  public Integer get(Integer key) {
+    for (Pair<Integer, Integer> pair : this.bucket) {
+      if (pair.first.equals(key))
+        return pair.second;
+    }
+    return -1;
+  }
+
+  public void update(Integer key, Integer value) {
+    boolean found = false;
+    for (Pair<Integer, Integer> pair : this.bucket) {
+      if (pair.first.equals(key)) {
+        pair.second = value;
+        found = true;
+      }
+    }
+    if (!found)
+      this.bucket.add(new Pair<Integer, Integer>(key, value));
+  }
+
+  public void remove(Integer key) {
+    for (Pair<Integer, Integer> pair : this.bucket) {
+      if (pair.first.equals(key)) {
+        this.bucket.remove(pair);
+        break;
+      }
+    }
+  }
+}
+
+class MyHashMap {
+  private int key_space;
+  private List<Bucket> hash_table;
+
+  /** Initialize your data structure here. */
+  public MyHashMap() {
+    this.key_space = 2069; //桶个数
+    this.hash_table = new ArrayList<Bucket>();
+    for (int i = 0; i < this.key_space; ++i) {
+      this.hash_table.add(new Bucket());  // 添加桶
+    }
+  }
+
+  /** value will always be non-negative. */
+  public void put(int key, int value) {
+    int hash_key = key % this.key_space;
+    this.hash_table.get(hash_key).update(key, value);// list的方法中，不能随机取，需要有get
+  }
+
+  /**
+   * Returns the value to which the specified key is mapped, or -1 if this map contains no mapping
+   * for the key
+   */
+  public int get(int key) {
+    int hash_key = key % this.key_space;
+    return this.hash_table.get(hash_key).get(key);
+  }
+
+  /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+  public void remove(int key) {
+    int hash_key = key % this.key_space;
+    this.hash_table.get(hash_key).remove(key);
+  }
+}
+
+/**
+ * Your MyHashMap object will be instantiated and called as such: MyHashMap obj = new MyHashMap();
+ * obj.put(key,value); int param_2 = obj.get(key); obj.remove(key);
+ */
+
+```
+
+
+
 ## mediium
 
 ### 1. [452. 用最少数量的箭引爆气球](https://leetcode-cn.com/problems/minimum-number-of-arrows-to-burst-balloons/)
@@ -1187,6 +1407,74 @@ class Solution {
 
 
 
+### 8. [978. 最长湍流子数组](https://leetcode-cn.com/problems/longest-turbulent-subarray/)
+
+```java
+class Solution {
+    public int maxTurbulenceSize(int[] arr) {
+        int n = arr.length;
+        int res= 1;
+        int left =0, right = 0;
+        while(right<n-1){
+            if (left == right){
+                if (arr[left] == arr[left+1]){
+                    left++;
+                }
+                right++;
+            }else{
+                if (arr[right-1]>arr[right] && arr[right]< arr[right+1]){
+                    right++;
+                }else if(arr[right-1]<arr[right] && arr[right]> arr[right+1]){
+                    right++;
+                }else{
+                    left = right;
+                }
+            }
+            res = Math.max(res, right - left +1);
+            //System.out.println(right+""+left);
+        }
+        return res;
+        
+
+    }
+}
+```
+
+### 9. [567. 字符串的排列](https://leetcode-cn.com/problems/permutation-in-string/)
+
+```java
+class Solution {
+    public boolean checkInclusion(String s1, String s2) {
+        int n = s1.length(), m = s2.length();
+        if (n > m) {
+            return false;
+        }
+        int[] cnt1 = new int[26];
+        int[] cnt2 = new int[26];
+        for (int i = 0; i < n; ++i) {
+            ++cnt1[s1.charAt(i) - 'a'];
+            ++cnt2[s2.charAt(i) - 'a'];
+        }
+        if (Arrays.equals(cnt1, cnt2)) { // JAVA里的比较久需要有equals方法了
+            return true;
+        }
+        for (int i = n; i < m; ++i) {
+            ++cnt2[s2.charAt(i) - 'a'];
+            --cnt2[s2.charAt(i - n) - 'a'];
+            if (Arrays.equals(cnt1, cnt2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/permutation-in-string/solution/zi-fu-chuan-de-pai-lie-by-leetcode-solut-7k7u/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 ## hard
@@ -1303,7 +1591,7 @@ class Solution {
 
 
 
-### 321. [321. 拼接最大数](https://leetcode-cn.com/problems/create-maximum-number/)
+### 2. [321. 拼接最大数](https://leetcode-cn.com/problems/create-maximum-number/)
 
 ```python
 class Solution {
@@ -1370,4 +1658,51 @@ class Solution {
 ```
 
 
+
+### 3. [992. K 个不同整数的子数组](https://leetcode-cn.com/problems/subarrays-with-k-different-integers/)
+
+```java
+class Solution {
+    public int subarraysWithKDistinct(int[] A, int K) {
+        int n = A.length;
+        int[] num1 = new int[n + 1];
+        int[] num2 = new int[n + 1];
+        int tot1 = 0, tot2 = 0;
+        int left1 = 0, left2 = 0, right = 0;
+        int ret = 0;
+        while (right < n) {
+            if (num1[A[right]] == 0) {
+                tot1++;
+            }
+            num1[A[right]]++;
+            if (num2[A[right]] == 0) {
+                tot2++;
+            }
+            num2[A[right]]++;
+            while (tot1 > K) {
+                num1[A[left1]]--;
+                if (num1[A[left1]] == 0) {
+                    tot1--;
+                }
+                left1++;
+            }
+            while (tot2 > K - 1) {
+                num2[A[left2]]--;
+                if (num2[A[left2]] == 0) {
+                    tot2--;
+                }
+                left2++;
+            }
+            ret += left2 - left1;
+            right++;
+        }
+        return ret;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/subarrays-with-k-different-integers/solution/k-ge-bu-tong-zheng-shu-de-zi-shu-zu-by-l-9ylo/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
 

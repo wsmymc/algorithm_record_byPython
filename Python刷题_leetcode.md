@@ -3989,6 +3989,278 @@ class Solution:
 
 ```
 
+#### 159. [1422. 分割字符串的最大得分](https://leetcode-cn.com/problems/maximum-score-after-splitting-a-string/)
+
+```python
+class Solution:
+    def maxScore(self, s: str) -> int:
+        right = s.count('1')  # 代表右侧的 1 的个数
+        left = 0  # 代表左侧的 0 的个数
+        score = 0
+        for idx in range(len(s) - 1):
+            if s[idx] == '1':
+                score = max(score, (left + right - 1))
+                right -= 1
+            else:
+                score = max(score, (left + 1 + right))
+                left += 1
+        return score
+
+
+```
+
+#### 160 .[1417. 重新格式化字符串](https://leetcode-cn.com/problems/reformat-the-string/)
+
+```python
+class Solution:
+    def reformat(self, s: str) -> str:
+        stk1,stk2 = [],[]
+        for c in s:
+            #if ord(c)>=ord('0') and ord(c)<= ord('9'):
+            if c.isdigit():
+                stk1.append(c)
+            else:
+                stk2.append(c)
+        #print(stk1)
+        if abs(len(stk1) - len(stk2)) >= 2:
+            return ""
+        res= []
+        if len(stk1)<len(stk2):
+            stk1, stk2 = stk2, stk1
+        while stk2 or stk1:
+            if stk1:
+                res.append(stk1.pop())
+            if stk2:
+                res.append(stk2.pop())
+        return "".join(res)
+```
+
+#### 161. [704. 二分查找](https://leetcode-cn.com/problems/binary-search/)
+
+```python
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        n = len(nums)
+        l, r = 0, n-1
+        while l<r:
+            
+            mid = (r-l)//2 + l
+            #print(mid,r,l)
+            if nums[mid] >= target:
+                r = mid
+            else:
+                l = mid+1
+        if nums[l] == target:
+            return l
+        return -1
+```
+
+#### 162. [693. 交替位二进制数](https://leetcode-cn.com/problems/binary-number-with-alternating-bits/)
+
+```python
+class Solution:
+    def hasAlternatingBits(self, n: int) -> bool:
+        bin_str = bin(n)[2:]
+        return all(bin_str[i-1]!= bin_str[i] for i in range(1,len(bin_str)))
+
+作者：JamLeon
+链接：https://leetcode-cn.com/problems/binary-number-with-alternating-bits/solution/si-lu-jian-dan-xing-neng-da-dao-100-by-jamleon-6/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+
+class Solution(object):
+    def hasAlternatingBits(self, n):
+        """
+        :type n: int
+        :rtype: bool
+        """
+        temp = n ^ (n >> 1)
+        return temp & (temp + 1) == 0
+
+作者：mnm135
+链接：https://leetcode-cn.com/problems/binary-number-with-alternating-bits/solution/wei-yun-suan-you-yi-hou-yi-huo-pan-duan-shi-fou-qu/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 163. [705. 设计哈希集合](https://leetcode-cn.com/problems/design-hashset/)
+
+```python
+# 看起来是简单题，实际上不是。要认真考虑哈希
+# 链表法： 需要有自己的哈希函数（选定Mod）、需要设计一个链表
+class MyHashSet(object):
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.keyRange = 769
+        self.bucketArray = [Bucket() for i in range(self.keyRange)]
+
+    def _hash(self, key):
+        return key % self.keyRange
+
+    def add(self, key):
+        """
+        :type key: int
+        :rtype: None
+        """
+        bucketIndex = self._hash(key)
+        self.bucketArray[bucketIndex].insert(key)
+
+    def remove(self, key):
+        """
+        :type key: int
+        :rtype: None
+        """
+        bucketIndex = self._hash(key)
+        self.bucketArray[bucketIndex].delete(key)
+
+    def contains(self, key):
+        """
+        Returns true if this set contains the specified element
+        :type key: int
+        :rtype: bool
+        """
+        bucketIndex = self._hash(key)
+        return self.bucketArray[bucketIndex].exists(key)
+
+
+class Node: #  链表
+    def __init__(self, value, nextNode=None):
+        self.value = value
+        self.next = nextNode
+
+class Bucket:# 桶
+    def __init__(self):
+        # a pseudo head
+        self.head = Node(0)
+
+    def insert(self, newValue):
+        # if not existed, add the new element to the head.
+        if not self.exists(newValue):  # 如果不存在，就插入，头插法
+            newNode = Node(newValue, self.head.next)
+            # set the new head.
+            self.head.next = newNode
+
+    def delete(self, value):
+        prev = self.head
+        curr = self.head.next
+        while curr is not None:
+            if curr.value == value:
+                # remove the current node
+                prev.next = curr.next
+                return
+            prev = curr
+            curr = curr.next
+
+    def exists(self, value):
+        curr = self.head.next
+        while curr is not None:
+            if curr.value == value:
+                # value existed already, do nothing
+                return True
+            curr = curr.next
+        return False
+
+
+# Your MyHashSet object will be instantiated and called as such:
+# obj = MyHashSet()
+# obj.add(key)
+# obj.remove(key)
+# param_3 = obj.contains(key)
+
+作者：LeetCode
+链接：https://leetcode-cn.com/problems/design-hashset/solution/she-ji-ha-xi-ji-he-by-leetcode/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+
+
+#### 164. [706. 设计哈希映射](https://leetcode-cn.com/problems/design-hashmap/)
+
+```python
+# 
+class Bucket:
+    def __init__(self):
+        self.bucket = []
+
+    def get(self, key):
+        for (k, v) in self.bucket:
+            if k == key:
+                return v
+        return -1
+
+    def update(self, key, value):
+        found = False
+        for i, kv in enumerate(self.bucket):
+            if key == kv[0]:
+                self.bucket[i] = (key, value)
+                found = True
+                break
+
+        if not found:
+            self.bucket.append((key, value))
+
+    def remove(self, key):
+        for i, kv in enumerate(self.bucket):
+            if key == kv[0]:
+                del self.bucket[i]
+
+
+class MyHashMap(object):
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        # better to be a prime number, less collision
+        self.key_space = 2069
+        self.hash_table = [Bucket() for i in range(self.key_space)]
+
+
+    def put(self, key, value):
+        """
+        value will always be non-negative.
+        :type key: int
+        :type value: int
+        :rtype: None
+        """
+        hash_key = key % self.key_space
+        self.hash_table[hash_key].update(key, value)
+
+
+    def get(self, key):
+        """
+        Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key
+        :type key: int
+        :rtype: int
+        """
+        hash_key = key % self.key_space
+        return self.hash_table[hash_key].get(key)
+
+
+    def remove(self, key):
+        """
+        Removes the mapping of the specified value key if this map contains a mapping for the key
+        :type key: int
+        :rtype: None
+        """
+        hash_key = key % self.key_space
+        self.hash_table[hash_key].remove(key)
+
+
+# Your MyHashMap object will be instantiated and called as such:
+# obj = MyHashMap()
+# obj.put(key,value)
+# param_2 = obj.get(key)
+# obj.remove(key)
+
+```
+
 
 
 
@@ -10513,9 +10785,159 @@ class Solution:
 
 ```
 
+#### 152. [424. 替换后的最长重复字符](https://leetcode-cn.com/problems/longest-repeating-character-replacement/)(类型题集合，待看)
 
 
 
+```python
+class Solution:
+    def characterReplacement(self, s: str, k: int) -> int:
+        # 不要考虑真的换字母，实际是一个数个数的问题：
+        # 某一段长度 - 该段字母频次最多的数字 和 k的比较
+        # 如果<=k， 这段可以延伸，否则，长度超标，需要截断，左边界右移一格
+        # 根据思路得到双指针，或者说是滑动窗口的写法
+        num = [0] * 26
+        n = len(s)
+        max_n = left = right = 0
+        while right <n:
+            num[ord(s[right]) - 65] +=1
+            max_n = max(max_n, num[ord(s[right]) - 65])# 需要注意这里的max_n 是一直增大的，也是因为这个，最终的结果才是right-left.说明一下这里只是right-left的值符合答案，并不是说最后这一段的字符串，符合答案。
+            # 还是重复前言，这是一个数数问题，不是一个字符串操作问题。
+            if right - left +1 -max_n > k:
+                num[ord(s[left]) - 65] -=1 # 移除窗口，频次-1
+                left +=1
+            right +=1
+        return right - left
+```
+
+#### 153 [1423. 可获得的最大点数](https://leetcode-cn.com/problems/maximum-points-you-can-obtain-from-cards/)\
+
+```python
+class Solution:
+    def maxScore(self, cardPoints: List[int], k: int) -> int:
+        tmp = cardPoints
+        n = len(cardPoints)
+        for i in range(len(cardPoints)):
+            tmp.append(cardPoints[i])
+        res = 0
+        for i in range(len(cardPoints)-k,len(cardPoints)):
+            res += cardPoints[i]
+        t = res
+        #print(len(cardPoints))
+        for i in range(n, n+k):
+            #print(len(cardPoints))
+           # print(i, i-k)
+            t = t + tmp[i] - tmp[i-k]
+            res = max(res, t)
+        return res
+```
+
+#### 154 . [978. 最长湍流子数组](https://leetcode-cn.com/problems/longest-turbulent-subarray/)
+
+```python
+class Solution:
+    # 边界条件没有想清楚，面向测试用例编程
+    def maxTurbulenceSize(self, arr: List[int]) -> int:
+        def check1(k):
+            if k%2 ==1:
+                return arr[k]>arr[k+1]
+            else:
+                return arr[k]<arr[k+1]
+        def check2(k):
+            if k%2 ==0:
+                return arr[k]>arr[k+1]
+            else:
+                return arr[k]<arr[k+1]
+        if len(arr)<2:
+            return len(arr)
+        len_ = 0
+        l,r = 0, 0
+        flag = True
+        while r <len(arr)-1:
+            #print(flag, r,l)
+
+            if arr[r] == arr[r+1]:
+                len_ = max(len_, r-l+1)
+                l = r+1
+                r +=1
+                continue
+            if flag:
+                if check1(r):
+                    pass
+                else:
+                    flag = False
+                    len_ = max(len_, r-l+1)
+                    l = r
+            else:
+                if check2(r):
+                    print(r, l)
+                else:
+                    flag = True
+                    len_ = max(len_, r-l+1)
+                    l= r
+            r +=1      
+        return max(len_, r-l+1)
+
+```
+
+
+
+#### 155. [567. 字符串的排列](https://leetcode-cn.com/problems/permutation-in-string/)
+
+```python
+class Solution:
+    def checkInclusion(self, s1: str, s2: str) -> bool:
+
+        t = [0]*26
+        m = [0]*26
+        n1, n2 = len(s1),len(s2)
+        if n1>n2:
+            return False
+        for i, c in enumerate(s1):
+            t[ord(c) - ord('a')] +=1
+        n1 = len(s1)
+        for i in range(n1):
+            m[ord(s2[i]) - ord('a')] +=1
+        def check(t,m):
+            for i in range(26):
+                if t[i] != m[i]:
+                    return False
+            return True
+        if check(t,m):
+            return True
+        for i in range(n1, len(s2)):
+            #print(t,m)
+            m[ord(s2[i-n1]) - ord('a')] -= 1
+            m[ord(s2[i]) - ord('a')] +=1
+            if check(t,m):
+                return True
+        return False
+    
+    
+# 也可以不用check，直接可以比较
+class Solution:
+    def checkInclusion(self, s1: str, s2: str) -> bool:
+
+        t = [0]*26
+        m = [0]*26
+        n1, n2 = len(s1),len(s2)
+        if n1>n2:
+            return False
+        for i, c in enumerate(s1):
+            t[ord(c) - ord('a')] +=1
+        n1 = len(s1)
+        for i in range(n1):
+            m[ord(s2[i]) - ord('a')] +=1
+        if t==m:
+            return True
+        for i in range(n1, len(s2)):
+            #print(t,m)
+            m[ord(s2[i-n1]) - ord('a')] -= 1
+            m[ord(s2[i]) - ord('a')] +=1
+            if t==m:
+                return True
+        return False
+```
 
 
 
@@ -12113,6 +12535,41 @@ class Solution:
 ```
 
 
+
+#### 39. [992. K 个不同整数的子数组](https://leetcode-cn.com/problems/subarrays-with-k-different-integers/)
+
+```python
+class Solution:
+    def subarraysWithKDistinct(self, A: List[int], K: int) -> int:
+        n = len(A)
+        num1, num2 = collections.Counter(), collections.Counter()
+        tot1 = tot2 = 0
+        left1 = left2 = right = 0
+        ret = 0
+
+        for right, num in enumerate(A):
+            if num1[num] == 0:
+                tot1 += 1
+            num1[num] += 1
+            if num2[num] == 0:
+                tot2 += 1
+            num2[num] += 1
+            
+            while tot1 > K:
+                num1[A[left1]] -= 1
+                if num1[A[left1]] == 0:
+                    tot1 -= 1
+                left1 += 1
+            while tot2 > K - 1:
+                num2[A[left2]] -= 1
+                if num2[A[left2]] == 0:
+                    tot2 -= 1
+                left2 += 1
+            
+            ret += left2 - left1
+        
+        return ret
+```
 
 
 
