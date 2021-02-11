@@ -65,6 +65,14 @@ ss >> a >> b >> c;
 // 文字转换大小写
 ```
 
+#### 9. accumulate
+
+```C++
+accumulate带有三个形参：头两个形参指定要累加的元素范围，第三个形参则是累加的初值。
+//sum the elements in vec starting the summation with the value 42
+int sum = accumulate(vec.begin() , vec.end() , 42);
+```
+
 
 
 
@@ -1447,10 +1455,9 @@ public:
 };
 ```
 
-<<<<<<< HEAD
 
-### 64. [1154. 一年中的第几天](https://leetcode-cn.com/problems/day-of-the-year/)
-=======
+
+
 
 ### 64. [1507. 转变日期格式](https://leetcode-cn.com/problems/reformat-date/)
 
@@ -1665,6 +1672,32 @@ public:
             return "Pending";
         else
             return "Draw";
+
+```
+
+### 71 . [888. 公平的糖果棒交换](https://leetcode-cn.com/problems/fair-candy-swap/)
+
+```C++
+class Solution {
+public:
+    vector<int> fairCandySwap(vector<int>& A, vector<int>& B) {
+        // 取两者之间的差值作为变化量
+        int sumA = accumulate(A.begin(), A.end(), 0);//  C++版本的sum
+        int sumB = accumulate(B.begin(), B.end(), 0);
+        int delta = (sumA - sumB) / 2;
+        unordered_set<int> rec(A.begin(), A.end()); //== set(A) 
+        vector<int> ans;
+        for (auto& y : B) {
+            int x = y + delta;
+            if (rec.count(x)) {
+                ans = vector<int>{x, y};
+                break;
+            }
+        }
+        return ans;
+    }
+};
+
 
 ```
 
