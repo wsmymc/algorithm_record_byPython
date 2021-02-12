@@ -1038,6 +1038,40 @@ class MyHashMap {
 
 ```
 
+### 37. [703. 数据流中的第 K 大元素](https://leetcode-cn.com/problems/kth-largest-element-in-a-stream/)
+
+```java
+// java堆的API
+class KthLargest {
+    PriorityQueue<Integer> pq;
+    int k;
+
+    public KthLargest(int k, int[] nums) {
+        this.k = k;
+        pq = new PriorityQueue<Integer>();
+        for(int x : nums){
+            add(x);
+        }
+
+    }
+    
+    public int add(int val) {
+        pq.offer(val);
+        while (pq.size() > this.k){
+            pq.poll();
+        }
+        return pq.peek();
+
+    }
+}
+
+/**
+ * Your KthLargest object will be instantiated and called as such:
+ * KthLargest obj = new KthLargest(k, nums);
+ * int param_1 = obj.add(val);
+ */
+```
+
 
 
 ## mediium
