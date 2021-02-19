@@ -10963,6 +10963,45 @@ class Solution:
         return False
 ```
 
+#### 156. [1004. 最大连续1的个数 III](https://leetcode-cn.com/problems/max-consecutive-ones-iii/)
+
+```python
+class Solution:
+    def longestOnes(self, A: List[int], K: int) -> int:
+        # 滑动窗口
+        n = len(A)
+        left = r_sum = l_sum = 0
+        res = 0
+        for right in range(n):
+            r_sum +=1 - A[right] # 统计窗口里0的个数
+            while l_sum < r_sum - K:
+                l_sum += 1- A[left]
+                left += 1
+            res = max(res, right - left +1)
+        return res
+            
+```
+
+#### 157. [797. 所有可能的路径](https://leetcode-cn.com/problems/all-paths-from-source-to-target/)
+
+```python
+class Solution:
+    def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+        res = []
+        def dfs(x,graph, path):
+            if x == len(graph)-1:
+                path.append(x)
+                res.append(path)
+                return 
+            
+            for i in graph[x]:
+               # print(x,i,path)
+
+                dfs(i, graph, path + [x])
+        dfs(0 ,graph,[])
+        return res
+```
+
 
 
 ## hard

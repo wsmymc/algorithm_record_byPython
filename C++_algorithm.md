@@ -3101,6 +3101,61 @@ public:
 
 ```
 
+### 31. [1004. 最大连续1的个数 III](https://leetcode-cn.com/problems/max-consecutive-ones-iii/)
+
+```C++
+class Solution {
+public:
+    int longestOnes(vector<int>& A, int K) {
+        // 二分法
+        int n = A.size();
+        vector<int> P(n+1,0);
+        for(int i=1;i<=n;i++){
+            P[i] = P[i-1] + 1- A[i-1];
+        }
+        int res = 0;
+        for(int right=0;right<n; right++){
+            int left = lower_bound(P.begin(), P.end(), P[right+1]-K) - P.begin(); //二分求解，最左端的等于P[right+1]-K的值
+            res = max(res,right - left +1);
+        }
+        return res;
+
+    }
+};
+```
+
+### 32. [797. 所有可能的路径](https://leetcode-cn.com/problems/all-paths-from-source-to-target/)
+
+```C++
+class Solution {
+public:
+vector<vector<int>> res;
+vector<vector<int>> g;
+
+    vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
+        g = graph;
+        vector<int> path;
+        dfs(0, path);
+        return res;
+        
+
+    }
+
+    void dfs(int x, vector<int>& path){
+        path.push_back(x);
+
+        if (x == g.size()-1){
+            res.push_back(path);
+            return;
+        }
+        for(auto i: g[x]){
+            dfs(i,path);
+            path.pop_back();        
+        }
+    }
+};
+```
+
 
 
 
