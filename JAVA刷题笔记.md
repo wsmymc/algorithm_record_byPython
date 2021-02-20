@@ -1072,6 +1072,40 @@ class KthLargest {
  */
 ```
 
+### 38. [697. 数组的度](https://leetcode-cn.com/problems/degree-of-an-array/)
+
+```java
+class Solution {
+    public int findShortestSubArray(int[] nums) {
+        Map<Integer, int[]> map = new HashMap<Integer, int[]>();
+        int n = nums.length;
+        for (int i=0;i<n;i++){
+            if(map.containsKey(nums[i])){
+                map.get(nums[i])[0]++;
+                map.get(nums[i])[2]=i;
+            }else{
+                map.put(nums[i], new int[]{1,i,i});
+            }
+        }
+        int minLen = n, maxCnt = 0;
+        for(Map.Entry<Integer, int[]> entry: map.entrySet()){
+            int[] t = entry.getValue();
+            if(maxCnt<t[0]){
+                maxCnt = t[0];
+                minLen = t[2]-t[1]+1;
+            }else if(maxCnt == t[0]){
+                if(minLen>t[2]-t[1]+1){
+                    minLen=t[2]-t[1]+1;
+                }
+            }
+        }
+        return minLen;
+
+
+    }
+}
+```
+
 
 
 ## mediium
@@ -1798,5 +1832,31 @@ class Solution {
 链接：https://leetcode-cn.com/problems/subarrays-with-k-different-integers/solution/k-ge-bu-tong-zheng-shu-de-zi-shu-zu-by-l-9ylo/
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 4. [995. K 连续位的最小翻转次数](https://leetcode-cn.com/problems/minimum-number-of-k-consecutive-bit-flips/)
+
+```java
+class Solution {
+    public int minKBitFlips(int[] A, int K) {
+        int n = A.length;
+        int[] diff = new int[n+1];// 使用差分数组，多1位
+        int res =0, revCnt=0;
+        for(int i=0; i<n;i++){
+            revCnt += diff[i];
+            if ((A[i] + revCnt)%2 == 0 ){
+                if (i+K-1 >=n){ // 注意这里要么是： i+K-1 >=n（i最大为n-1）， 要么转换为： i+K >n
+                    return -1;
+                }
+                res++;
+                revCnt++;
+                diff[i+K]--;
+            }
+        }
+        return res;
+
+
+    }
+}
 ```
 

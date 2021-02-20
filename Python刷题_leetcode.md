@@ -2790,6 +2790,36 @@ class Solution:
             if cnt[x] == degree:
                 res = min(res, r[x]-l[x]+1)
         return res
+    
+    
+class Solution:
+    def findShortestSubArray(self, nums: List[int]) -> int:
+        """
+        之前做过，再记录的意义是，dict（）可以默认出现数组，也不用defaultdict（list）
+        增广见闻
+        另外，和上回不同，这次有数组，所以开了一个哈希表
+        """
+        mp = dict()
+
+        for i, num in enumerate(nums):
+            if num in mp:
+                mp[num][0] += 1
+                mp[num][2] = i
+            else:
+                mp[num] = [1, i, i]
+        
+        maxNum = minLen = 0
+        for count, left, right in mp.values():
+            if maxNum < count:
+                maxNum = count
+                minLen = right - left + 1
+            elif maxNum == count:
+                if minLen > (span := right - left + 1):
+                    minLen = span
+        
+        return minLen
+
+
 ```
 
 #### 103. [724. 寻找数组的中心索引](https://leetcode-cn.com/problems/find-pivot-index/)
@@ -12632,6 +12662,32 @@ class Solution:
             ret += left2 - left1
         
         return ret
+```
+
+#### 40. [995. K 连续位的最小翻转次数](https://leetcode-cn.com/problems/minimum-number-of-k-consecutive-bit-flips/)
+
+```python
+class Solution:
+    def minKBitFlips(self, A: List[int], K: int) -> int:
+        """
+        1. 同一个子数组翻转两次等于没有翻转————》每个子数组最多一次翻转操作
+        2. 若干个翻转，顺序不影响结果————》 从头开始翻转
+        3. 遍历每一位，如果是1.移动，如果是0，将从自己开始的K为都翻转，如果某位是0，但是到末尾不足K，说明，有问题不能反转，返回-1
+        4. 直接模拟，每一次都要翻转K，复杂度NK  ————》 使用差分数组
+        5. 如何判断需要翻转，————》遍历到A[i]时， A[i] + diff[i] %2 == 0.说明，要么，翻转后为1，翻转了奇数次， 要么翻转偶数次或者没有反转，A[i]是原样，为0.这两种情况都需要翻转
+        """
+        n = len(A)
+        diff = [0] * (n + 1)
+        ans, revCnt = 0, 0
+        for i in range(n):
+            revCnt += diff[i]
+            if (A[i] + revCnt) % 2 == 0: #需要翻转
+                if i + K > n: #出界了，就结束
+                    return -1
+                ans += 1 # 翻转次数
+                revCnt += 1 # 左侧位置+1 直接传递到 revCnt 上
+                diff[i + K] -= 1 # 右端点+1 位置 -1
+        return ans
 ```
 
 

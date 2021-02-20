@@ -1934,6 +1934,40 @@ public:
  */
 ```
 
+### 77. [697. 数组的度](https://leetcode-cn.com/problems/degree-of-an-array/)
+
+```c++
+class Solution {
+public:
+    int findShortestSubArray(vector<int>& nums) {
+        unordered_map<int, vector<int>> mp;//关联式容器
+        int n = nums.size();
+        for (int i = 0; i < n; i++) {
+            if (mp.count(nums[i])) {
+                mp[nums[i]][0]++;
+                mp[nums[i]][2] = i;
+            } else {
+                mp[nums[i]] = {1, i, i};// 分别记录，cnt, left ,right
+            }
+        }
+        int maxNum = 0, minLen = 0;
+        for (auto& [_, vec] : mp) {  // auto, for each 类型语句
+            if (maxNum < vec[0]) {
+                maxNum = vec[0];
+                minLen = vec[2] - vec[1] + 1;
+            } else if (maxNum == vec[0]) {
+                if (minLen > vec[2] - vec[1] + 1) {
+                    minLen = vec[2] - vec[1] + 1;
+                }
+            }
+        }
+        return minLen;
+    }
+};
+
+
+```
+
 
 
 ## medium
@@ -3546,5 +3580,31 @@ public:
 链接：https://leetcode-cn.com/problems/subarrays-with-k-different-integers/solution/k-ge-bu-tong-zheng-shu-de-zi-shu-zu-by-l-9ylo/
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+ ### 10. [995. K 连续位的最小翻转次数](https://leetcode-cn.com/problems/minimum-number-of-k-consecutive-bit-flips/)
+
+```C++
+class Solution {
+public:
+    int minKBitFlips(vector<int>& A, int K) {
+        int n = A.size();
+        vector<int> diff(n+1);// 使用差分数组，多1位
+        int res =0, revCnt=0;
+        for(int i=0; i<n;i++){
+            revCnt += diff[i];
+            if ((A[i] + revCnt)%2 == 0 ){
+                if (i+K-1 >=n){ // 注意这里要么是： i+K-1 >=n（i最大为n-1）， 要么转换为： i+K >n
+                    return -1;
+                }
+                res++;
+                revCnt++;
+                diff[i+K]--;
+            }
+        }
+        return res;
+
+    }
+};
 ```
 
