@@ -1968,6 +1968,38 @@ public:
 
 ```
 
+### 78. [5668. 最长的美好子字符串](https://leetcode-cn.com/problems/longest-nice-substring/)
+
+```C++
+class Solution {
+public:
+    bool check(string s){
+        unordered_set<char> S;
+        for(auto c : s) S.insert(c);
+        for(auto c:s){
+            if (!S.count(c^32)){// 是一个技巧，大小写ASCII码的第五位不一样，因此需要的找对应的时候，直接异或就好
+                return false;
+            }
+        }
+        return true;
+
+    }
+    string longestNiceSubstring(string s) {
+        string res;
+        for(int i=0;i<s.size();i++){
+            for(int j=i;j<s.size();j++){
+                string str = s.substr(i,j-i+1);
+                if (check(str) && res.size()<str.size()){
+                    res = str;
+                }
+            }
+        }
+        return res;
+
+    }
+};
+```
+
 
 
 ## medium
@@ -3192,6 +3224,141 @@ vector<vector<int>> g;
 
 
 
+### 33. [5669. 通过连接另一个数组的子数组得到一个数组](https://leetcode-cn.com/problems/form-array-by-concatenating-subarrays-of-another-array/)
+
+```c++
+class Solution {
+public:
+    bool check(vector<int>& g, vector<int>& nums, int i){
+        int k=0;
+        for(int j=i;k<g.size()&&j<nums.size(); k++, j++){
+            if(g[k] != nums[j]) return false;
+
+        }
+        if (k!= g.size()) return false; // nums还有，group没有匹配完
+        return true;
+    }
+    bool canChoose(vector<vector<int>>& gs, vector<int>& nums) {
+        for(int i=0,k=0; i<nums.size();i++){
+            if (check(gs[k], nums,i)){
+                i +=gs[k].size()-1;
+                k++;
+                if (k == gs.size())  return true;
+            }
+        }
+        return false;
+
+
+    }
+};
+```
+
+### 34. [5671. 地图中的最高点](https://leetcode-cn.com/problems/map-of-highest-peak/)
+
+
+
+```c++
+#define x first //使用pair类型时，可以用这个来简化代码书写
+#define y second
+
+class Solution {
+public:
+    vector<vector<int>> highestPeak(vector<vector<int>>& g) {
+        typedef pair<int, int> PII;
+        const int INF = 1e8;
+        int n = g.size(), m = g[0].size();
+        vector<vector<int>> d(n,vector<int>(m,INF));
+        queue<PII> q;
+        for(int i =0;i<n;i++){
+            for(int j=0; j<m;j++){
+                if(g[i][j]){
+                    d[i][j]=0;
+                    q.push({i,j});
+                }
+            }
+        }
+        int dx[] = {-1,0,1,0}, dy[] = {0,1,0,-1};
+        while (q.size()){
+            auto t = q.front();
+            q.pop();
+            
+            for(int i=0;i<4;i++){
+                int x = t.x + dx[i], y = t.y+dy[i];
+                if(x<0 ||x>=n || y< 0 || y>=m) continue;
+                if(d[x][y] > d[t.x][t.y]+1){  //相较于python做法，这里增加了一个判断，不过python使用了set，效果一样的，扩散的话，每个位置只能变一次
+                    d[x][y]= d[t.x][t.y]+1;
+                    q.push({x,y});
+                }
+
+            }
+        }
+        return d;
+
+    }
+};
+```
+
+### 35. [1438. 绝对差不超过限制的最长连续子数组](https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+
+```c++
+
+class Solution {
+public:
+    int longestSubarray(vector<int>& nums, int limit) {
+        deque<int> queMax, queMin; // 双端对列用法
+        int n = nums.size();
+        int left = 0, right = 0;
+        int ret = 0;
+        while (right < n) {
+            while (!queMax.empty() && queMax.back() < nums[right]) {
+                queMax.pop_back();
+            }
+            while (!queMin.empty() && queMin.back() > nums[right]) {
+                queMin.pop_back();
+            }
+            queMax.push_back(nums[right]);
+            queMin.push_back(nums[right]);
+            while (!queMax.empty() && !queMin.empty() && queMax.front() - queMin.front() > limit) {
+                if (nums[left] == queMin.front()) {
+                    queMin.pop_front();
+                }
+                if (nums[left] == queMax.front()) {
+                    queMax.pop_front();
+                }
+                left++;
+            }
+            ret = max(ret, right - left + 1);
+            right++;
+        }
+        return ret;
+    }
+};
+
+
+
+// 有序集合
+class Solution {
+public:
+    int longestSubarray(vector<int>& nums, int limit) {
+        multiset<int> s;
+        int n = nums.size();
+        int left = 0, right = 0;
+        int ret = 0;
+        while (right < n) {
+            s.insert(nums[right]);
+            while (*s.rbegin() - *s.begin() > limit) {
+                s.erase(s.find(nums[left++]));
+            }
+            ret = max(ret, right - left + 1);
+            right++;
+        }
+        return ret;
+    }
+};
+
+
+```
+
 
 
 ## hard
@@ -3604,6 +3771,130 @@ public:
         }
         return res;
 
+    }
+};
+```
+
+### 11. [5670. 互质树](https://leetcode-cn.com/problems/tree-of-coprimes/)
+
+```C++
+const int N= 100010, M= N*2;
+int h[N],e[M],ne[M],idx;
+int depth[N],pos[55];
+
+
+class Solution {
+public:
+    vector<int> w, ans;
+    vector<int> g[55];
+    void add(int a, int b){
+        e[idx] = b, ne[idx] = h[a],h[a] = idx++;
+
+    }
+    int gcd(int a, int b){
+        return b ? gcd(b, a%b) : a;
+    }
+    void dfs(int u, int fa){
+        int x = w[u];
+        for(auto y: g[x]){
+            if (pos[y] != -1){
+                if(ans[u] == -1 || depth[ans[u]] < depth[pos[y]]){
+                    ans[u] = pos[y];
+                }
+            }
+        }
+        int t = pos[x];
+        pos[x] = u;
+        for (int i=h[u]; ~i;i = ne[i]){
+            int j=e[i];
+            if(j == fa) continue;
+            depth[j] = depth[u]+1;
+            dfs(j,u);
+        }
+        pos[x] = t;
+    }
+    vector<int> getCoprimes(vector<int>& nums, vector<vector<int>>& edges) {
+        w = nums;
+        int n = w.size();
+        ans.resize(n,-1);
+        memset(h,-1,sizeof h),idx=0;
+        for(auto& e:edges){
+            int a = e[0], b = e[1];
+            add(a,b), add(b,a);
+        }
+        memset(pos, -1, sizeof pos);
+        for(int i=1;i<= 50; i++){
+            for(int j=1;j<=50;j++){
+                if(gcd(i,j) == 1){
+                    g[i].push_back(j);
+                }
+            }
+        }
+        depth[0] = 0;
+        dfs(0,-1);
+        return ans;
+
+
+    }
+};
+```
+
+### 12. [5688. 由子序列构造的最长回文串的长度](https://leetcode-cn.com/problems/maximize-palindrome-length-from-subsequences/)
+
+```C++
+const int N = 1010;
+int f1[N][N] ,f2[N][N],f3[N][N];
+// 该题实际上不用讨论具体需要删除那些字符，而是直接统计某一节点开始，的隔断长度
+/*
+1. f1 ， 最长公共子序列
+2. f2, f3, 自身的最长回文串长度
+3. 需要先把第二个字符串翻转，以应对回文特性，才可以计算f1
+4. 总结： 就是想要明白拼接的逻辑解法，然后明白两种计算的求解方式，最后结合一些代码运算技巧*/
+class Solution {
+public:
+    void work(string& s ,int f[][N]){
+        // 用来计算子序列中存在的最大回文串的长度
+        int n = s.size();
+        for(int len= 1;len<=n; len++){ // 子序列长度从1开始
+            for(int i=1; i+ len-1 <= n;i++){  // 遍历左端点
+                int j= i +len -1;// 从端长度+左端点 计算右端点
+                if (len == 1) f[i][j] = 1; // 长度为1，本来即时
+                else{
+                    f[i][j] = max(f[i+1][j], f[i][j-1]);  // 实际上就是先计算s[i] != s[j]的情况下，长度，然后在讨论相等情况
+                    if (s[i] == s[j]){
+                        f[i][j] = max(f[i][j], f[i+1][j-1] + 2);
+                    }
+                }
+            }
+
+        }
+    }
+    int longestPalindrome(string a, string b) {
+        int n = a.size(), m = b.size();
+        reverse(b.begin() , b.end());
+        memset(f1, 0, sizeof f1);
+        memset(f2, 0, sizeof f2);
+        memset(f3, 0, sizeof f3);
+        a= ' ' + a, b= ' ' + b; // 方便起见，前面加一个占位符，可以从1开始，便于work计算
+        work(a,f2), work(b,f3); // 计算两组的最长回文子串
+        // 计算最长公共子序列
+        for(int i = 1;i <=n;i++){
+            for(int j=1;j<=m;j++){
+                f1[i][j] = max(f1[i-1][j], f1[i][j-1]);
+                if(a[i] == b[j]){
+                    f1[i][j] = max(f1[i][j], f1[i-1][j-1]+1);
+                }
+            }
+        }
+        int res =0;
+        for(int i=1 ;i<=n;i++){
+            for(int j=1;j<=m;j++){
+                if(f1[i][j]){ //题目要求非空才可以
+                    res = max(res, f1[i][j]*2 + max(f2[i+1][n], f3[j+1][m]));
+                }
+            }
+        }
+        return res;
     }
 };
 ```

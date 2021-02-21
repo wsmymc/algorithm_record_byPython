@@ -4315,6 +4315,42 @@ class KthLargest:
 # param_1 = obj.add(val)
 ```
 
+#### 166. [5668. 最长的美好子字符串](https://leetcode-cn.com/problems/longest-nice-substring/)
+
+```python
+class Solution:
+    # 一开始想复杂了，其实只用暴力做就好
+    def longestNiceSubstring(self, s: str) -> str:
+        n = len(s)
+        t = [0]*26
+        l = 0
+        _len = 0
+        rc = [0,0]
+        def check(t):
+            for c in t:
+                if ord(c) - ord('A')>=0 and ord(c) - ord('a')<0:
+                    if chr(ord(c) - ord('A')+ ord('a')) not in t:
+                        #print(c, chr(ord(c) - ord('A')+ ord('a')))
+                        return False
+                else:
+                    #print(c)
+                    if chr(ord(c) - ord('a')+ ord('A')) not in t:
+                        return False
+            return True
+        res = ''
+        for i in range(n):
+            for j in range(i, n):
+                t = s[i:j+1]
+                if check(t):
+                    #print('t,',t)
+                    if j-i+1>_len:
+                        _len = j-i+1
+                        res = t
+       # print(t)
+        return res
+
+```
+
 
 
 
@@ -11032,6 +11068,122 @@ class Solution:
         return res
 ```
 
+#### 158. [5669. 通过连接另一个数组的子数组得到一个数组](https://leetcode-cn.com/problems/form-array-by-concatenating-subarrays-of-another-array/)
+
+```python
+from typing import List
+
+
+class Solution:
+    def canChoose(self, groups: List[List[int]], nums: List[int]) -> bool:
+        l =0
+        n = len(nums)
+        m = len(groups)
+        i = 0
+        while l <n and i<m:
+            #print(i)
+            k = len(groups[i])
+            if (l+k) >n:
+                return False
+            if nums[l:l+k] == groups[i]:
+                i+=1
+                l = l+k
+            else:
+                l +=1
+
+        return l <=n and i == m
+
+```
+
+#### 159. [5671. 地图中的最高点](https://leetcode-cn.com/problems/map-of-highest-peak/)
+
+```python
+from typing import List
+
+
+class Solution:
+    def highestPeak(self, isWater: List[List[int]]) -> List[List[int]]:
+        q = []
+        m,n = len(isWater),len(isWater[0])
+        res = [[0]*n for _ in range(m)]
+        move = [[1,0],[0,1],[-1,0],[0,-1]]
+        s =set()
+        for i in range(m):
+            for j in range(n):
+                if isWater[i][j] == 1:
+                    q.append((i,j))
+                    s.add((i,j))
+        while q:
+            i,j = q.pop(0)
+            h = res[i][j]
+            for x, y in move:
+                x = x+i
+                y = y+j
+                if x>=0 and x <m and y>=0 and y <n and (x,y) not in s:
+                    res[x][y] = h + 1
+                    q.append((x,y))
+                    s.add((x,y))
+        return res
+```
+
+#### 160 .[1438. 绝对差不超过限制的最长连续子数组](https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+
+```python
+class Solution:
+    def longestSubarray(self, nums: List[int], limit: int) -> int:
+        # 维护两个双端队列
+        n = len(nums)
+        # 双向列表
+        queMax, queMin = deque(), deque()
+        left = right = ret = 0
+
+        while right < n:
+            # 单调递减队列，维护最大值
+            while queMax and queMax[-1] < nums[right]:
+                queMax.pop()
+            # 单调递增队列，维护最小值
+            while queMin and queMin[-1] > nums[right]:
+                queMin.pop()
+            
+            # 将数据入队
+            queMax.append(nums[right])
+            queMin.append(nums[right])
+
+            # 两个队列存在，且，当前的最大最小值，超过limit
+            while queMax and queMin and queMax[0] - queMin[0] > limit:
+                # 从左到右出队,实际每次循环只会出队一个，第二个if --》 elif也可以
+                if nums[left] == queMin[0]:
+                    queMin.popleft()
+                if nums[left] == queMax[0]:
+                    queMax.popleft()
+                left += 1
+            
+            ret = max(ret, right - left + 1)
+            right += 1
+        
+        return ret
+
+## 有序集合
+import sortedcontainers  # Leetcode没有
+class Solution:
+    def longestSubarray(self, nums: List[int], limit: int) -> int:
+        s = SortedList()
+        n = len(nums)
+        left = right = ret = 0
+
+        while right < n:
+            s.add(nums[right])
+            while s[-1] - s[0] > limit:
+                s.remove(nums[left])
+                left += 1
+            ret = max(ret, right - left + 1)
+            right += 1
+        
+        return ret
+
+
+```
+
 
 
 ## hard
@@ -12691,6 +12843,38 @@ class Solution:
 ```
 
 
+
+#### 41. [5670. 互质树](https://leetcode-cn.com/problems/tree-of-coprimes/)(待解决)
+
+```python
+
+```
+
+#### 42. [5688. 由子序列构造的最长回文串的长度](https://leetcode-cn.com/problems/maximize-palindrome-length-from-subsequences/)
+
+```python
+class Solution:
+    def longestPalindrome(self, word1: str, word2: str) -> int:
+        l1,l2  = len(word1), len(word2)
+        s = word1 + word2
+        n = len(s)
+        dp = [[0]*n  for _ in range(n)]
+        res = 0
+        for len_ in range(1,n+1): # 子串长度1 ~n
+            for i in range(n): # 左端点
+                j = i+len_-1   # 右端点
+                if j>=n:break  # 临界排除
+                if len_==1:
+                    dp[i][j]=1
+                else:
+                    dp[i][j] = max(dp[i+1][j], dp[i][j-1])
+                    if (s[i] == s[j]):
+                        dp[i][j] = max(dp[i+1][j-1]+2, dp[i][j])
+
+                if i<l1 and j >= l1 and s[i] == s[j]:
+                    res = max(res, dp[i][j])
+        return res
+```
 
 
 

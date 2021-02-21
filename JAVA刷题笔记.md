@@ -1603,6 +1603,74 @@ class Solution {
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+### 12. [1438. 绝对差不超过限制的最长连续子数组](https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+
+```java
+class Solution {
+    public int longestSubarray(int[] nums, int limit) {
+        Deque<Integer> queMax = new LinkedList<Integer>();
+        Deque<Integer> queMin = new LinkedList<Integer>();
+
+        int n = nums.length;
+        int left = 0, right = 0;
+        int ret = 0;
+        while (right < n) {
+            while (!queMax.isEmpty() && queMax.peekLast() < nums[right]) {
+                queMax.pollLast();
+            }
+            while (!queMin.isEmpty() && queMin.peekLast() > nums[right]) {
+                queMin.pollLast();
+            }
+            queMax.offerLast(nums[right]);
+            queMin.offerLast(nums[right]);
+            while (!queMax.isEmpty() && !queMin.isEmpty() && queMax.peekFirst() - queMin.peekFirst() > limit) {
+                if (nums[left] == queMin.peekFirst()) {
+                    queMin.pollFirst();
+                }
+                if (nums[left] == queMax.peekFirst()) {
+                    queMax.pollFirst();
+                }
+                left++;
+            }
+            ret = Math.max(ret, right - left + 1);
+            right++;
+        }
+        return ret;
+
+    }
+}
+
+
+
+// 学习有序集合
+class Solution {
+    public int longestSubarray(int[] nums, int limit) {
+        TreeMap<Integer, Integer> map = new TreeMap<Integer, Integer>();
+        int n = nums.length;
+        int left = 0, right = 0;
+        int ret = 0;
+        while (right < n) {
+            map.put(nums[right], map.getOrDefault(nums[right], 0) + 1);
+            while (map.lastKey() - map.firstKey() > limit) {
+                map.put(nums[left], map.get(nums[left]) - 1);
+                if (map.get(nums[left]) == 0) {
+                    map.remove(nums[left]);
+                }
+                left++;
+            }
+            ret = Math.max(ret, right - left + 1);
+            right++;
+        }
+        return ret;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/solution/jue-dui-chai-bu-chao-guo-xian-zhi-de-zui-5bki/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 ## hard
@@ -1858,5 +1926,46 @@ class Solution {
 
     }
 }
+```
+
+### 5. [5688. 由子序列构造的最长回文串的长度](https://leetcode-cn.com/problems/maximize-palindrome-length-from-subsequences/)
+
+```java
+class Solution {
+    public int longestPalindrome(String word1, String word2) {
+        // 我就说这里应该可以直接求最长回文子串，不用向C++版本的高两趟
+        int n1 = word1.length();
+        int n2 = word2.length();
+        int n = n1 + n2;
+        String s = word1 + word2;
+        int max = 0;
+        // 在子串 s[i..j] 中，最长回文子序列的长度为 dp[i][j]
+        int[][] dp = new int[n][n];
+        for (int len = 1; len <= n; len++) {//区间长度
+            for (int i = 0; i + len - 1 < n; i++) {//左端点
+                int j = i + len - 1;//右端点
+                if (len == 1) {
+                    dp[i][j] = 1;
+                }
+                else {
+                    if (s.charAt(i) == s.charAt(j)){
+                        dp[i][j] = dp[i+1][j-1] + 2;
+                    } else {
+                        dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+                    }
+                }
+                //需要保证非空,且si==sj时才满足条件 ，相较于正常的最长回文子串，区别在于这里
+                // i ,j 分别在各自段落内，而且对应字符相等，只有这样才符合题意,也能过滤干扰项：
+                /*
+                例如：aaa    bb 两个， 算虽然aab子串有回文长度是2，可以登记在dp中，但是不符合筛选条件，所以不会记录在res中*/
+                if (i < n1 && j >= n1 && s.charAt(i) == s.charAt(j)) {
+                    max = Math.max(max, dp[i][j]);
+                }
+            }
+        }
+        return max;
+    }
+}
+
 ```
 
