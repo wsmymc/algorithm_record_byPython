@@ -2000,6 +2000,32 @@ public:
 };
 ```
 
+### 79. [5685. 交替合并字符串](https://leetcode-cn.com/problems/merge-strings-alternately/)
+
+```C++
+#include<iostream>
+#include<string>
+using namespace std;
+class Solution {
+public:
+    string mergeAlternately(string word1, string word2) {
+        int N1=word1.size(), N2=word2.size(), i=0;
+        string res = "";
+        while(i<N1 && i<N2)         //将相同长度的那部分字符串交替合并
+        {
+            res+=word1[i];
+            res+=word2[i];
+            i+=1;
+        }
+        res+=word1.substr(i);   //如果还有剩下的字符就相加，没有白加了也无大碍     
+        res+=word2.substr(i);   //如果还有剩下的字符就相加，没有白加了也无大碍
+        return res;
+    }
+};
+
+
+```
+
 
 
 ## medium
