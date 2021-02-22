@@ -1106,6 +1106,30 @@ class Solution {
 }
 ```
 
+### 39. [5685. 交替合并字符串](https://leetcode-cn.com/problems/merge-strings-alternately/)
+
+```java
+class Solution {
+    public String mergeAlternately(String s1, String s2) {
+        int l1=s1.length(),l2 = s2.length();
+        int minLen = Math.min(l1,l2);
+        StringBuilder res = new StringBuilder();
+        for(int i=0;i<minLen;i++){
+            res.append(s1.charAt(i));
+            res.append(s2.charAt(i));
+
+        }
+        if (l1>l2){
+            res.append(s1, minLen, l1);
+        }else {
+            res.append(s2, minLen, l2);
+        }
+        return res.toString();
+
+    }
+}
+```
+
 
 
 ## mediium
