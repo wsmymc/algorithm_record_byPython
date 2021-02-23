@@ -11089,6 +11089,7 @@ class Solution:
         return res
 ```
 
+
 #### 158. [5669. 通过连接另一个数组的子数组得到一个数组](https://leetcode-cn.com/problems/form-array-by-concatenating-subarrays-of-another-array/)
 
 ```python
@@ -11204,6 +11205,63 @@ class Solution:
 
 
 ```
+
+#### 161. [1043. 分隔数组以得到最大和](https://leetcode-cn.com/problems/partition-array-for-maximum-sum/)
+
+```python
+class Solution:
+    def maxSumAfterPartitioning(self, arr: List[int], k: int) -> int: # 读题要认值，k不是分段数，而是分段后每一段的元素数
+        n = len(arr)
+        dp = [0] * (n+1) # dp,多一位，用来记录做开始，什么都没有的状态，res = 0
+        for i in range(1,n+1):
+            j = i - 1
+            mx = -float('inf')  # 其实-1应该也可以
+            while i - j <= k and j >= 0:  # 在限定好的滑窗内，j>=0 and j + k <= i 不断进行比较，当前位的结果就是 指定某一j,将i~ j变成arr[j] 并加上之前的和。注意实际上arr和dp是有错位的，也因为有错位，所以arr[j] 和 dp[j] 才能出现在同一个循环里，否则应该是dp[j-1],但是j-可能会小于0，所以又要加判断，没有之前这是位n+1巧妙
+                mx = max(mx,arr[j])
+                dp[i] = max(dp[i],dp[j]+mx * (i - j))
+                j -= 1
+        print(dp)
+        return dp[n]
+```
+
+#### 162. [1769. 移动所有球到每个盒子所需的最小操作数](https://leetcode-cn.com/problems/minimum-number-of-operations-to-move-all-balls-to-each-box/)
+
+```python
+# 暴力法
+
+# 前缀和
+class Solution:
+    def minOperations(self, boxes: str) -> List[int]:
+        # 计算前、后缀和，然后遍历统计位置
+        n=len(boxes)
+        #前缀和
+        pre=[0]*n
+        presum=0
+        count=0        
+        for i in range(n):
+            pre[i]+=presum   # 左边所有1，到当前位置的操作数                    
+            count+=1 if boxes[i]=='1' else 0 # 如果有1，就需要+1，总共个要移动的小球增加
+            presum+=count   # 下一步需要移动count个小球
+
+        #后缀和
+        suf=[0]*n
+        sufsum=0
+        count=0        
+        for i in range(n-1,-1,-1): # 逻辑同上
+            suf[i]+=sufsum
+            count+=1 if boxes[i]=='1' else 0
+            sufsum+=count
+        res=[0]*n
+        #统计结果
+        for i in range(n):  # 左右之和
+            res[i]=pre[i]+suf[i]
+        return res
+
+```
+
+
+
+
 
 
 

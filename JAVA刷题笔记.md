@@ -1627,6 +1627,7 @@ class Solution {
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+
 ### 12. [1438. 绝对差不超过限制的最长连续子数组](https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
 
 ```java
@@ -1693,6 +1694,25 @@ class Solution {
 链接：https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/solution/jue-dui-chai-bu-chao-guo-xian-zhi-de-zui-5bki/
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 13. [1043. 分隔数组以得到最大和](https://leetcode-cn.com/problems/partition-array-for-maximum-sum/)
+
+```java
+class Solution {
+    public int maxSumAfterPartitioning(int[] arr, int k) {
+        int n = arr.length;
+        int[] dp = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            int max = -1;
+            for (int j = i - 1; j >= Math.max(i - k, 0); j--) {
+                max = Math.max(max, arr[j]);
+                dp[i] = Math.max(dp[i], dp[j] + max * (i - j));
+            }
+        }
+        return dp[n];
+    }
+}
 ```
 
 

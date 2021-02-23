@@ -65,7 +65,7 @@ ss >> a >> b >> c;
 // 文字转换大小写
 ```
 
-<<<<<<< HEAD
+
 #### 9. accumulate
 
 ```C++
@@ -74,10 +74,8 @@ accumulate带有三个形参：头两个形参指定要累加的元素范围，�
 int sum = accumulate(vec.begin() , vec.end() , 42);
 ```
 
-=======
-#### 9. is_sorted()
->>>>>>> e76228a117d8cf203fe23c53f72d5d25281726da
 
+#### 9. is_sorted()
 is_sorted() 函数有 2 种语法格式，分别是：
 
 ```
@@ -3248,6 +3246,28 @@ vector<vector<int>> g;
 };
 ```
 
+### 33. [1043. 分隔数组以得到最大和](https://leetcode-cn.com/problems/partition-array-for-maximum-sum/)
+
+```c++
+class Solution {
+public:
+    int maxSumAfterPartitioning(vector<int>& arr, int k) {
+        int len = arr.size();
+        vector<int> dp(len);
+        for (int i = 0; i < len; i++) {
+            int maxNum = 0;
+            for (int j = i; j > i - k && j >= 0; j--) { // j从i出发往前取k个
+                maxNum = max(maxNum, arr[j]);
+                // 状态转移方程  dp[i] = max(dp[i], dp[j-1]+maxNum*(i-j+1)), 注意处理一下j=0时的临界条件
+                dp[i] = max(dp[i], j != 0 ? dp[j - 1] + maxNum * (i - j + 1) : maxNum * (i - j + 1));
+            }
+        }
+        return dp[len - 1];
+    }
+};
+
+```
+
 
 
 ### 33. [5669. 通过连接另一个数组的子数组得到一个数组](https://leetcode-cn.com/problems/form-array-by-concatenating-subarrays-of-another-array/)
@@ -3383,6 +3403,45 @@ public:
 };
 
 
+```
+
+### 36. [1770. 执行乘法运算的最大分数](https://leetcode-cn.com/problems/maximum-score-from-performing-multiplication-operations/)
+
+```C++
+class Solution {
+public:
+    int maximumScore(vector<int>& nums, vector<int>& multipliers) {
+        // vector<vector<long long>> dp(1005, vector<long long>(1005, 0));
+        // long long m = multipliers.size(), res = INT_MIN, n = nums.size();
+        // for(int k = 1; k <= m; ++k){
+        //     for(int i = 0; i <= k; i++){
+        //         if(i == 0) dp[i][k - i] = dp[i][k - i - 1] + nums[n - k + i] * multipliers[k - 1];
+        //         else if(i == k) dp[i][k - i] = dp[i - 1][k - i] + nums[i - 1] * multipliers[k - 1];
+        //         else dp[i][k - i] = max(dp[i][k - i - 1] + nums[n - k + i] * multipliers[k - 1], dp[i - 1][k - i] + nums[i - 1] * multipliers[k - 1]);
+        //         if(k == m) res = max(res, dp[i][k - i]);
+        //     }
+        // }
+        // return res;
+
+        // 是区间DP问题
+        int n = nums.size(),  m = multipliers.size();
+        if(n >=m *2){ //必有的优化项，因为n 远大于m，中间的中间的部分无论如何都不会被计算在内，所以需要删除。否则会超时
+            int x = m , y = n-m;
+            while (y<n) nums[x++] = nums[y++];
+            n =x;
+        }
+        vector<vector<int>> f(n+2, vector<int>(n+2));
+        for(int len = n - m+1 ; len<= n;len++){  // 从小到达枚举计算区间的长度，起点是n-m+1 因为做小要
+            for(int i= 1; i + len -1 <= n ;i ++){
+                // 从小区间到大区间dp
+                int j=i + len -1;
+                //cout<<i<<" "<<j<<endl;
+                f[i][j] = max(f[i+1][j] + multipliers[n-len] * nums[i-1], f[i][j-1] + multipliers[n-len]*nums[j-1]);
+            }
+        }
+        return f[1][n];
+    }
+};
 ```
 
 
