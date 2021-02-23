@@ -11259,6 +11259,71 @@ class Solution:
 
 ```
 
+#### 163. [1770. 执行乘法运算的最大分数](https://leetcode-cn.com/problems/maximum-score-from-performing-multiplication-operations/)
+
+```python
+from typing import List
+
+
+class Solution:
+    def maximumScore(self, nums: List[int], multipliers: List[int]) -> int:
+        n = len(nums)
+        m = len(multipliers)
+        if n >= 2*m:
+            nums[m:2*m+1] = nums[n-m:n]
+            n = 2 * m
+        # print(n, m)
+        # print(nums[:n])
+        f = [[0]*(n+2) for _ in range(n+2)]
+        for _len in range(n-(m-1), n+1):
+            #print("len= %s" % _len)
+            for i in range(1, n+1):
+                j = i + _len - 1
+                if j > n:
+                    break
+                # print("i=%s, j=%s, i-1=%s, j-1=%s, n-len=%s" % (
+                #     i, j, i - 1, j - 1, n - _len
+                # ))
+                # print(nums[i-1] * multipliers[n-_len],nums[j-1] * multipliers[n-_len])
+                f[i][j] = max(f[i+1][j] + nums[i-1] * multipliers[n-_len],
+                              f[i][j-1] + nums[j-1] * multipliers[n-_len])
+        #     for r in f:
+        #         print(r)
+        # print('start')
+        # for r in f:
+        #     print(r)
+        return f[1][n]
+
+```
+
+#### 164. [1052. 爱生气的书店老板](https://leetcode-cn.com/problems/grumpy-bookstore-owner/)
+
+```python
+from typing import List
+
+
+class Solution:
+    def maxSatisfied(self, customers: List[int], grumpy: List[int], X: int) -> int:
+        n = len(customers)
+        pre1 = [0]*(n+1)
+        pre2 = [0]* (n+1)
+        for i in range(1, n+1):
+            pre1[i] += pre1[i-1] + customers[i-1]
+            pre2[i] += pre2[i-1] + customers[i-1] * (1 - grumpy[i-1])
+        res = pre2[n]
+        sum = res
+        # print(pre1)
+        # print(pre2)
+        #res = sum + (pre1[X] - pre1[0]) - (pre2[X] - pre2[0])
+        for i in range(0, n-X+1):
+            # print('idx:', i+X, i)
+            # print("%s - %s) - (%s - %s" % (pre1[i+X], pre1[i], pre2[i+X] , pre2[i]))
+            tmp = sum + (pre1[i+X] - pre1[i]) - (pre2[i+X] - pre2[i])
+            #print('tmp:',tmp,'sum:',sum)
+            res = max(res, tmp)
+        return res
+```
+
 
 
 

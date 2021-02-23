@@ -1715,6 +1715,56 @@ class Solution {
 }
 ```
 
+### 14. [1770. 执行乘法运算的最大分数](https://leetcode-cn.com/problems/maximum-score-from-performing-multiplication-operations/)
+
+```java
+class Solution {
+    public int maximumScore(int[] nums, int[] multipliers) {
+         int n = nums.length, m = multipliers.length;
+        if(n> 2*m){
+            int x =m, y = n-m;
+            while (y<n){
+                nums[x++] = nums[y++];
+            }
+            n = x;
+        }
+        int[][] dp = new int[n+2][n+2];
+        for(int len = n-m+1; len<=n;len ++){
+            for(int i=1;i+ len-1<=n;i++){
+                int j= i+len-1;
+                dp[i][j] = Math.max(dp[i+1][j] + nums[i-1] * multipliers[n-len] , dp[i][j-1] + nums[j-1]*multipliers[n-len]);
+            }
+        }
+        return dp[1][n];
+
+    }
+}
+```
+
+### 15. [1052. 爱生气的书店老板](https://leetcode-cn.com/problems/grumpy-bookstore-owner/)
+
+```java
+class Solution {
+    public int maxSatisfied(int[] customers, int[] grumpy, int X) {
+int n = customers.length;
+        int[] pre1 = new int[n+1];
+        int[] pre2 = new int[n+1];
+        for(int i=1;i<=n; i++){
+            pre1[i] = pre1[i-1] + customers[i-1];
+            pre2[i] = pre2[i-1] + customers[i-1] * (1 - grumpy[i-1]);
+
+        }
+        int res = pre2[n];
+        int sum = res;
+        for(int i=0;i +X <=n;i++){
+            int tmp = sum + (pre1[i+X] - pre1[i]) - (pre2[i+X] - pre2[i]);
+            res = Math.max(tmp,res);
+        }
+        return res;
+    }
+}
+```
+
 
 
 ## hard

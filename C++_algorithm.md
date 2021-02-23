@@ -3444,6 +3444,28 @@ public:
 };
 ```
 
+### 37. [1052. 爱生气的书店老板](https://leetcode-cn.com/problems/grumpy-bookstore-owner/)
+
+```C++
+class Solution {
+public:
+    int maxSatisfied(vector<int>& customers, vector<int>& grumpy, int X) {
+        // 未必一定要使用前缀和，可以边滑动，边计算
+        int ret = 0, extra = 0, tmp = 0;
+        int n = customers.size();
+        int l = 0, r = 0;
+        while(r < n) {
+            ret += (1 - grumpy[r]) * customers[r];//确定满意的顾客
+            //滑动窗口
+            tmp += grumpy[r] * customers[r++];
+            extra = max(extra, tmp);
+            if(r - l == X) tmp -= grumpy[l] * customers[l++];
+        }
+        return ret + extra;
+    }
+};
+```
+
 
 
 ## hard
