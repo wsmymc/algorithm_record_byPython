@@ -11324,7 +11324,83 @@ class Solution:
         return res
 ```
 
+#### 165. [304. 二维区域和检索 - 矩阵不可变](https://leetcode-cn.com/problems/range-sum-query-2d-immutable/)
 
+```python
+# 标签是dp，实际上是二维前缀和，没技术含量，想到就会做。
+# 不过输入为空的确实还是蛮坑的，没说明返回时null
+class NumMatrix:
+
+    def __init__(self, matrix: List[List[int]]):
+        self.grid = matrix
+        self.m = len(matrix)
+        if self.m == 0:
+            self.n =0
+        else:
+            self.n = len(matrix[0])
+        if self.m >0 and self.n > 0:
+            self.matrix = [[0] * (self.n+1) for _ in range(self.m+1)]
+            for i in range(1,self.m+1):
+                for j in range(1,self.n+1):
+                    self.matrix[i][j] = self.matrix[i-1][j] + self.matrix[i][j-1] + self.grid[i-1][j-1]- self.matrix[i-1][j-1]
+
+
+
+    def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
+        if self.m == 0 and self.n ==0:
+            return 
+        return self.matrix[row2+1][col2+1] - self.matrix[row1][col2+1] - self.matrix[row2+1][col1] + self.matrix[row1][col1]
+        
+
+
+
+
+# Your NumMatrix object will be instantiated and called as such:
+# obj = NumMatrix(matrix)
+# param_1 = obj.sumRegion(row1,col1,row2,col2)
+```
+
+
+
+#### 166. [357. 计算各个位数不同的数字个数](https://leetcode-cn.com/problems/count-numbers-with-unique-digits/)
+
+```python
+# 貌似属于数位dp，一开始考虑用递归，现在看还是迭代快
+
+
+class Solution:
+    def countNumbersWithUniqueDigits(self, n: int) -> int:
+        if n <= 1:
+            return 10**n
+        f = [0,1]
+        for i in range(2,10):
+            f.append(i*f[i-1])
+        # print(f)
+        sum =0
+        for i in range(min(10,n+1)):
+        
+            if i==0:
+                sum += 1
+            elif i== 1:
+                sum +=9
+            else:
+                sum += f[9]//f[9-i] + (i-1)*(f[9]//f[9-(i-1)])
+            #print(i,sum)
+        return sum
+   
+
+        
+
+#    * 排列组合：n位有效数字 = 每一位都从 0~9 中选择，且不能以 0 开头
+#      * 1位数字：0~9                      10
+#      * 2位数字：C10-2，且第一位不能是0      9 * 9
+#      * 3位数字：C10-3，且第一位不能是0      9 * 9 * 8
+#      * 4位数字：C10-4，且第一位不能是0      9 * 9 * 8 * 7
+#      * ... ...
+#      * 最后，总数 = 所有 小于 n 的位数个数相加
+#      */     
+        
+```
 
 
 
