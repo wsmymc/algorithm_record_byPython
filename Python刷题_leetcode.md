@@ -11402,6 +11402,31 @@ class Solution:
         
 ```
 
+#### 167. [395. 至少有 K 个重复字符的最长子串](https://leetcode-cn.com/problems/longest-substring-with-at-least-k-repeating-characters/)
+
+```python
+# 分治法
+# 就是递归
+class Solution:
+    def longestSubstring(self, s: str, k: int) -> int:
+        res = 0
+        if not s:
+            return res
+        cnt = [0] * 26
+        for item in s:
+            cnt[ord(item) - 97] += 1
+        split = ""
+        for index, item in enumerate(cnt):
+            if item > 0 and item < k:
+                split = chr(index + 97)
+                break
+        if split == "":
+            return len(s)
+        for item in s.split(split):
+            res = max(res, self.longestSubstring(item, k))
+        return res
+```
+
 
 
 
@@ -13097,6 +13122,122 @@ class Solution:
 ```
 
 
+
+#### 43. [1178. 猜字谜](https://leetcode-cn.com/problems/number-of-valid-words-for-each-puzzle/)
+
+```python
+class Solution:
+    def findNumOfValidWords(self, words: List[str], puzzles: List[str]) -> List[int]:
+
+        
+# 外国友人仿照中国字谜设计了一个英文版猜字谜小游戏，请你来猜猜看吧。
+
+# 字谜的迷面 puzzle 按字符串形式给出，如果一个单词 word 符合下面两个条件，那么它就可以算作谜底：
+
+# 单词 word 中包含谜面 puzzle 的第一个字母。========>(说明，第一种，puzzle[0] in word,)
+# 单词 word 中的每一个字母都可以在谜面 puzzle 中找到。========>(第二种，for c in word: all c in puzzle)
+
+# 这两种单纯使用循环来做，效率太低了，所以考虑使用高级数据结构，减少枚举次数 
+
+# 例如，如果字谜的谜面是 "abcdefg"，那么可以作为谜底的单词有 "faced", "cabbage", 和 "baggage"；而 "beefed"（不含字母 "a"）以及 "based"（其中的 "s" 没有出现在谜面中）都不能作为谜底。
+# 返回一个答案数组 answer，数组中的每个元素 answer[i] 是在给出的单词列表 words 中可以作为字谜迷面 puzzles[i] 所对应的谜底的单词数目。
+
+
+        # 字典树玩法
+        root = TrieNode()
+        def add(word):   # 单词插入字典树
+            cur = root
+            for ch in word:
+                idx = ord(ch) -97
+                if idx not in cur.child:
+                    cur.child[idx] = TrieNode()
+                cur = cur.child[idx]
+            cur.freq +=1   # 到这一步，cur指向最底层，统计去重排序后的单词相同的个数
+        for word in words:
+            word = sorted(set(word))  # 根据题意，将单词字母先去重再排序符合题意
+            add(word)
+         # 在回溯的过程中枚举 puzzle 的所有子集并统计答案
+        # find(puzzle, required, cur, pos) 表示 puzzle 的首字母为 required, 当前搜索到字典树上的 cur 节点，并且准备枚举 puzzle 的第 pos 个字母是否选择（放入子集中）
+        # find 函数的返回值即为谜底的数量
+
+        def find(puzzle, required, cur, pos):
+            if not cur:  # 找不到下一节点，返回0
+                return 0
+            if pos == 7:  # 如果位置是7，根据题意，puzzle最大为7，所以比较到此直接返回频数
+                return cur.freq
+            # 否则开始特别计算
+            res = 0
+            if (idx := ord(puzzle[pos]) - 97) in cur.child:
+                # 内部是递归的，用来逐位（puzzle）-逐层(tree)，对比.最后返回频数（以为puzzle题目中保证去重了）
+                res += find(puzzle, required,cur.child[idx], pos+1)
+            # 如果当前比较的字母不是原本puzzle的首字母,可以选择跳过，比较下一个，这是实际上对应的是第1个条件了。
+            # 其实不止，意思是每一层本身，都可以截止，位置移动，层数不变，除了和首字母相同的情况:如果相同，是要考虑条件1的，一定要走下去，不能跳过
+            if puzzle[pos] != required:
+                res += find(puzzle,required,cur,pos+1)
+            print(puzzle, res,pos)
+            return res
+        
+        ans = []
+        for puzzle in puzzles:
+            required = puzzle[0]
+            puzzle = sorted(puzzle)  # 也是需要先排序的
+            ans.append(find(puzzle, required, root, 0))
+        return ans
+        
+            
+class TrieNode:
+    def __init__(self):
+        self.freq = 0  # 记录频率用来统计个数
+        self.child = {}
+  
+
+
+
+
+
+
+## 状态压缩
+class Solution:
+    def findNumOfValidWords(self, words: List[str], puzzles: List[str]) -> List[int]:
+        # 状态压缩，用二进制位表示，26个字母的存在状态
+        freq = collections.Counter()
+        for word in words:
+            mask = 0
+            for ch in word:
+                mask |= (1 << (ord(ch) - 97))
+            if str(bin(mask)).count('1')<= 7:
+                freq[mask] +=1
+        res = []
+        for puzzle in puzzles:
+            total = 0
+                       # 枚举子集方法一
+            # for choose in range(1 << 6):
+            #     mask = 0
+            #     for i in range(6):
+            #         if choose & (1 << i):
+            #             mask |= (1 << (ord(puzzle[i + 1]) - ord("a")))
+            #     mask |= (1 << (ord(puzzle[0]) - ord("a")))
+            #     if mask in frequency:
+            #         total += frequency[mask]
+
+            # 枚举子集方法二
+            mask = 0
+            for i in range(1,7):
+                mask |= (1 << (ord(puzzle[i]) - 97))
+            subset = mask
+            while subset:
+                s = subset | (1<< (ord(puzzle[0]) - 97))
+                if s in freq:
+                    total += freq[s]
+                subset = (subset-1) & mask
+            if (1 << (ord(puzzle[0]) - ord("a"))) in freq:
+                total += freq[1 << (ord(puzzle[0]) - ord("a"))]
+            res.append(total)
+        return res
+
+
+        
+```
 
 
 
