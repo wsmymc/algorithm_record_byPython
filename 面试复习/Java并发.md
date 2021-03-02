@@ -383,3 +383,615 @@ JMM对正确同步的多线程程序的内存一致性做了如下保证。
 AQS，非阻塞数据结构和原子变量类（java.util.concurrent.atomic包中的类），这些concurrent包中的基础类都是使用这种模式来实现的，而concurrent包中的高层类又是依赖于这些基础类来实现的。
 ```
 
+
+
+
+
+### 3.6 final的内存语义
+
+#### 3.6.1 final域的重排序规则
+
+```
+1）在构造函数内对一个final域的写入，与随后把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。
+
+2）初次读一个包含final域的对象的引用，与随后初次读这个final域，这两个操作之间不能重排序。
+```
+
+```
+1）JMM禁止编译器把final域的写重排序到构造函数之外。
+
+2）编译器会在final域的写之后，构造函数return之前，插入一个StoreStore屏障。这个屏障禁止处理器把final域的写重排序到构造函数之外。
+```
+
+```
+读final域的重排序规则是，在一个线程中，初次读对象引用与初次读该对象包含的final域，JMM禁止处理器重排序这两个操作（注意，这个规则仅仅针对处理器）。编译器会在读final域操作的前面插入一个LoadLoad屏障。
+
+初次读对象引用与初次读该对象包含的final域，这两个操作之间存在间接依赖关系。由于编译器遵守间接依赖关系，因此编译器不会重排序这两个操作。大多数处理器也会遵守间接依赖，也不会重排序这两个操作。但有少数处理器允许对存在间接依赖关系的操作做重排序（比如alpha处理器），这个规则就是专门用来针对这种处理器的。
+
+读final域的重排序规则可以确保：在读一个对象的final域之前，一定会先读包含这个final域的对象的引用。在这个示例程序中，如果该引用不为null，那么引用对象的final域一定已经被A线程初始化过了。
+```
+
+```
+本例final域为一个引用类型，它引用一个int型的数组对象。对于引用类型，写final域的重排序规则对编译器和处理器增加了如下约束：在构造函数内对一个final引用的对象的成员域的写入，与随后在构造函数外把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。
+```
+
+
+
+
+
+......
+
+
+
+
+
+## 4 Java并发基础
+
+### 4.1 线程简介
+
+```
+现代操作系统调度的最小单元是线程，也叫轻量级进程（Light Weight Process），在一个进程里可以创建多个线程，这些线程都拥有各自的计数器、堆栈和局部变量等属性，并且能够访问共享的内存变量。处理器在这些线程上高速切换，让使用者感觉到这些线程在同时执行。
+```
+
+```java
+public class MultiThread{
+    public static void main(String[] args) {
+        // 获取Java线程管理MXBean
+        ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        // 不需要获取同步的monitor和synchronizer信息，仅获取线程和线程堆栈信息
+        ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(false, false);
+        // 遍历线程信息，仅打印线程ID和线程名称信息
+        for (ThreadInfo threadInfo : threadInfos) {
+            System.out.println("[" + threadInfo.getThreadId() + "] " + threadInfo.
+            getThreadName());
+        }
+    }
+}
+```
+
+输出如下：
+
+```shell
+[4] Signal Dispatcher　 // 分发处理发送给JVM信号的线程
+[3] Finalizer　　　　   // 调用对象finalize方法的线程
+[2] Reference Handler   // 清除Reference的线程
+[1] main　  　　　　    // main线程，用户程序入口
+```
+
+说明：一个一个Java程序的运行不仅仅是main()方法的运行，而是main线程和多个其他线程的同时运行
+
+### 4.1.2 为何多线程
+
+1. 更多的处理器核心
+
+2. 更快的响应时间
+
+   ```
+   在上面的场景中，可以使用多线程技术，即将数据一致性不强的操作派发给其他线程处理（也可以使用消息队列），如生成订单快照、发送邮件等。这样做的好处是响应用户请求的线程能够尽可能快地处理完成，缩短了响应时间，提升了用户体验。
+   ```
+
+3. 更好的编程模型
+
+   ```
+   Java为多线程编程提供了良好、考究并且一致的编程模型，使开发人员能够更加专注于问题的解决，即为所遇到的问题建立合适的模型，而不是绞尽脑汁地考虑如何将其多线程化。一旦开发人员建立好了模型，稍做修改总是能够方便地映射到Java提供的多线程编程模型上。
+   ```
+
+#### 4.1.3 线程优先级
+
+```
+在Java线程中，通过一个整型成员变量priority来控制优先级，优先级的范围从1~10，在线程构建的时候可以通过setPriority(int)方法来修改优先级，默认优先级是5，优先级高的线程分配时间片的数量要多于优先级低的线程。设置线程优先级时，针对频繁阻塞（休眠或者I/O操作）的线程需要设置较高优先级，而偏重计算（需要较多CPU时间或者偏运算）的线程则设置较低的优先级，确保处理器不会被独占。在不同的JVM以及操作系统上，线程规划会存在差异，有些操作系统甚至会忽略对线程优先级的设定
+```
+
+#### 4.1.4 线程的状态
+
+* NEW: 线程被创建，但是还没有调用start()方法
+* RUNNABLE:运行状态（就绪 + 运行中）
+* BLOCKED: 阻塞，表示线程阻塞于锁
+* WAITING:等待状态，表示该线程需要等待，其他线程做出特定动作，通知或中断
+* TIME WAITING超时等待，超时后自动返回
+* TERMINATED:  终止状态
+
+
+
+
+#### 4.1.5 Deamon线程
+
+```
+Daemon线程是一种支持型线程，因为它主要被用作程序中后台调度以及支持性工作。这意味着，当一个Java虚拟机中不存在非Daemon线程的时候，Java虚拟机将会退出。可以通过调用Thread.setDaemon(true)将线程设置为Daemon线程。
+```
+
+```java
+public class Daemon {
+    public static void main(String[] args) {
+        Thread thread = new Thread(new DaemonRunner(), "DaemonRunner");
+        thread.setDaemon(true);
+        thread.start();
+}
+    static class DaemonRunner implements Runnable {
+        @Override
+        public void run() {
+            try {
+                SleepUtils.second(10);
+            } finally {
+                System.out.println("DaemonThread finally run.");
+            }
+        }
+    }
+}
+
+/*
+运行Daemon程序，可以看到在终端或者命令提示符上没有任何输出。main线程（非Daemon线程）在启动了线程DaemonRunner之后随着main方法执行完毕而终止，而此时Java虚拟机中已经没有非Daemon线程，虚拟机需要退出。Java虚拟机中的所有Daemon线程都需要立即终止，因此DaemonRunner立即终止，但是DaemonRunner中的finally块并没有执行。*/
+```
+
+
+
+
+
+### 4.2 启动和终止线程
+
+#### 4.2.1 构造线程
+
+* java.lang.Thread中对线程进行初始化的部分:
+
+```java
+private void init(ThreadGroup g, Runnable target, String name,long stackSize, 
+AccessControlContext acc) {
+      if (name == null) {
+             throw new NullPointerException("name cannot be null");
+      }
+      // 当前线程就是该线程的父线程
+      Thread parent = currentThread();
+      this.group = g;
+      // 将daemon、priority属性设置为父线程的对应属性
+      this.daemon = parent.isDaemon();
+      this.priority = parent.getPriority();
+      this.name = name.toCharArray();
+      this.target = target;
+      setPriority(priority);
+      // 将父线程的InheritableThreadLocal复制过来
+      if (parent.inheritableThreadLocals != null) 
+      this.inheritableThreadLocals=ThreadLocal.createInheritedMap(parent.
+      inheritableThreadLocals);
+      // 分配一个线程ID
+      tid = nextThreadID();
+}
+```
+
+```
+在上述过程中，一个新构造的线程对象是由其parent线程来进行空间分配的，而child线程继承了parent是否为Daemon、优先级和加载资源的contextClassLoader以及可继承的ThreadLocal，同时还会分配一个唯一的ID来标识这个child线程。至此，一个能够运行的线程对象就初始化好了，在堆内存中等待着运行。
+```
+
+#### 4.2.2 启动线程
+
+```
+线程对象在初始化完成之后，调用start()方法就可以启动这个线程。线程start()方法的含义是：当前线程（即parent线程）同步告知Java虚拟机，只要线程规划器空闲，应立即启动调用start()方法的线程。
+```
+
+#### 4.2.3 立即中断
+
+```
+中断可以理解为线程的一个标识位属性，它表示一个运行中的线程是否被其他线程进行了中断操作。中断好比其他线程对该线程打了个招呼，其他线程通过调用该线程的interrupt()方法对其进行中断操作。
+
+线程通过检查自身是否被中断来进行响应，线程通过方法isInterrupted()来进行判断是否被中断，也可以调用静态方法Thread.interrupted()对当前线程的中断标识位进行复位。如果该线程已经处于终结状态，即使该线程被中断过，在调用该线程对象的isInterrupted()时依旧会返回false。
+```
+
+#### 4.2.4 过期的方法：
+
+```
+通过示例的输出可以看到，suspend()、resume()和stop()方法完成了线程的暂停、恢复和终止工作，而且非常“人性化”。但是这些API是过期的，也就是不建议使用的。
+```
+
+```
+不建议使用的原因主要有：以suspend()方法为例，在调用后，线程不会释放已经占有的资源（比如锁），而是占有着资源进入睡眠状态，这样容易引发死锁问题。同样，stop()方法在终结一个线程时不会保证线程的资源正常释放，通常是没有给予线程完成资源释放工作的机会，因此会导致程序可能工作在不确定状态下。
+```
+
+#### 4.2.5  安全地终止线程
+
+```java
+ countThread.interrupt();
+two.cancel();
+```
+
+### 4.3 线程间通信
+
+#### 4.3.1　volatile和synchronized关键字
+
+* ```
+  关键字volatile可以用来修饰字段（成员变量），就是告知程序任何对该变量的访问均需要从共享内存中获取，而对它的改变必须同步刷新回共享内存，它能保证所有线程对变量访问的可见性。
+  ```
+
+* ```
+  关键字synchronized可以修饰方法或者以同步块的形式来进行使用，它主要确保多个线程在同一个时刻，只能有一个线程处于方法或者同步块中，它保证了线程对变量访问的可见性和排他性。
+  ```
+
+* 无论采用哪种方式，其本质是对一个对象的监视器（monitor）进行获取，而这个获取过程是排他的，也就是同一时刻只能有一个线程获取到由synchronized所保护对象的监视器。
+
+任意一个对象都拥有自己的监视器，当这个对象由同步块或者这个对象的同步方法调用时，执行方法的线程必须先获取到该对象的监视器才能进入同步块或者同步方法，而没有获取到监视器（执行该方法）的线程将会被阻塞在同步块和同步方法的入口处，进入BLOCKED状态。
+
+#### 4.3.2　等待/通知机制
+
+等待/通知方法是任意Java对象都具备的，来源于Object对象
+
+* notify() : 通知一个在对象上等待的线程
+* notifyAll() : 通知所有在该对象上等待的线程
+* wait() : 进入waiting状态，释放锁，只有等待通知或者中断后才能返回
+* wait(long) :超时等待一段时间，单位毫秒
+* wait(long,int) :超时等待，单位纳秒
+
+#### 4.3.3　等待/通知的经典范式
+
+* 等待方遵循如下原则。
+
+  1）获取对象的锁。
+
+  2）如果条件不满足，那么调用对象的wait()方法，被通知后仍要检查条件。
+
+  3）条件满足则执行对应的逻辑。
+
+  ```java
+  synchronized(对象) {
+         while(条件不满足) {
+                对象.wait();
+         }
+         对应的处理逻辑
+  }
+  ```
+
+  
+
+* 通知：
+
+  1）获得对象的锁。
+
+  2）改变条件。
+
+  3）通知所有等待在对象上的线程。
+
+  ```java
+  synchronized(对象) {
+         改变条件
+         对象.notifyAll();
+  }
+  ```
+
+
+
+#### 4.3.4　管道输入/输出流
+
+* 管道输入/输出流和普通的文件输入/输出流或者网络输入/输出流不同之处在于，它主要用于线程之间的数据传输，而传输的媒介为内存。具体包括了如下4中具体的实现：
+  1. PipedOutputStream
+  2. PipedInputStream
+  3. PipedReader
+  4. PipedWriter
+
+#### 4.3.5　Thread.join()的使用
+
+* 如果一个线程A执行了thread.join()语句，其含义是：当前线程A等待thread线程终止之后才从thread.join()返回。线程Thread除了提供join()方法之外，还提供了join(long millis)和join(long millis,int nanos)两个具备超时特性的方法。这两个超时方法表示，如果线程thread在给定的超时时间里没有终止，那么将会从该超时方法中返回。
+
+* JDK中Thread.join()方法的源码（进行了部分调整）:
+
+  ```java
+  
+  // 加锁当前线程对象
+  public final synchronized void join() throws InterruptedException {
+         // 条件不满足，继续等待
+         while (isAlive()) {
+                wait(0);
+         }
+         // 条件符合，方法返回
+  }
+  ```
+
+* 当线程终止时，会调用线程自身的notifyAll()方法，会通知所有等待在该线程对象上的线程。可以看到join()方法的逻辑结构与4.3.3节中描述的等待/通知经典范式一致，即加锁、循环和处理逻辑3个步骤。
+
+#### 4.3.6　ThreadLocal的使用
+
+* ThreadLocal，即线程变量，是一个以ThreadLocal对象为键、任意对象为值的存储结构。这个结构被附带在线程上，也就是说一个线程可以根据一个ThreadLocal对象查询到绑定在这个线程上的一个值。
+
+* 可以通过set(T)方法来设置一个值，在当前线程下再通过get()方法获取到原先设置的值。
+
+* eg：
+
+  ```java
+  public class Profiler {
+      // 第一次get()方法调用时会进行初始化（如果set方法没有调用），每个线程会调用一次
+      private static final ThreadLocal<Long> TIME_THREADLOCAL = new ThreadLocal<Long>() {
+          protected Long initialValue() {
+              return System.currentTimeMillis();
+          }
+      };
+      public static final void begin() {
+          TIME_THREADLOCAL.set(System.currentTimeMillis());
+      }
+      public static final long end() {
+          return System.currentTimeMillis() - TIME_THREADLOCAL.get();
+      }
+      public static void main(String[] args) throws Exception {
+          Profiler.begin();
+          TimeUnit.SECONDS.sleep(1);
+          System.out.println("Cost: " + Profiler.end() + " mills");
+      }
+  }
+  ```
+
+
+
+
+
+### 4.4 线程应用实例
+
+#### 4.4.1 等待超时模式
+
+```java
+// 对当前对象加锁
+public synchronized Object get(long mills) throws InterruptedException {
+       long future = System.currentTimeMillis() + mills;
+       long remaining = mills;
+       // 当超时大于0并且result返回值不满足要求
+       while ((result == null) && remaining > 0) {
+              wait(remaining);
+              remaining = future - System.currentTimeMillis();
+       }
+              return result;
+}
+```
+
+#### 4.4.2 线程池技术及其示例
+
+```
+对于服务端的程序，经常面对的是客户端传入的短小（执行时间短、工作内容较为单一）任务，需要服务端快速处理并返回结果。如果服务端每次接受到一个任务，创建一个线程，然后进行执行，这在原型阶段是个不错的选择，但是面对成千上万的任务递交进服务器时，如果还是采用一个任务一个线程的方式，那么将会创建数以万记的线程，这不是一个好的选择。因为这会使操作系统频繁的进行线程上下文切换，无故增加系统的负载，而线程的创建和消亡都是需要耗费系统资源的，也无疑浪费了系统资源。
+```
+
+* 一次创建随取随用，不会有太多上下文切换，节省系统资源
+
+* ```java
+  public interface ThreadPool<Job extends Runnable> {
+         // 执行一个Job，这个Job需要实现Runnable
+         void execute(Job job);
+         // 关闭线程池
+         void shutdown();
+         // 增加工作者线程
+         void addWorkers(int num);
+         // 减少工作者线程
+         void removeWorker(int num);
+         // 得到正在等待执行的任务数量
+         int getJobSize();
+  }
+  /*客户端可以通过execute(Job)方法将Job提交入线程池执行，而客户端自身不用等待Job的执行完成。除了execute(Job)方法以外，线程池接口提供了增大/减少工作者线程以及关闭线程池的方法。这里工作者线程代表着一个重复执行Job的线程，而每个由客户端提交的Job都将进入到一个工作队列中等待工作者线程的处理。*/
+  ```
+
+* ```java
+  public class DefaultThreadPool<Job extends Runnable> implements ThreadPool<Job> {
+      // 线程池最大限制数
+      private static final int    MAX_WORKER_NUMBERS    = 10;
+      // 线程池默认的数量
+      private static final int    DEFAULT_WORKER_NUMBERS = 5;
+      // 线程池最小的数量
+      private static final int    MIN_WORKER_NUMBERS    = 1;
+      // 这是一个工作列表，将会向里面插入工作
+      private final LinkedList<Job>    jobs = new LinkedList<Job>();
+      // 工作者列表
+      private final List<Worker>    workers    = Collections.synchronizedList(new 
+      ArrayList<Worker>());
+      // 工作者线程的数量
+      private int    workerNum    = DEFAULT_WORKER_NUMBERS;
+      // 线程编号生成
+      private AtomicLong    threadNum    = new AtomicLong();
+      public DefaultThreadPool() {
+      initializeWokers(DEFAULT_WORKER_NUMBERS);
+      }
+      public DefaultThreadPool(int num) {
+          workerNum = num > MAX_WORKER_NUMBERS  MAX_WORKER_NUMBERS : num < MIN_WORKER_
+          NUMBERS  MIN_WORKER_NUMBERS : num;
+          initializeWokers(workerNum);
+      }
+      public void execute(Job job) {
+          if (job != null) {
+              // 添加一个工作，然后进行通知
+              synchronized (jobs) {
+                  jobs.addLast(job);
+                  jobs.notify();
+              }
+          }
+      }
+      public void shutdown() {
+          for (Worker worker : workers) {
+              worker.shutdown();
+          }
+      }
+      public void addWorkers(int num) {
+          synchronized (jobs) {
+              // 限制新增的Worker数量不能超过最大值
+              if (num + this.workerNum > MAX_WORKER_NUMBERS) {
+                  num = MAX_WORKER_NUMBERS - this.workerNum;
+              }
+              initializeWokers(num);
+              this.workerNum += num;
+          }
+      }
+      public void removeWorker(int num) {
+          synchronized (jobs) {
+              if (num >= this.workerNum) {
+                  throw new IllegalArgumentException("beyond workNum");
+              }
+              // 按照给定的数量停止Worker
+              int count = 0;
+              while (count < num) {
+                  Worker worker = workers.get(count)
+                  if (workers.remove(worker)) {
+                  worker.shutdown();
+                      count++;
+                  }
+              }
+              this.workerNum -= count;
+          }
+      }
+      public int getJobSize() {
+          return jobs.size();
+      }
+      // 初始化线程工作者
+      private void initializeWokers(int num) {
+          for (int i = 0; i < num; i++) {
+              Worker worker = new Worker();
+              workers.add(worker);
+              Thread thread = new Thread(worker, "ThreadPool-Worker-" + threadNum.
+              incrementAndGet());
+              thread.start();
+          }
+      }
+      // 工作者，负责消费任务
+      class Worker implements Runnable {
+          // 是否工作
+          private volatile boolean    running    = true;
+          public void run() {
+              while (running) {
+                  Job job = null;
+                  synchronized (jobs) {
+                      // 如果工作者列表是空的，那么就wait
+                      while (jobs.isEmpty()) {
+                          try {
+                              jobs.wait();
+                          } catch (InterruptedException ex) {
+                              // 感知到外部对WorkerThread的中断操作，返回
+                              Thread.currentThread().interrupt();
+                              return;
+                          }
+                      }
+                      // 取出一个Job
+                      job = jobs.removeFirst();
+                  }
+                  if (job != null) {
+                      try {
+                          job.run();
+                      } catch (Exception ex) {
+                          // 忽略Job执行中的Exception
+                      }
+                  }
+              }
+          }
+          public void shutdown() {
+              running = false;
+          }
+      }
+  }
+  ```
+
+* 可以看到，线程池的本质就是使用了一个线程安全的工作队列连接工作者线程和客户端线程，客户端线程将任务放入工作队列后便返回，而工作者线程则不断地从工作队列上取出工作并执行。当工作队列为空时，所有的工作者线程均等待在工作队列上，当有客户端提交了一个任务之后会通知任意一个工作者线程，随着大量的任务被提交，更多的工作者线程会被唤醒。
+
+#### 4.4.4 一个基于线程池技术的简单Web服务器
+
+```java
+public class SimpleHttpServer {
+    // 处理HttpRequest的线程池
+    static ThreadPool<HttpRequestHandler>  threadPool    = new DefaultThreadPool
+        <HttpRequestHandler>(1);
+    // SimpleHttpServer的根路径
+    static String    basePath;
+    static ServerSocket    serverSocket;
+    // 服务监听端口
+    static int    port    = 8080;
+    public static void setPort(int port) {
+        if (port > 0) {
+            SimpleHttpServer.port = port;
+        }
+    }
+    public static void setBasePath(String basePath) {
+        if (basePath != null && new File(basePath).exists() && new File(basePath).
+        isDirectory()) {
+            SimpleHttpServer.basePath = basePath;
+        }
+    }
+    // 启动SimpleHttpServer
+    public static void start() throws Exception {
+        serverSocket = new ServerSocket(port);
+        Socket socket = null;
+        while ((socket = serverSocket.accept()) != null) {
+            // 接收一个客户端Socket，生成一个HttpRequestHandler，放入线程池执行
+            threadPool.execute(new HttpRequestHandler(socket));
+        }
+        serverSocket.close();
+    }
+    static class HttpRequestHandler implements Runnable {
+        private Socket    socket;
+        public HttpRequestHandler(Socket socket) {
+            this.socket = socket;
+        }
+        @Override
+        public void run() {
+            String line = null;
+            BufferedReader br = null;
+            BufferedReader reader = null;
+            PrintWriter out = null;
+            InputStream in = null;
+            try {
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String header = reader.readLine();
+                // 由相对路径计算出绝对路径
+                String filePath = basePath + header.split(" ")[1];
+                out = new PrintWriter(socket.getOutputStream());
+                // 如果请求资源的后缀为jpg或者ico，则读取资源并输出
+                if (filePath.endsWith("jpg") || filePath.endsWith("ico")) {
+                    in = new FileInputStream(filePath);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int i = 0;
+                    while ((i = in.read()) != -1) {
+                        baos.write(i);
+                    }
+                    byte[] array = baos.toByteArray();
+                    out.println("HTTP/1.1 200 OK");
+                    out.println("Server: Molly");
+                    out.println("Content-Type: image/jpeg");
+                    out.println("Content-Length: " + array.length);
+                    out.println("");
+                    socket.getOutputStream().write(array, 0, array.length);
+                } else {
+                    br = new BufferedReader(new InputStreamReader(new 
+                    FileInputStream(filePath)));
+                    out = new PrintWriter(socket.getOutputStream());
+                    out.println("HTTP/1.1 200 OK");
+                    out.println("Server: Molly");
+                    out.println("Content-Type: text/html; charset=UTF-8");
+                    out.println("");
+                    while ((line = br.readLine()) != null) {
+                        out.println(line);
+                    }
+                }
+                out.flush();
+            } catch (Exception ex) {
+                out.println("HTTP/1.1 500");
+                out.println("");
+                out.flush();
+            } finally {
+                close(br, in, reader, out, socket);
+            }
+        }
+    }
+    // 关闭流或者Socket
+    private static void close(Closeable... closeables) {
+        if (closeables != null) {
+            for (Closeable closeable : closeables) {
+                try {
+                    closeable.close();
+                } catch (Exception ex) {
+                }
+            }
+        }
+    }
+}
+```
+
+## 5 Java中的锁
+
+### 5.1 LOCK接口
+
+```
+在Lock接口出现之前，Java程序是靠synchronized关键字实现锁功能的，而Java SE 5之后，并发包中新增了Lock接口（以及相关实现类）用来实现锁功能，它提供了与synchronized关键字类似的同步功能，只是在使用时需要显式地获取和释放锁。虽然它缺少了（通过synchronized块或者方法所提供的）隐式获取释放锁的便捷性，但是却拥有了锁获取与释放的可操作性、可中断的获取锁以及超时获取锁等多种synchronized关键字所不具备的同步特性。
+
+使用synchronized关键字将会隐式地获取锁，但是它将锁的获取和释放固化了，也就是先获取再释放。当然，这种方式简化了同步的管理，可是扩展性没有显示的锁获取和释放来的好。
+```
+
+* 不要将获取锁的过程写在try块中，因为如果在获取锁（自定义锁的实现）时发生了异常，异常抛出的同时，也会导致锁无故释放。
+* lock相对于syncchronized的有点：
+  1. 超时获取锁： 超时后自动释放
+  2. 尝试非阻塞的获取：当线程尝试获取锁，如果某一时刻没有被其他线程获取，那么就能成功持有
+  3. 能被中断的获取：线程被中断时，中断异常会抛出，同时锁被释放
