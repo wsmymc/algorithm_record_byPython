@@ -995,3 +995,324 @@ public class SimpleHttpServer {
   1. 超时获取锁： 超时后自动释放
   2. 尝试非阻塞的获取：当线程尝试获取锁，如果某一时刻没有被其他线程获取，那么就能成功持有
   3. 能被中断的获取：线程被中断时，中断异常会抛出，同时锁被释放
+
+### 5.2 队列同步器AQS
+
+```
+队列同步器AbstractQueuedSynchronizer（以下简称同步器），是用来构建锁或者其他同步组件的基础框架，它使用了一个int成员变量表示同步状态，通过内置的FIFO队列来完成资源获取线程的排队工作，并发包的作者（Doug Lea）期望它能够成为实现大部分同步需求的基础。
+```
+
+```
+同步器的主要使用方式是继承，子类通过继承同步器并实现它的抽象方法来管理同步状态，在抽象方法的实现过程中免不了要对同步状态进行更改，这时就需要使用同步器提供的3个方法（getState()、setState(int newState)和compareAndSetState(int expect,int update)）来进行操作，因为它们能够保证状态的改变是安全的。子类推荐被定义为自定义同步组件的静态内部类，同步器自身没有实现任何同步接口，它仅仅是定义了若干同步状态获取和释放的方法来供自定义同步组件使用，同步器既可以支持独占式地获取同步状态，也可以支持共享式地获取同步状态，这样就可以方便实现不同类型的同步组件（ReentrantLock、ReentrantReadWriteLock和CountDownLatch等）。
+```
+
+```
+同步器是实现锁（也可以是任意同步组件）的关键，在锁的实现中聚合同步器，利用同步器实现锁的语义。可以这样理解二者之间的关系：锁是面向使用者的，它定义了使用者与锁交互的接口（比如可以允许两个线程并行访问），隐藏了实现细节；同步器面向的是锁的实现者，它简化了锁的实现方式，屏蔽了同步状态管理、线程的排队、等待与唤醒等底层操作。锁和同步器很好地隔离了使用者和实现者所需关注的领域。
+```
+
+#### 5.2.1 队列同步器的接口与示例
+
+```
+重写同步器指定的方法时，需要使用同步器提供的如下3个方法来访问或修改同步状态。
+
+·getState()：获取当前同步状态。
+
+·setState(int newState)：设置当前同步状态。
+
+·compareAndSetState(int expect,int update)：使用CAS设置当前状态，该方法能够保证状态设置的原子性
+```
+
+#### 5.2.2  队列同步器的实现分析
+
+1. 同步队列
+
+   * 同步器依赖内部的同步队列（一个FIFO双向队列）来完成同步状态的管理，当前线程获取同步状态失败时，同步器会将当前线程以及等待状态等信息构造成为一个节点（Node）并将其加入同步队列，同时会阻塞当前线程，当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。
+   * 节点是构成同步队列（等待队列，在5.6节中将会介绍）的基础，同步器拥有首节点（head）和尾节点（tail），没有成功获取同步状态的线程将会成为节点加入该队列的尾部
+   * 同步器包含了两个节点类型的引用，一个指向头节点，而另一个指向尾节点。试想一下，当一个线程成功地获取了同步状态（或者锁），其他线程将无法获取到同步状态，转而被构造成为节点并加入到同步队列中，而这个加入队列的过程必须要保证线程安全，因此同步器提供了一个基于CAS的设置尾节点的方法：compareAndSetTail(Node expect,Node update)，它需要传递当前线程“认为”的尾节点和当前节点，只有设置成功后，当前节点才正式与之前的尾节点建立关联。
+   * 同步队列遵循FIFO，首节点是获取同步状态成功的节点，首节点的线程在释放同步状态时，将会唤醒后继节点，而后继节点将会在获取同步状态成功时将自己设置为首节点
+
+2. 独占式同步状态获取与释放
+
+   ```
+   分析了独占式同步状态获取和释放过程后，适当做个总结：在获取同步状态时，同步器维护一个同步队列，获取状态失败的线程都会被加入到队列中并在队列中进行自旋；移出队列（或停止自旋）的条件是前驱节点为头节点且成功获取了同步状态。在释放同步状态时，同步器调用tryRelease(int arg)方法释放同步状态，然后唤醒头节点的后继节点。
+   ```
+
+3. 共享式同步状态的获取和释放
+
+4. 独占式超时获取同步状态
+
+### 5.3 重入锁
+
+* 重入锁ReentrantLock，顾名思义，就是支持重进入的锁，它表示该锁能够支持一个线程对资源的重复加锁。除此之外，该锁的还支持获取锁时的公平和非公平性选择。
+
+  ```
+  这里提到一个锁获取的公平性问题，如果在绝对时间上，先对锁进行获取的请求一定先被满足，那么这个锁是公平的，反之，是不公平的。公平的获取锁，也就是等待时间最长的线程最优先获取锁，也可以说锁获取是顺序的。ReentrantLock提供了一个构造函数，能够控制锁是否是公平的。
+  
+  事实上，公平的锁机制往往没有非公平的效率高，但是，并不是任何场景都是以TPS作为唯一的指标，公平锁能够减少“饥饿”发生的概率，等待越久的请求越是能够得到优先满足。
+  ```
+
+1. ```
+   在测试中公平性锁与非公平性锁相比，总耗时是其94.3倍，总切换次数是其133倍。可以看出，公平性锁保证了锁的获取按照FIFO原则，而代价是进行大量的线程切换。非公平性锁虽然可能造成线程“饥饿”，但极少的线程切换，保证了其更大的吞吐量。
+   ```
+
+   
+
+2. 实现重进入
+
+   ```
+   重进入是指任意线程在获取到锁之后能够再次获取该锁而不会被锁所阻塞，该特性的实现需要解决以下两个问题。
+   
+   1）线程再次获取锁。锁需要去识别获取锁的线程是否为当前占据锁的线程，如果是，则再次成功获取。
+   
+   2）锁的最终释放。线程重复n次获取了锁，随后在第n次释放该锁后，其他线程能够获取到该锁。锁的最终释放要求锁对于获取进行计数自增，计数表示当前锁被重复获取的次数，而锁被释放时，计数自减，当计数等于0时表示锁已经成功释放。
+   ```
+
+
+
+### 5.4 读写锁
+
+* 读写锁在同一时刻可以允许多个读线程访问，但是在写线程访问时，所有的读线程和其他写线程均被阻塞。读写锁维护了一对锁，一个读锁和一个写锁，通过分离读锁和写锁，使得并发性相比一般的排他锁有了很大提升。
+* 一般情况下，读写锁的性能都会比排它锁好，因为大多数场景读是多于写的。在读多于写的情况下，读写锁能够提供比排它锁更好的并发性和吞吐量。Java并发包提供读写锁的实现是ReentrantReadWriteLock
+
+#### 5.4.1 读写锁的接口与示例
+
+```java
+public class Cache {
+    static Map<String, Object> map = new HashMap<String, Object>();
+    static ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    static Lock r = rwl.readLock();
+    static Lock w = rwl.writeLock();
+    // 获取一个key对应的value
+    public static final Object get(String key) {
+            r.lock();
+            try {
+                    return map.get(key);
+            } finally {
+                    r.unlock();
+            }
+    }
+    // 设置key对应的value，并返回旧的value
+    public static final Object put(String key, Object value) {
+            w.lock();
+            try {
+                    return map.put(key, value);
+            } finally {
+                    w.unlock();
+            }
+    }
+    // 清空所有的内容
+    public static final void clear() {
+            w.lock();
+            try {
+                    map.clear();
+            } finally {
+                    w.unlock();
+            }
+    }
+}
+```
+
+#### 5.4.2 读写锁的实现分析
+
+1. 读写状态设计：
+
+   通过一个整形变量维护多种状态，按位切割使用。高16位表示读，低16位表示写
+
+2. 写锁的获取与释放：
+
+   写锁是一个支持重进入的排它锁。如果当前线程已经获取了写锁，则增加写状态。如果当前线程在获取写锁时，读锁已经被获取（读状态不为0）或者该线程不是已经获取写锁的线程，则当前线程进入等待状态
+
+   ```java
+   protected final boolean tryAcquire(int acquires) {
+       Thread current = Thread.currentThread();
+       int c = getState();
+       int w = exclusiveCount(c);
+       if (c != 0) {
+               // 存在读锁或者当前获取线程不是已经获取写锁的线程
+               if (w == 0 || current != getExclusiveOwnerThread())
+                       return false;
+               if (w + exclusiveCount(acquires) > MAX_COUNT)
+                       throw new Error("Maximum lock count exceeded");
+               setState(c + acquires);
+               return true;
+       }
+       if (writerShouldBlock() || !compareAndSetState(c, c + acquires)) {
+               return false;
+       }
+       setExclusiveOwnerThread(current);
+       return true;
+   }
+   /*
+   该方法除了重入条件（当前线程为获取了写锁的线程）之外，增加了一个读锁是否存在的判断。如果存在读锁，则写锁不能被获取，原因在于：读写锁要确保写锁的操作对读锁可见，如果允许读锁在已被获取的情况下对写锁的获取，那么正在运行的其他读线程就无法感知到当前写线程的操作。因此，只有等待其他读线程都释放了读锁，写锁才能被当前线程获取，而写锁一旦被获取，则其他读写线程的后续访问均被阻塞
+   */
+   ```
+
+3. 读锁的获取与释放
+
+   ```
+   读锁是一个支持重进入的共享锁，它能够被多个线程同时获取，在没有其他写线程访问（或者写状态为0）时，读锁总会被成功地获取，而所做的也只是（线程安全的）增加读状态。如果当前线程已经获取了读锁，则增加读状态。如果当前线程在获取读锁时，写锁已被其他线程获取，则进入等待状态。获取读锁的实现从Java 5到Java 6变得复杂许多，主要原因是新增了一些功能，例如getReadHoldCount()方法，作用是返回当前线程获取读锁的次数。读状态是所有线程获取读锁次数的总和，而每个线程各自获取读锁的次数只能选择保存在ThreadLocal中，由线程自身维护，这使获取读锁的实现变得复杂。
+   ```
+
+4. 锁降级
+
+   ```
+   锁降级指的是写锁降级成为读锁。如果当前线程拥有写锁，然后将其释放，最后再获取读锁，这种分段完成的过程不能称之为锁降级。锁降级是指把持住（当前拥有的）写锁，再获取到读锁，随后释放（先前拥有的）写锁的过程。
+   ```
+
+   ```
+   锁降级中读锁的获取是否必要呢？答案是必要的。主要是为了保证数据的可见性，如果当前线程不获取读锁而是直接释放写锁，假设此刻另一个线程（记作线程T）获取了写锁并修改了数据，那么当前线程无法感知线程T的数据更新。如果当前线程获取读锁，即遵循锁降级的步骤，则线程T将会被阻塞，直到当前线程使用数据并释放读锁之后，线程T才能获取写锁进行数据更新。
+   ```
+
+### 5.5 LockSupprot工具
+
+* 需要阻塞或唤醒一个线程的时候，都会使用LockSupport工具类来完成相应工作。LockSupport定义了一组的公共静态方法，这些方法提供了最基本的线程阻塞和唤醒功能，而LockSupport也成为构建同步组件的基础工具。
+* LockSupport增加了park(Object blocker)、parkNanos(Object blocker,long nanos)和parkUntil(Object blocker,long deadline)3个方法，用于实现阻塞当前线程的功能，其中参数blocker是用来标识当前线程在等待的对象（以下称为阻塞对象），该对象主要用于问题排查和系统监控
+* 方法：
+  1. park
+  2. unpark
+  3. parkUtil（long deadtime）
+  4. parkNanos(long nanos):
+
+### 5.6 Condition接口
+
+* ```
+  任意一个Java对象，都拥有一组监视器方法（定义在java.lang.Object上），主要包括wait()、wait(long timeout)、notify()以及notifyAll()方法，这些方法与synchronized同步关键字配合，可以实现等待/通知模式。Condition接口也提供了类似Object的监视器方法，与Lock配合可以实现等待/通知模式，但是这两者在使用方式以及功能特性上还是有差别的。
+  ```
+
+
+
+#### 5.6.1 Condition接口与示例
+
+* ```
+  Condition定义了等待/通知两种类型的方法，当前线程调用这些方法时，需要提前获取到Condition对象关联的锁。Condition对象是由Lock对象（调用Lock对象的newCondition()方法）创建出来的，换句话说，Condition是依赖Lock对象的。
+  ```
+
+* ```java
+  Lock lock = new ReentrantLock();
+  Condition condition = lock.newCondition();
+  public void conditionWait() throws InterruptedException {
+      lock.lock();
+      try {
+              condition.await();
+      } finally {
+              lock.unlock();
+      }
+  }
+  public void conditionSignal() throws InterruptedException {
+      lock.lock();
+      try {
+              condition.signal();
+      } finally {
+              lock.unlock();
+      }
+  }
+  ```
+
+* 获取一个Condition必须通过Lock的newCondition()方法。下面通过一个有界队列的示例来深入了解Condition的使用方式。有界队列是一种特殊的队列，当队列为空时，队列的获取操作将会阻塞获取线程，直到队列中有新增元素，当队列已满时，队列的插入操作将会阻塞插入线程，直到队列出现“空位”，
+
+* ```java
+  public class BoundedQueue<T> {
+      private Object[]    items;
+      // 添加的下标，删除的下标和数组当前数量
+      private int addIndex, removeIndex, count;
+      private Lock lock     = new ReentrantLock();
+      private Condition    notEmpty = lock.newCondition();
+      private Condition    notFull = lock.newCondition();
+      public BoundedQueue(int size) {
+              items = new Object[size];
+      }
+      // 添加一个元素，如果数组满，则添加线程进入等待状态，直到有"空位"
+      public void add(T t) throws InterruptedException {
+              lock.lock();
+              try {
+                      while (count == items.length)
+                              notFull.await();
+                      items[addIndex] = t;
+                      if (++addIndex == items.length)
+                              addIndex = 0;
+                      ++count;
+                      notEmpty.signal();
+              } finally {
+                      lock.unlock();
+              }
+      }
+      // 由头部删除一个元素，如果数组空，则删除线程进入等待状态，直到有新添加元素
+      @SuppressWarnings("unchecked")
+      public T remove() throws InterruptedException {
+              lock.lock();
+              try {
+                      while (count == 0)
+                              notEmpty.await();
+                      Object x = items[removeIndex];
+                      if (++removeIndex == items.length)
+                              removeIndex = 0;
+                      --count;
+                      notFull.signal();
+                      return (T) x;
+              } finally {
+                      lock.unlock();
+              }
+      }
+  }
+  ```
+
+  
+
+#### 5.6.2 Condition的实现分析
+
+* ConditionObject是同步器AbstractQueuedSynchronizer的内部类，因为Condition的操作需要获取相关联的锁，所以作为同步器的内部类也较为合理。每个Condition对象都包含着一个队列（以下称为等待队列），该队列是Condition对象实现等待/通知功能的关键。
+
+1. 等待队列
+
+   ```
+   等待队列是一个FIFO的队列，在队列中的每个节点都包含了一个线程引用，该线程就是在Condition对象上等待的线程，如果一个线程调用了Condition.await()方法，那么该线程将会释放锁、构造成节点加入等待队列并进入等待状态。事实上，节点的定义复用了同步器中节点的定义，也就是说，同步队列和等待队列中节点类型都是同步器的静态内部类AbstractQueuedSynchronizer.Node
+   ```
+
+   ```
+   Condition拥有首尾节点的引用，而新增节点只需要将原有的尾节点nextWaiter指向它，并且更新尾节点即可。上述节点引用更新的过程并没有使用CAS保证，原因在于调用await()方法的线程必定是获取了锁的线程，也就是说该过程是由锁来保证线程安全的。
+   ```
+
+2. 等待：
+
+   ```
+   调用Condition的await()方法（或者以await开头的方法），会使当前线程进入等待队列并释放锁，同时线程状态变为等待状态。当从await()方法返回时，当前线程一定获取了Condition相关联的锁。
+   ```
+
+   ```
+   如果从队列（同步队列和等待队列）的角度看await()方法，当调用await()方法时，相当于同步队列的首节点（获取了锁的节点）移动到Condition的等待队列中。
+   
+   调用该方法的线程成功获取了锁的线程，也就是同步队列中的首节点，该方法会将当前线程构造成节点并加入等待队列中，然后释放同步状态，唤醒同步队列中的后继节点，然后当前线程会进入等待状态。
+   
+   当等待队列中的节点被唤醒，则唤醒节点的线程开始尝试获取同步状态。如果不是通过其他线程调用Condition.signal()方法唤醒，而是对等待线程进行中断，则会抛出InterruptedException。
+   ```
+
+3. 通知
+
+   * ```
+     调用Condition的signal()方法，将会唤醒在等待队列中等待时间最长的节点（首节点），在唤醒节点之前，会将节点移到同步队列中。
+     ```
+
+     ```java
+     public final void signal() {
+         if (!isHeldExclusively())
+                 throw new IllegalMonitorStateException();
+         Node first = firstWaiter;
+         if (first != null)
+                 doSignal(first);
+     }
+     ```
+
+   * ```
+     调用该方法的前置条件是当前线程必须获取了锁，可以看到signal()方法进行了isHeldExclusively()检查，也就是当前线程必须是获取了锁的线程。接着获取等待队列的首节点，将其移动到同步队列并使用LockSupport唤醒节点中的线程。
+     ```
+
+## 6 Java 并发容器和框架
+
+### 6.1 ConcurrentHashMap
+
+#### 6.1.1  why concurrenthashmap
+
+1. HashMap在并发执行put操作时会引起死循环，是因为多线程会导致HashMap的Entry链表形成环形数据结构，一旦形成环形数据结构，Entry的next节点永远不为空，就会产生死循环获取Entry。
+2. ashTable容器使用synchronized来保证线程安全，但在线程竞争激烈的情况下HashTable的效率非常低下。因为当一个线程访问HashTable的同步方法，其他线程也访问HashTable的同步方法时，会进入阻塞或轮询状态。如线程1使用put进行元素添加，线程2不但不能使用put方法添加元素，也不能使用get方法来获取元素，所以竞争越激烈效率越低。
+3. 假如容器里有多把锁，每一把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不会存在锁竞争，从而可以有效提高并发访问效率，这就是ConcurrentHashMap所使用的锁分段技术。首先将数据分成一段一段地存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据的时候，其他段的数据也能被其他线程访问。
+
