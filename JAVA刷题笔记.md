@@ -1130,6 +1130,85 @@ class Solution {
 }
 ```
 
+### 40. [1022. 从根到叶的二进制数之和](https://leetcode-cn.com/problems/sum-of-root-to-leaf-binary-numbers/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int ans; // 类变量
+    public int sumRootToLeaf(TreeNode root) {
+        sumbinary(root, 0);
+        return ans;
+    }
+
+    public void sumbinary(TreeNode root, int cur){
+        if(root == null){
+            return;
+        }
+        if(root.left == null && root.right == null){
+            ans += cur * 2 + root.val;
+            return;
+        }
+        sumbinary(root.left, cur * 2 + root.val);
+        sumbinary(root.right, cur * 2 + root.val);
+    }
+}
+
+```
+
+
+
+### 41. [1030. 距离顺序排列矩阵单元格](https://leetcode-cn.com/problems/matrix-cells-in-distance-order/)
+
+```java
+
+class Solution {
+    public int[][] allCellsDistOrder(int R, int C, int r0, int c0) {
+        int maxDist = Math.max(r0, R - 1 - r0) + Math.max(c0, C - 1 - c0);// Math
+        List<List<int[]>> bucket = new ArrayList<List<int[]>>();
+        for (int i = 0; i <= maxDist; i++) {
+            bucket.add(new ArrayList<int[]>());// 使用数组作为桶，理当如此，因为更有序
+        }
+
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                int d = dist(i, j, r0, c0);
+                bucket.get(d).add(new int[]{i, j});
+            }
+        }
+        int[][] ret = new int[R * C][];
+        int index = 0;
+        for (int i = 0; i <= maxDist; i++) {
+            for (int[] it : bucket.get(i)) {
+                ret[index++] = it;
+            }
+        }
+        return ret;
+    }
+
+    public int dist(int r1, int c1, int r2, int c2) {
+        return Math.abs(r1 - r2) + Math.abs(c1 - c2);
+    }
+}
+
+```
+
+
+
 
 
 ## mediium
