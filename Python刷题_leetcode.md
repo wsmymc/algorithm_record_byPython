@@ -13293,6 +13293,293 @@ class Solution(object):
 
 ```
 
+#### 45. [132. 分割回文串 II](https://leetcode-cn.com/problems/palindrome-partitioning-ii/)
+
+```python
+# 给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是回文。 
+# 
+#  返回符合要求的 最少分割次数 。 
+# 
+#  
+#  
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：s = "aab"
+# 输出：1
+# 解释：只需一次分割就可将 s 分割成 ["aa","b"] 这样两个回文子串。
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：s = "a"
+# 输出：0
+#  
+# 
+#  示例 3： 
+# 
+#  
+# 输入：s = "ab"
+# 输出：1
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  1 <= s.length <= 2000 
+#  s 仅由小写英文字母组成 
+#  
+#  
+#  
+#  Related Topics 动态规划 
+#  👍 394 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def minCut(self, s: str) -> int:
+        n = len(s)
+        dp = [[True]*n for _ in range(n)]
+        for i in range(n-1, -1, -1):
+            for j in range(i+1, n):
+                dp[i][j] = (s[i] == s[j]) and dp[i + 1][j - 1]
+
+        res = [float('inf')]*n  # 求最小值，所以初始化为最大值
+        for i in range(n):
+            if dp[0][i]:
+                res[i]=0
+            else:
+                for j in range(i):
+                    if dp[j+1][i]: # 如果之后j+1：i是一段回文串，那么可以更新，res[i], 和从j转移过来的比较 res[j]+1
+                        res[i] = min(res[i],res[j]+1)
+        return res[n-1]
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+a = Solution()
+print(a.minCut('aad'))
+```
+
+
+
+#### 46. [1411. 给 N x 3 网格图涂色的方案数](https://leetcode-cn.com/problems/number-of-ways-to-paint-n-3-grid/)
+
+```python
+# 你有一个 n x 3 的网格图 grid ，你需要用 红，黄，绿 三种颜色之一给每一个格子上色，且确保相邻格子颜色不同（也就是有相同水平边或者垂直边的格子颜
+# 色不同）。 
+# 
+#  给你网格图的行数 n 。 
+# 
+#  请你返回给 grid 涂色的方案数。由于答案可能会非常大，请你返回答案对 10^9 + 7 取余的结果。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  输入：n = 1
+# 输出：12
+# 解释：总共有 12 种可行的方法：
+# 
+#  
+# 
+#  示例 2： 
+# 
+#  输入：n = 2
+# 输出：54
+#  
+# 
+#  示例 3： 
+# 
+#  输入：n = 3
+# 输出：246
+#  
+# 
+#  示例 4： 
+# 
+#  输入：n = 7
+# 输出：106494
+#  
+# 
+#  示例 5： 
+# 
+#  输入：n = 5000
+# 输出：30228214
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  n == grid.length 
+#  grid[i].length == 3 
+#  1 <= n <= 5000 
+#  
+#  Related Topics 动态规划 
+#  👍 71 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def numOfWays(self, n: int) -> int:
+        '''
+        每行的可能总共有12种：010, 012, 020, 021, 101, 102, 120, 121, 201, 202, 210, 212
+        分类：
+        ABC 类：三个颜色互不相同，一共有 66 种：012, 021, 102, 120, 201, 210；
+
+        ABA 类：左右两侧的颜色相同，也有 66 种：010, 020, 101, 121, 202, 212。
+
+第 i - 1 行是 ABC 类，第 i 行是 ABC 类：以 012 为例，那么第 i 行只能是120 或 201，方案数为 2；
+
+第 i - 1 行是 ABC 类，第 i 行是 ABA 类：以 012 为例，那么第 i 行只能是 101 或 121，方案数为 2；
+
+第 i - 1 行是 ABA 类，第 i 行是 ABC 类：以 010 为例，那么第 i 行只能是 102 或 201，方案数为 2；
+
+第 i - 1 行是 ABA 类，第 i 行是 ABA 类：以 010 为例，那么第 i 行只能是 101，121 或 202，方案数为 3。
+
+得到递推式：
+    f[i][0]=2∗f[i−1][0]+2∗f[i−1][1]
+    f[i][1]=2∗f[i−1][0]+3∗f[i−1][1]
+​
+
+        :param n:
+        :return:
+        '''
+        mod = 10**9+7
+        fi0,fi1 = 6,6
+        for i in range(2, n+1):
+            fi0, fi1 = (2* fi0 + 2* fi1)%mod,  (2* fi0 + 3* fi1) %mod
+        return (fi1 + fi0)%mod
+# leetcode submit region end(Prohibit modification and deletion)
+## 上述方法比较取巧，下面是预处理数值，然后递推：
+class Solution:
+    def numOfWays(self, n: int) -> int:
+        mod = 10**9 + 7
+        # 预处理出所有满足条件的 type
+        types = list()
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    if i != j and j != k:
+                        # 只要相邻的颜色不相同就行
+                        # 将其以十进制的形式存储
+                        types.append(i * 9 + j * 3 + k)
+        type_cnt = len(types)
+        # 预处理出所有可以作为相邻行的 type 对
+        related = [[0] * type_cnt for _ in range(type_cnt)]
+        for i, ti in enumerate(types):
+            # 得到 types[i] 三个位置的颜色
+            x1, x2, x3 = ti // 9, ti // 3 % 3, ti % 3
+            for j, tj in enumerate(types):
+                # 得到 types[j] 三个位置的颜色
+                y1, y2, y3 = tj // 9, tj // 3 % 3, tj % 3
+                # 对应位置不同色，才能作为相邻的行
+                if x1 != y1 and x2 != y2 and x3 != y3:
+                    related[i][j] = 1
+        # 递推数组
+        f = [[0] * type_cnt for _ in range(n + 1)]
+        # 边界情况，第一行可以使用任何 type
+        f[1] = [1] * type_cnt
+        for i in range(2, n + 1):
+            for j in range(type_cnt):
+                for k in range(type_cnt):
+                    # f[i][j] 等于所有 f[i - 1][k] 的和
+                    # 其中 k 和 j 可以作为相邻的行
+                    if related[k][j]:
+                        f[i][j] += f[i - 1][k]
+                        f[i][j] %= mod
+        # 最终所有的 f[n][...] 之和即为答案
+        ans = sum(f[n]) % mod
+        return ans
+
+
+```
+
+#### 47. [815. 公交路线](https://leetcode-cn.com/problems/bus-routes/)
+
+```python
+# 给你一个数组 routes ，表示一系列公交线路，其中每个 routes[i] 表示一条公交线路，第 i 辆公交车将会在上面循环行驶。 
+# 
+#  
+#  例如，路线 routes[0] = [1, 5, 7] 表示第 0 辆公交车会一直按序列 1 -> 5 -> 7 -> 1 -> 5 -> 7 -> 1 
+# -> ... 这样的车站路线行驶。 
+#  
+# 
+#  现在从 source 车站出发（初始时不在公交车上），要前往 target 车站。 期间仅可乘坐公交车。 
+# 
+#  求出 最少乘坐的公交车数量 。如果不可能到达终点车站，返回 -1 。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：routes = [[1,2,7],[3,6,7]], source = 1, target = 6
+# 输出：2
+# 解释：最优策略是先乘坐第一辆公交车到达车站 7 , 然后换乘第二辆公交车到车站 6 。 
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：routes = [[7,12],[4,5,15],[6],[15,19],[9,12,13]], source = 15, target = 12
+# 输出：-1
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  1 <= routes.length <= 500. 
+#  1 <= routes[i].length <= 105 
+#  routes[i] 中的所有值 互不相同 
+#  sum(routes[i].length) <= 105 
+#  0 <= routes[i][j] < 106 
+#  0 <= source, target < 106 
+#  
+#  Related Topics 广度优先搜索 
+#  👍 110 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def numBusesToDestination(self, routes: List[List[int]], S: int, T: int) -> int:
+        if S == T:
+            return 0
+        routes = list(map(set, routes)) # 防止循环路线，站点去重
+
+        graph = collections.defaultdict(set)
+        for i, r1 in enumerate(routes):
+            for j in range(i+1, len(routes)):
+                r2 = routes[j]
+                # 处理两条路线的联通性
+                if any(r in r2 for r in r1):
+                    graph[i].add(j)
+                    graph[j].add(i)
+        seen, targets = set(), set()
+        for node,route in enumerate(routes):
+            # 因为目标是终点，所以统计处理，起点可以走那一条公交线，终点可以到那一条公交线
+            if S in route: seen.add(node)
+            if T in route: targets.add(node)
+        queue = [(node,1) for node in seen]
+        for node, depth in queue:
+            if node in targets: return depth
+            for nei in graph[node]:
+                if nei not in seen:
+                    seen.add(nei)
+                    queue.append((nei, depth + 1))
+        return -1
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
 
 
 

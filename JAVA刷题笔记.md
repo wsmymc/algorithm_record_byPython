@@ -1850,7 +1850,185 @@ int n = customers.length;
 
 ```
 
+### 17. [227. 基本计算器 II](https://leetcode-cn.com/problems/basic-calculator-ii/)
 
+```java
+package practice;
+
+import java.util.*;
+
+public class _5668_so {
+    public static void main(String[] args) {
+        Solution a = new Solution();
+        String s = " 3/2";
+        System.out.println(a.calculate(s));
+        System.out.println(3/2);
+    }
+}
+class Solution {
+    public int calculate(String s) {
+        Deque<Integer> stk = new LinkedList<>();
+        int num=0;
+        char sign = '+';
+        for(int i=0;i<s.length();i++){
+            if (Character.isDigit(s.charAt(i))){
+                num = num*10 + s.charAt(i) - '0';
+            }
+            if(!Character.isDigit(s.charAt(i))  && s.charAt(i) != ' '|| i == s.length()-1){
+                if( sign == '+'){
+                    stk.add(num);
+                }
+                else if(sign == '-'){
+                    stk.add(0-num);
+                }
+                else  if(sign == '*'){
+                    stk.add(stk.pollLast() * num);
+                }
+                else{
+                    stk.add(stk.pollLast()/num);
+                }
+                num = 0;
+                sign = s.charAt(i);
+            }
+        }
+        int res = 0;
+        while (!stk.isEmpty()){
+            int t = stk.pop();
+            res += t;
+        }
+        return res;
+    }
+}
+
+```
+
+### 18.  [131. 分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)
+
+```java
+//给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。 
+//
+// 回文串 是正着读和反着读都一样的字符串。 
+//
+// 
+//
+// 示例 1： 
+//
+// 
+//输入：s = "aab"
+//输出：[["a","a","b"],["aa","b"]]
+// 
+//
+// 示例 2： 
+//
+// 
+//输入：s = "a"
+//输出：[["a"]]
+// 
+//
+// 
+//
+// 提示： 
+//
+// 
+// 1 <= s.length <= 16 
+// s 仅由小写英文字母组成 
+// 
+// Related Topics 深度优先搜索 动态规划 回溯算法 
+// 👍 638 👎 0
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    List<List<String>> res = new ArrayList<List<String>>();
+    public List<List<String>> partition(String s) {
+        if (s == null || s.length() <2){
+            List<String> tmp = new ArrayList<>();
+            tmp.add(s);
+            res.add(tmp);
+            return res;
+        }
+        int n = s.length();
+        dfs(s,new ArrayList<>(),0);
+        return res;
+
+    }
+
+    public void dfs(String s, List<String> tmp, int idx){
+        if (idx>= s.length()){
+            res.add(tmp);
+            return;
+        }
+        for (int i=idx;i<s.length();i++){
+            String t = s.substring(idx,i+1);
+            if( t.equals(new StringBuffer(t).reverse().toString())){
+                // Java没有合适的字符串翻转函数，只能这么完：new StringBuffer(t).reverse().toString()
+                // 列表复制： new ArrayList<String>(tmp)
+                tmp.add(t);
+                dfs(s,new ArrayList<String>(tmp), i+1);// 递归回溯，传值不传地址，否则加到res中的是同一个，回溯完毕都是空
+                tmp.remove(tmp.size() -1);
+            }
+        }
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+// 不断递归回溯，有许多重复计算，可以考虑先一步计算结果，
+class Solution {
+    int[][] f;
+    List<List<String>> res = new ArrayList<List<String>>();
+    List<String> ans = new ArrayList<String>();
+    int n;
+    public List<List<String>> partition(String s) {
+        n = s.length();
+        f = new int[n][n];
+
+        dfs(s, 0);
+        System.out.println("================");
+        for (int[] row:f
+        ) {
+            System.out.println(Arrays.toString(row));
+
+        }
+        return res;
+    }
+
+
+    public void dfs(String s, int i){
+        if(i == n){
+            res.add(new ArrayList<String>(ans));
+            return;
+        }
+        for(int j=i;j<n;j++){
+            if (isPalindrome(s,i,j) ==1){
+                ans.add(s.substring(i,j+1));
+                dfs(s,j+1);
+                ans.remove(ans.size()-1);
+            }
+        }
+    }
+
+
+
+    public int isPalindrome(String s, int i, int j){
+        System.out.printf("i:%d , j: %d \n",i,j);
+        // 使用dp，并放在记忆化搜索里面，节省以后比较的时间
+        if (f[i][j] != 0){  // 已经计算过，直接返回就好
+            return f[i][j];
+        }
+        if(i>=j){  // 一般情况下是j >i ,如果i >=j 其实就是 i==j dp =1,之所以出现就 j<i 的情况在于下面这里 i+1,j-1
+            f[i][j] = 1;
+        }else if (s.charAt(i) == s.charAt(j)){
+            f[i][j] = isPalindrome(s,i+1,j-1);  // 外部相等，判断内部
+        }else{
+            f[i][j] = -1;  //否则为-1
+        }
+        return f[i][j];
+    }
+
+}
+```
 
 ## hard
 
@@ -2146,5 +2324,309 @@ class Solution {
     }
 }
 
+```
+
+### 6. [224. 基本计算器](https://leetcode-cn.com/problems/basic-calculator/)
+
+```java
+//给你一个字符串表达式 s ，请你实现一个基本计算器来计算并返回它的值。 
+//
+// 
+//
+// 示例 1： 
+//
+// 
+//输入：s = "1 + 1"
+//输出：2
+// 
+//
+// 示例 2： 
+//
+// 
+//输入：s = " 2-1 + 2 "
+//输出：3
+// 
+//
+// 示例 3： 
+//
+// 
+//输入：s = "(1+(4+5+2)-3)+(6+8)"
+//输出：23
+// 
+//
+// 
+//
+// 提示： 
+//
+// 
+// 1 <= s.length <= 3 * 105 
+// s 由数字、'+'、'-'、'('、')'、和 ' ' 组成 
+// s 表示一个有效的表达式 
+// 
+// Related Topics 栈 数学 
+// 👍 495 👎 0
+
+
+import java.util.Deque;
+import java.util.LinkedList;
+
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    public int calculate(String s) {
+        int res =0, num=0, sign =1;
+        // 这里统计的num都是前一个计算符的第二个对象，所以遇到下一个计算符，需要更新
+        Deque<Integer> stack = new LinkedList<>();
+        for (int i=0; i<s.length();i++){
+            char c = s.charAt(i);
+            if (Character.isDigit(c)){
+                num = num*10 + s.charAt(i) - '0';
+            } else if (c == '+' || c == '-') {
+                res += sign * num; // 遇到下一个计算符，前面的计算，累计起来
+                num = 0;// num待更新
+                sign =(c=='+')?1:-1;
+            }else if(c =='('){
+                stack.addLast(res);
+                stack.addLast(sign);
+                res = 0;
+                sign =1;
+            }else if (c==')'){ // 最后不能用else，因为s中可能有空格，遇到空格不讨论，如果用else，可可能
+                //报空指针异常，因为可能栈空
+                res += sign*num;
+                num =0 ;
+                res *= stack.pollLast();
+                res += stack.pollLast();
+            }
+        }
+        res += sign * num;  //别忘记最后一个数字，上面的逻辑是遇到非数字时处理res，没有考虑到最后一个
+        return res;
+
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+### 7. [132. 分割回文串 II](https://leetcode-cn.com/problems/palindrome-partitioning-ii/)
+
+```java
+//给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是回文。 
+//
+// 返回符合要求的 最少分割次数 。 
+//
+// 
+// 
+// 
+//
+// 示例 1： 
+//
+// 
+//输入：s = "aab"
+//输出：1
+//解释：只需一次分割就可将 s 分割成 ["aa","b"] 这样两个回文子串。
+// 
+//
+// 示例 2： 
+//
+// 
+//输入：s = "a"
+//输出：0
+// 
+//
+// 示例 3： 
+//
+// 
+//输入：s = "ab"
+//输出：1
+// 
+//
+// 
+//
+// 提示： 
+//
+// 
+// 1 <= s.length <= 2000 
+// s 仅由小写英文字母组成 
+// 
+// 
+// 
+// Related Topics 动态规划 
+// 👍 394 👎 0
+
+
+import java.util.Arrays;
+
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    public int minCut(String s) {
+        int n = s.length();
+        boolean[][] dp = new boolean[n][n];
+        for(int i=0;i<n;i++){
+            Arrays.fill(dp[i], true);
+            /*
+            * public static void fill(long[] a, long val) {
+            *    for (int i = 0, len = a.length; i < len; i++)
+                      a[i] = val;
+                 }
+            * */
+        }
+        for(int i=n-1;i>-1;i--){
+            for (int j=i+1;j<n;j++){
+                dp[i][j] = (s.charAt(i) == s.charAt(j)) && dp[i+1][j-1];
+            }
+        }
+        int[] res = new int[n];
+        Arrays.fill(res, Integer.MAX_VALUE);
+        for (int i=0;i<n;i++){
+            if (dp[0][i]){
+                res[i]=0;
+            }
+            else{
+                for (int j=0;j<i;j++){
+                    if (dp[j+1][i]) {
+                        res[i] = Math.min(res[i], res[j] + 1);
+                    }
+                }
+            }
+        }
+//        for (boolean[] row:dp)
+//        System.out.println(Arrays.toString(row));
+        return res[n-1];
+
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+### 8. [1411. 给 N x 3 网格图涂色的方案数](https://leetcode-cn.com/problems/number-of-ways-to-paint-n-3-grid/)
+
+```java
+//你有一个 n x 3 的网格图 grid ，你需要用 红，黄，绿 三种颜色之一给每一个格子上色，且确保相邻格子颜色不同（也就是有相同水平边或者垂直边的格子颜
+//色不同）。 
+//
+// 给你网格图的行数 n 。 
+//
+// 请你返回给 grid 涂色的方案数。由于答案可能会非常大，请你返回答案对 10^9 + 7 取余的结果。 
+//
+// 
+//
+// 示例 1： 
+//
+// 输入：n = 1
+//输出：12
+//解释：总共有 12 种可行的方法：
+//
+// 
+//
+// 示例 2： 
+//
+// 输入：n = 2
+//输出：54
+// 
+//
+// 示例 3： 
+//
+// 输入：n = 3
+//输出：246
+// 
+//
+// 示例 4： 
+//
+// 输入：n = 7
+//输出：106494
+// 
+//
+// 示例 5： 
+//
+// 输入：n = 5000
+//输出：30228214
+// 
+//
+// 
+//
+// 提示： 
+//
+// 
+// n == grid.length 
+// grid[i].length == 3 
+// 1 <= n <= 5000 
+// 
+// Related Topics 动态规划 
+// 👍 71 👎 0
+
+
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    public int numOfWays(int n) {
+        int mod = 1000000007;
+        long fi0=6,fi1 = 6;
+        for (int i=2;i<=n;i++){
+            long tmp_0 = (2 * fi0 + 2* fi1) %mod;
+            long tmp_1 = (2 * fi0 + 3* fi1) %mod;
+            fi0 = tmp_0;
+            fi1 = tmp_1;
+        }
+        return (int)((fi0 + fi1) % mod);
+
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+// 递推式：
+class Solution {
+    public int numOfWays(int n) {
+        int mod = 1000000007;
+        List<Integer> types = new ArrayList<>();
+        for (int i=0;i<3;i++){
+            for (int j=0; j<3;j++){
+                for (int k=0;k<3;k++){
+                    // 预处理出所有满足条件的 type
+                    // 只要相邻的颜色不相同就行
+                    // 将其以十进制的形式存储
+                    if (i != j && j!=k) {
+                        types.add(i * 100 + j * 10 + k);
+                    }
+                }
+            }
+        }
+        int typeCnt = types.size();
+        // 预处理出所有可以作为相邻行的 type 对,i,j可以相邻值为1
+        int[][] match = new  int[typeCnt][typeCnt];
+        for(int i=0;i<typeCnt;i++){
+            // 得到 types[i] 三个位置的颜色
+            int x1 = types.get(i)/100, x2 = (types.get(i)%100)/10, x3 = types.get(i)%10;
+            for(int j=0; j<typeCnt;j++){
+                int y1 = types.get(j)/100, y2 = (types.get(j))%100/10, y3 = types.get(j)%10;
+                if(x1!=y1 && x2 != y2 && x3 != y3){
+                    match[i][j]=1;
+                }
+            }
+        }
+        // 递推数组
+        int[][] f = new int[n + 1][typeCnt];
+        // 边界情况，第一行可以使用任何 type
+        for(int i=0;i<typeCnt;i++){
+            f[1][i] = 1;
+        }
+        for(int i=2;i<=n ;i++){
+            for(int j=0;j<typeCnt;j++){
+                for(int k=0;k<typeCnt;k++){
+                    // f[i][j] 等于所有 f[i - 1][k] 的和
+                    // 其中 k 和 j 可以作为相邻的行
+                    if(match[j][k] ==1){
+                        f[i][j] += f[i-1][k];
+                        f[i][j] %=mod;
+                    }
+                }
+            }
+        }
+        int res =0;
+        for (int i=0;i<typeCnt;i++){
+            res += f[n][i];
+            res %=mod;
+        }
+
+        return res;
+    }
+}
 ```
 
