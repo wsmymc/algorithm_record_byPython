@@ -2880,3 +2880,44 @@ class Solution {
 }
 ```
 
+### 9. [5704. 好子数组的最大分数](https://leetcode-cn.com/problems/maximum-score-of-a-good-subarray/)
+
+```Java
+class Solution {
+    public int maximumScore(int[] heights, int k) {
+  		int n = heights.length;
+        int[] left = new int[n];
+        int[] right = new int[n];
+
+        Stack<Integer> mono_stack = new Stack<Integer>(); // 栈容器
+        for (int i = 0; i < n; ++i) {
+            while (!mono_stack.isEmpty() && heights[mono_stack.peek()] >= heights[i]) {
+                mono_stack.pop();
+            }
+            left[i] = (mono_stack.isEmpty() ? -1 : mono_stack.peek());
+            mono_stack.push(i);
+        }
+
+        mono_stack.clear();
+        for (int i = n - 1; i >= 0; --i) {
+            while (!mono_stack.isEmpty() && heights[mono_stack.peek()] >= heights[i]) {
+                mono_stack.pop();
+            }
+            right[i] = (mono_stack.isEmpty() ? n : mono_stack.peek());
+            mono_stack.push(i);
+        }
+
+        int ans = 0;
+        for (int i = 0; i < n; ++i) {
+            if(right[i]>k&& left[i]<k)ans = Math.max(ans, (right[i] - left[i] - 1) * heights[i]);
+        }
+        return ans;
+    }
+}
+
+作者：chen-wen-liang
+链接：https://leetcode-cn.com/problems/maximum-score-of-a-good-subarray/solution/84-zhu-zhuang-tu-zhong-zui-da-de-ju-xing-42xm/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+

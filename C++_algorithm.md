@@ -4006,3 +4006,43 @@ public:
 };
 ```
 
+### 13. [5704. 好子数组的最大分数](https://leetcode-cn.com/problems/maximum-score-of-a-good-subarray/)
+
+```c++
+class Solution {
+public:
+    int maximumScore(vector<int>& nums, int k) {
+
+        // 一段区间内的最小值，类似直方图中最大矩形的题，考虑单调栈
+        // r,l 分别记录当前点i的左右边间，stk标记遍历状态，h表示高度，这里也就表示最小值
+        int n = nums.size();
+        vector<int> h(n+2, -1), l(n+2), r(n+2), stk(n+2);// 左右各留出一个冗余，用-1表示，表示端点到头
+        for (int i=1;i<=n; i++) h[i] = nums[i-1];// 注意这里从1开始
+        int tt=0;
+        stk[0] = 0;
+        for(int i=1;i<=n;i++){
+            while(h[stk[tt]] >= h[i]) tt--; // 直到栈顶小于当前值，出栈
+            l[i] = stk[tt];// 标记左端点
+            stk[++ tt] = i;// 当前值入栈
+        }
+        tt =0; // 栈的游标
+        stk[0] = n+1;
+        for(int i = n; i;i--){
+            while(h[stk[tt]] >= h[i]) tt--;
+            r[i] = stk[tt];
+            stk[++ tt] = i;
+        }
+        k++; //从1开始，所以k的值也要修正
+        int res =0 ;
+        for(int i=1; i<=n; i++){
+            if (l[i]<k && r[i]>k)
+                res = max(res, (r[i] - l[i] -1) * h[i]); // 注意这里是l-r -1, 因为上面的端点，是左右最近最不符合的，而不是符合，所以要-1
+        }
+        return res;
+
+
+
+    }
+};
+```
+
