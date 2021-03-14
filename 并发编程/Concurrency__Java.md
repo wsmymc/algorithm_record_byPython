@@ -274,3 +274,358 @@ class Foo {
 
 ```
 
+
+
+
+
+
+
+
+
+## medium
+
+
+
+### 1. [1115. 交替打印FooBar](https://leetcode-cn.com/problems/print-foobar-alternately/)
+
+```Java
+// 信号量解法
+class FooBar {
+    private int n;
+    private Semaphore foo = new Semaphore(1), bar = new Semaphore(0);
+
+    public FooBar(int n) {
+        this.n = n;
+    }
+
+    public void foo(Runnable printFoo) throws InterruptedException {
+        
+        for (int i = 0; i < n; i++) {
+            foo.acquire();
+
+            
+        	// printFoo.run() outputs "foo". Do not change or remove this line.
+        	printFoo.run();
+            bar.release();
+
+        }
+    }
+
+    public void bar(Runnable printBar) throws InterruptedException {
+        
+        for (int i = 0; i < n; i++) {
+            bar.acquire();
+            // printBar.run() outputs "bar". Do not change or remove this line.
+        	printBar.run();
+            foo.release();
+        }
+    }
+}
+
+// 2. 阻塞队列
+class FooBar {
+    private int n;
+    private BlockingQueue<Integer> bar = new LinkedBlockingQueue<>(1);
+    private BlockingQueue<Integer> foo = new LinkedBlockingQueue<>(1);
+    public FooBar(int n) {
+        this.n = n;
+    }
+
+    public void foo(Runnable printFoo) throws InterruptedException {
+        
+        for (int i = 0; i < n; i++) {
+            foo.put(i);
+
+            
+        	// printFoo.run() outputs "foo". Do not change or remove this line.
+        	printFoo.run();
+            bar.put(i);
+
+        }
+    }
+
+    public void bar(Runnable printBar) throws InterruptedException {
+        
+        for (int i = 0; i < n; i++) {
+            bar.take();
+            // printBar.run() outputs "bar". Do not change or remove this line.
+        	printBar.run();
+            foo.take();
+        }
+    }
+}
+// 3 . CyclicBarrier
+class FooBar {
+    private int n;
+    CyclicBarrier cb = new CyclicBarrier(2);
+    volatile boolean fin =true;
+    public FooBar(int n) {
+        this.n = n;
+    }
+
+    public void foo(Runnable printFoo) throws InterruptedException {
+        
+        for (int i = 0; i < n; i++) {
+           while (!fin); // 自旋等待
+
+            
+        	// printFoo.run() outputs "foo". Do not change or remove this line.
+        	printFoo.run();
+            fin = false;
+            try{
+                cb.await();
+            }catch (BrokenBarrierException e){}
+
+        }
+    }
+
+    public void bar(Runnable printBar) throws InterruptedException {
+        
+        for (int i = 0; i < n; i++) {
+            try {
+                cb.await();
+            } catch (BrokenBarrierException e) {}
+            printBar.run();
+            fin = true;
+
+        }
+    }
+}
+
+// 4. yield
+//手少阴心经 自旋 + 让出CPU
+class FooBar5 {
+    private int n;
+
+    public FooBar5(int n) {
+        this.n = n;
+    }
+
+    volatile boolean permitFoo = true;
+
+    public void foo(Runnable printFoo) throws InterruptedException {     
+        for (int i = 0; i < n; ) {
+            if(permitFoo) {
+        	    printFoo.run();
+            	i++;
+            	permitFoo = false;
+            }else{
+                Thread.yield();
+            }
+        }
+    }
+
+    public void bar(Runnable printBar) throws InterruptedException {       
+        for (int i = 0; i < n; ) {
+            if(!permitFoo) {
+        	printBar.run();
+        	i++;
+        	permitFoo = true;
+            }else{
+                Thread.yield();
+            }
+        }
+    }
+}
+
+
+作者：idasmilence
+链接：https://leetcode-cn.com/problems/print-foobar-alternately/solution/duo-xian-cheng-liu-mai-shen-jian-ni-xue-d220n/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+//手少阳三焦经 可重入锁 + Condition
+class FooBar4 {
+    private int n;
+
+    public FooBar4(int n) {
+        this.n = n;
+    }
+    Lock lock = new ReentrantLock(true);
+    private final Condition foo = lock.newCondition();
+    volatile boolean flag = true;
+    public void foo(Runnable printFoo) throws InterruptedException {
+        for (int i = 0; i < n; i++) {
+            lock.lock();
+            try {
+            	while(!flag) {
+                    foo.await();
+                }
+                printFoo.run();
+                flag = false;
+                foo.signal();
+            }finally {
+            	lock.unlock();
+            }
+        }
+    }
+
+    public void bar(Runnable printBar) throws InterruptedException {
+        for (int i = 0; i < n;i++) {
+            lock.lock();
+            try {
+            	while(flag) {
+                    foo.await();
+            	}
+                printBar.run();
+                flag = true;
+                foo.signal();
+            }finally {
+            	lock.unlock();
+            }
+        }
+    }
+}
+
+//手厥阴心包经 synchronized + 标志位 + 唤醒
+class FooBar3 {
+    private int n;
+    // 标志位，控制执行顺序，true执行printFoo，false执行printBar
+    private volatile boolean type = true;
+    private final Object foo=  new Object(); // 锁标志
+
+    public FooBar3(int n) {
+        this.n = n;
+    }
+    public void foo(Runnable printFoo) throws InterruptedException {
+        for (int i = 0; i < n; i++) {
+            synchronized (foo) {
+                while(!type){
+                    foo.wait();
+                }
+                printFoo.run();
+                type = false;
+                foo.notifyAll();
+            }
+        }
+    }
+
+    public void bar(Runnable printBar) throws InterruptedException {
+        for (int i = 0; i < n; i++) {
+            synchronized (foo) {
+                while(type){
+                    foo.wait();
+                }
+                printBar.run();
+                type = true;
+                foo.notifyAll();
+            }
+        }
+    }
+}
+
+作者：idasmilence
+链接：https://leetcode-cn.com/problems/print-foobar-alternately/solution/duo-xian-cheng-liu-mai-shen-jian-ni-xue-d220n/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 2. [1195. 交替打印字符串](https://leetcode-cn.com/problems/fizz-buzz-multithreaded/)
+
+```java
+class FizzBuzz {
+    private int n;
+    private int i;
+    private Object lock = new Object();
+
+    public FizzBuzz(int n) {
+        this.n = n;
+        this.i = 1;
+    }
+
+    // printFizz.run() outputs "fizz".
+    public void fizz(Runnable printFizz) throws InterruptedException {
+        while (i <= n) {
+            synchronized(lock) {
+                while (i <= n && i % 3 == 0 && i % 5 != 0) {
+                    printFizz.run();
+                    i++; 
+                }
+            }
+        }
+        
+    }
+
+    // printBuzz.run() outputs "buzz".
+    public void buzz(Runnable printBuzz) throws InterruptedException {
+        while (i <= n) {
+            synchronized(lock) {
+                while (i <= n && i % 3 != 0 && i % 5 == 0) {
+                    printBuzz.run();
+                    i++;
+                } 
+            }
+        }
+        
+    }
+
+    // printFizzBuzz.run() outputs "fizzbuzz".
+    public void fizzbuzz(Runnable printFizzBuzz) throws InterruptedException {
+        while (i <= n) {
+            synchronized(lock) {
+                while (i <= n && i % 3 == 0 && i % 5 == 0) {
+                    printFizzBuzz.run();
+                    i++;
+                }
+            }
+        }
+    }
+
+    // printNumber.accept(x) outputs "x", where x is an integer.
+    public void number(IntConsumer printNumber) throws InterruptedException {
+        while (i <= n) {
+             synchronized(lock) {
+                while (i <= n && i % 3 != 0 && i % 5 != 0) {
+                    printNumber.accept(i);
+                    i++; 
+                }
+            }
+        }
+       
+    }
+}
+
+
+```
+
+
+
+### 3. [1226. 哲学家进餐](https://leetcode-cn.com/problems/the-dining-philosophers/)
+
+```Java
+class DiningPhilosophers {
+    ReentrantLock[] forks = new ReentrantLock[5];
+
+    public DiningPhilosophers() {
+        for (int i=0;i<5;i++){
+            forks[i] = new ReentrantLock();
+        }
+        
+    }
+
+    // call the run() method of any runnable to execute its code
+    public void wantsToEat(int philosopher,
+                           Runnable pickLeftFork,
+                           Runnable pickRightFork,
+                           Runnable eat,
+                           Runnable putLeftFork,
+                           Runnable putRightFork) throws InterruptedException {
+                                int fork1 = philosopher; 
+                                int fork2 = (philosopher + 1) % 5;
+
+                                forks[Math.min(fork1, fork2)].lock();
+                                forks[Math.max(fork1, fork2)].lock();
+                                pickLeftFork.run();
+                                pickRightFork.run();
+                                eat.run();
+                                putLeftFork.run();
+                                putRightFork.run();
+                                forks[Math.min(fork1, fork2)].unlock();
+                                forks[Math.max(fork1, fork2)].unlock();
+
+
+        
+    }
+}
+```
+
