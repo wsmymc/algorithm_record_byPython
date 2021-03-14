@@ -4393,6 +4393,52 @@ class Solution:
         return ret
 ```
 
+#### 169. [5701. 仅执行一次字符串交换能否使两个字符串相等](https://leetcode-cn.com/problems/check-if-one-string-swap-can-make-strings-equal/)
+
+```python
+import collections
+
+
+class Solution:
+
+    def areAlmostEqual(self, s1: str, s2: str) -> bool:
+
+        dic = collections.defaultdict(chr)
+        n = len(s1)
+        cnt = 0
+        if n==0:
+            return 0
+        li1,li2 = [],[]
+        for i in range(n):
+            if s1[i] != s2[i]:
+                li1.append(s1[i])
+                li2.append(s2[i])
+                cnt +=1
+                if cnt >2: return False
+        if cnt ==0:
+            return True
+        if cnt == 1:
+            return False
+        if cnt == 2:
+            return sorted(li1) == sorted(li2)
+        
+        
+class Solution:
+    def areAlmostEqual(self, s1: str, s2: str) -> bool:
+        # 这一题浪费太久时间了，纯暴力法解题也可以
+        n = len(s1)
+        s1, s2 = list(s1), list(s2)  # 数组化
+        if s1 == s2:
+            return True
+        for i in range(n):
+            for j in range(i):
+                s1[i],s1[j] = s1[j],s1[i]
+                if s1==s2:
+                    return True
+        return False
+
+```
+
 
 
 
@@ -11550,6 +11596,58 @@ class Solution:
         return slots == 0
 ```
 
+#### 169. [5702. 找出星型图的中心节点](https://leetcode-cn.com/problems/find-center-of-star-graph/)
+
+```python
+import collections
+from typing import List
+
+
+class Solution:
+    def findCenter(self, edges: List[List[int]]) -> int:
+        dic = collections.defaultdict(int)
+        for i,j in edges:
+            dic[i] +=1
+            dic[j] += 1
+        for k in dic:
+            if dic[k]>1:
+                return k
+```
+
+#### 170. [5703. 最大平均通过率](https://leetcode-cn.com/problems/maximum-average-pass-ratio/)
+
+```python
+# 贪心，堆，debug耗时太久
+from typing import List
+import heapq
+
+class Solution:
+    def maxAverageRatio(self, classes: List[List[int]], extraStudents: int) -> float:
+        n = len(classes)
+        li = []
+        r = 0
+        for i,j in classes:
+            if i ==j:
+                r += 1
+                continue
+            li.append([-(((i+1)/(j+1)) - (i/j)), i, j])
+        heapq.heapify(li)
+        while extraStudents > 0 and len(li) > 0:
+            # print(li)
+            _, i, j = heapq.heappop(li)
+            if i == j:
+                r += 1
+                continue
+            extraStudents -= 1
+            heapq.heappush(li, [-(((i+2)/(j+2)) - ((i+1)/(j+1))), i+1, j+1])
+        _s = r
+        #print('after', li, extraStudents)
+        for i in li:
+            _s += i[1]/i[2]
+        return _s/n
+
+```
+
 
 
 
@@ -13680,6 +13778,41 @@ class Solution:
 
 # leetcode submit region end(Prohibit modification and deletion)
 
+```
+
+
+
+
+
+#### 48. [5704. 好子数组的最大分数](https://leetcode-cn.com/problems/maximum-score-of-a-good-subarray/)
+
+```python
+class Solution:
+    def maximumScore(self, nums: List[int], k: int) -> int:
+        # 具体可以看C++的左右两个栈的解法，这里的貌似是另一种思路
+        momo = []
+        res =0
+        n = len(nums)
+        def update(l,r,i): # 更新结果
+            if l<=k<=r:
+                nonlocal res
+                res = max(res, nums[i] * (r-l+1))
+        for i, num in enumerate(nums):
+            while momo and nums[momo[-1]] > nums[i]:# 栈顶>i,不符合时，直接出栈更新值
+            # 1357 ,2 栈内维护为递增，出7,5,3
+                idx = momo.pop() # 弹出的就是某一段的最小值索引
+                l_idx = 0 if not momo else momo[-1] + 1 # 弹出后剩余的栈顶就是左端点的左边
+                r_idx = i-1 # 因为当前点不符合，所以当前点的前一个点是符合的
+                update(l_idx, r_idx,idx)
+            momo.append(i) # 维护完毕，入栈。12
+
+        while momo:
+            # 如果栈中还有残余
+            idx = momo.pop()
+            l_idx = 0 if not momo else momo[-1] + 1 # 
+            r_idx = n-1 # 剩下来的，n-1都是右端点
+            update(l_idx, r_idx,idx)
+        return res
 ```
 
 
