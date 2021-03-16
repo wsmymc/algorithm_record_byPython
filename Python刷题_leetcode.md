@@ -11731,6 +11731,135 @@ class Solution:
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+#### 172. [146. LRU 缓存机制](https://leetcode-cn.com/problems/lru-cache/)
+
+```python
+# 运用你所掌握的数据结构，设计和实现一个 LRU (最近最少使用) 缓存机制 。 
+# 
+#  
+#  
+#  实现 LRUCache 类： 
+# 
+#  
+#  LRUCache(int capacity) 以正整数作为容量 capacity 初始化 LRU 缓存 
+#  int get(int key) 如果关键字 key 存在于缓存中，则返回关键字的值，否则返回 -1 。 
+#  void put(int key, int value) 如果关键字已经存在，则变更其数据值；如果关键字不存在，则插入该组「关键字-值」。当缓存容量达到上
+# 限时，它应该在写入新数据之前删除最久未使用的数据值，从而为新的数据值留出空间。 
+#  
+# 
+#  
+#  
+#  
+# 
+#  进阶：你是否可以在 O(1) 时间复杂度内完成这两种操作？ 
+# 
+#  
+# 
+#  示例： 
+# 
+#  
+# 输入
+# ["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]
+# [[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]
+# 输出
+# [null, null, null, 1, null, -1, null, -1, 3, 4]
+# 
+# 解释
+# LRUCache lRUCache = new LRUCache(2);
+# lRUCache.put(1, 1); // 缓存是 {1=1}
+# lRUCache.put(2, 2); // 缓存是 {1=1, 2=2}
+# lRUCache.get(1);    // 返回 1
+# lRUCache.put(3, 3); // 该操作会使得关键字 2 作废，缓存是 {1=1, 3=3}
+# lRUCache.get(2);    // 返回 -1 (未找到)
+# lRUCache.put(4, 4); // 该操作会使得关键字 1 作废，缓存是 {4=4, 3=3}
+# lRUCache.get(1);    // 返回 -1 (未找到)
+# lRUCache.get(3);    // 返回 3
+# lRUCache.get(4);    // 返回 4
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  1 <= capacity <= 3000 
+#  0 <= key <= 3000 
+#  0 <= value <= 104 
+#  最多调用 3 * 104 次 get 和 put 
+#  
+#  Related Topics 设计 
+#  👍 1243 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class LRUCache:
+   # 需要手工做链表，然后分别用dict ，和链表维护，是否存在，以及LRU顺序
+    def __init__(self, capacity: int, key =0, value=0):
+        self.cache = dict()
+        # 建立头尾虚结点
+        self.head = DeLinkedNode()
+        self.tail = DeLinkedNode()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.capacity = capacity
+        self.size = 0
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        node = self.cache[key]
+        self.move_to_head(node)
+        return node.value
+
+
+    def put(self, key: int, value: int) -> None:
+        if key not in self.cache:
+            node = DeLinkedNode(key, value)
+            self.cache[key] = node
+            self.add_to_head(node)
+            self.size += 1
+            if self.size > self.capacity:
+                removed = self.remove_tail()
+                del self.cache[removed.key]
+                self.size -= 1
+        else:
+            node = self.cache[key]
+            node.value = value
+            self.move_to_head(node)
+    def add_to_head(self,node):
+        node.prev = self.head
+        node.next = self.head.next
+        self.head.next.prev = node
+        self.head.next = node
+
+    def remove_node(self,node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def move_to_head(self,node):
+        self.remove_node(node)
+        self.add_to_head(node)
+
+    def remove_tail(self):
+        node = self.tail.prev
+        self.remove_node(node)
+        return node
+
+class DeLinkedNode:
+    def __init__(self,key = 0,value=0):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+# Your LRUCache object will be instantiated and called as such:
+# obj = LRUCache(capacity)
+# param_1 = obj.get(key)
+# obj.put(key,value)
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
 
 
 
@@ -13977,6 +14106,83 @@ class Solution:
 
 # leetcode submit region end(Prohibit modification and deletion)
 
+```
+
+#### 50. [42. 接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)
+
+```python
+# 给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 
+#  
+# 输入：height = [0,1,0,2,1,0,1,3,2,1,2,1]
+# 输出：6
+# 解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。 
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：height = [4,2,0,3,2,5]
+# 输出：9
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  n == height.length 
+#  0 <= n <= 3 * 104 
+#  0 <= height[i] <= 105 
+#  
+#  Related Topics 栈 数组 双指针 动态规划 
+#  👍 2146 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        # 维护一个单调递减的单调栈，如果有大于栈顶的，就可以出栈，并统计雨水
+        res = 0
+        cur = 0
+        stk = []
+        while cur < len(height):
+            while stk and height[stk[-1]] < height[cur]:
+                t = stk.pop()
+                if not stk:  # 如果栈空，说明不能组成凹槽，推出循环
+                    break
+                dist = cur - stk[-1] - 1   # 和上一条注释接洽，必须有间隔，才能够有凹槽
+                h = min(height[stk[-1]] - height[t], height[cur] - height[t])  # 每弹出一次，实际上是统计一层的水的数量
+                res += dist * h
+            stk.append(cur)
+            cur += 1
+        return res
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+### 双指针法
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        left=0
+        right=len(height)-1
+        left_max=right_max=0
+        ans=0
+        while left<=right:
+            if left_max<right_max:
+                ans+=max(0,left_max-height[left])
+                left_max=max(left_max,height[left])
+                left+=1
+            else:
+                ans+=max(0,right_max-height[right])
+                right_max=max(right_max,height[right])
+                right-=1
+        return ans
 ```
 
 

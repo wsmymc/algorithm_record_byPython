@@ -2276,6 +2276,61 @@ class Solution {
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+### 20.  [146. LRU 缓存机制](https://leetcode-cn.com/problems/lru-cache/)
+
+```Java
+class LRUCache {
+    private int cap;
+    private Map<Integer,Integer> map=new LinkedHashMap<>();
+
+
+    public LRUCache(int capacity) {
+        this.cap=capacity;
+
+    }
+    
+    public int get(int key) {
+        if(map.keySet().contains(key)){
+            int value=map.get(key);
+            map.remove(key);  // 先取出，然后放在最后
+            map.put(key,value);
+            return value;
+        }
+        return -1;
+
+       /* if (map.keySet().contains(key)) {
+			int value = map.get(key);
+			map.remove(key);
+                       // 保证每次查询后，都在末尾
+			map.put(key, value);
+			return value;
+		}
+		return -1;*/
+    }
+    
+    public void put(int key, int value) {
+        if(map.keySet().contains(key)){ // 如果已经有值，先删除
+            map.remove(key);
+        }else if(map.size()==cap){  // 如果已经大道最大容量，先删除
+            Iterator<Map.Entry<Integer,Integer>> iterator=map.entrySet().iterator();
+            iterator.next(); // 先到真正的数据节点
+            iterator.remove();
+        }
+
+        map.put(key,value); //放入值
+       
+    }
+}
+
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache obj = new LRUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
+```
+
 
 
 
