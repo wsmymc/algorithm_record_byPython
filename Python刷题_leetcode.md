@@ -11648,6 +11648,89 @@ class Solution:
 
 ```
 
+#### 171 .[59. 螺旋矩阵 II](https://leetcode-cn.com/problems/spiral-matrix-ii/)
+
+```python
+# 给你一个正整数 n ，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：n = 3
+# 输出：[[1,2,3],[8,9,4],[7,6,5]]
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：n = 1
+# 输出：[[1]]
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  1 <= n <= 20 
+#  
+#  Related Topics 数组 
+#  👍 364 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def generateMatrix(self, n: int) -> List[List[int]]:
+        # 按照顺序模拟
+        moves = [(0,1), (1, 0), (0, -1), (-1, -0)]  # 这里按照顺时针排序
+        res = [[0] * n for _ in range(n)]
+        row, col, dirIdx = 0, 0, 0
+        for i in range(n*n):
+            res[row][col] = i+1
+            dx, dy = moves[dirIdx]
+            r, c = row + dx, col + dy
+            if r < 0 or r >= n or c < 0 or c >= n or res[r][c] > 0:
+                dirIdx = (dirIdx+1) % 4
+                dx, dy = moves[dirIdx]
+            row, col = row + dx, col + dy
+        return res
+# leetcode submit region end(Prohibit modification and deletion)
+## 另一种和Java异曲同工
+class Solution:
+    def generateMatrix(self, n: int) -> List[List[int]]:
+        matrix = [[0] * n for _ in range(n)]
+        num = 1
+        left, right, top, bottom = 0, n - 1, 0, n - 1
+
+        while left <= right and top <= bottom:
+            for col in range(left, right + 1):
+                matrix[top][col] = num
+                num += 1
+            for row in range(top + 1, bottom + 1):
+                matrix[row][right] = num
+                num += 1
+            if left < right and top < bottom:
+                for col in range(right - 1, left, -1):
+                    matrix[bottom][col] = num
+                    num += 1
+                for row in range(bottom, top, -1):
+                    matrix[row][left] = num
+                    num += 1
+            left += 1
+            right -= 1
+            top += 1
+            bottom -= 1
+
+        return matrix
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/spiral-matrix-ii/solution/luo-xuan-ju-zhen-ii-by-leetcode-solution-f7fp/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 
@@ -13816,6 +13899,85 @@ class Solution:
 ```
 
 
+
+#### 49. [72. 编辑距离](https://leetcode-cn.com/problems/edit-distance/)
+
+```python
+# 给你两个单词 word1 和 word2，请你计算出将 word1 转换成 word2 所使用的最少操作数 。 
+# 
+#  你可以对一个单词进行如下三种操作： 
+# 
+#  
+#  插入一个字符 
+#  删除一个字符 
+#  替换一个字符 
+#  
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：word1 = "horse", word2 = "ros"
+# 输出：3
+# 解释：
+# horse -> rorse (将 'h' 替换为 'r')
+# rorse -> rose (删除 'r')
+# rose -> ros (删除 'e')
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：word1 = "intention", word2 = "execution"
+# 输出：5
+# 解释：
+# intention -> inention (删除 't')
+# inention -> enention (将 'i' 替换为 'e')
+# enention -> exention (将 'n' 替换为 'x')
+# exention -> exection (将 'n' 替换为 'c')
+# exection -> execution (插入 'u')
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  0 <= word1.length, word2.length <= 500 
+#  word1 和 word2 由小写英文字母组成 
+#  
+#  Related Topics 字符串 动态规划 
+#  👍 1460 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        n, m = len(word1), len(word2)
+        # 如果有一个是空串，那么只用不断填补字符就好了
+        if n ==0 or m == 0:
+            return n+m
+        dp = [[0] * (m + 1) for _ in range(n + 1)]
+        # 边界预处理
+        for i in range(n+1):
+            dp[i][0] = i
+        for i in range(m+1):
+            dp[0][i] = i
+
+        for i in range(1,n+1):
+            for j in range(1, m+1):
+                dp[i][j] = min(dp[i-1][j] + 1, dp[i][j-1] + 1)
+                if word1[i-1] != word2[j-1]:
+                    dp[i][j] = min(dp[i][j], dp[i-1][j-1]+1)
+                else:
+                    dp[i][j] = min(dp[i][j], dp[i-1][j-1])
+        return dp[n][m]
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
 
 
 
