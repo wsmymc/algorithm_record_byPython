@@ -11860,6 +11860,71 @@ class DeLinkedNode:
 
 ```
 
+#### 173. [1143. 最长公共子序列](https://leetcode-cn.com/problems/longest-common-subsequence/)
+
+```python
+# 给定两个字符串 text1 和 text2，返回这两个字符串的最长公共子序列的长度。 
+# 
+#  一个字符串的 子序列 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。 
+# 例如，"ace" 是 "abcde" 的子序列，但 "aec" 不是 "abcde" 的子序列。两个字符串的「公共子序列」是这两个字符串所共同拥有的子序列。
+#  
+# 
+#  若这两个字符串没有公共子序列，则返回 0。 
+# 
+#  
+# 
+#  示例 1: 
+# 
+#  输入：text1 = "abcde", text2 = "ace" 
+# 输出：3  
+# 解释：最长公共子序列是 "ace"，它的长度为 3。
+#  
+# 
+#  示例 2: 
+# 
+#  输入：text1 = "abc", text2 = "abc"
+# 输出：3
+# 解释：最长公共子序列是 "abc"，它的长度为 3。
+#  
+# 
+#  示例 3: 
+# 
+#  输入：text1 = "abc", text2 = "def"
+# 输出：0
+# 解释：两个字符串没有公共子序列，返回 0。
+#  
+# 
+#  
+# 
+#  提示: 
+# 
+#  
+#  1 <= text1.length <= 1000 
+#  1 <= text2.length <= 1000 
+#  输入的字符串只含有小写英文字符。 
+#  
+#  Related Topics 动态规划 
+#  👍 395 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+        if not text1 or not text2:
+            return 0
+        m = len(text1) + 1
+        n = len(text2) + 1
+        dp = [[0] * n for _ in range(m)]
+        for i in range(1, m):
+            for j in range(1, n):
+                dp[i][j] = max(dp[i-1][j],dp[i][j-1])
+                if text1[i-1] == text2[j-1]:
+                    dp[i][j] = max(dp[i][j], dp[i-1][j-1] + 1)
+        return dp[m-1][n-1]
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
 
 
 
@@ -14096,11 +14161,11 @@ class Solution:
 
         for i in range(1,n+1):
             for j in range(1, m+1):
-                dp[i][j] = min(dp[i-1][j] + 1, dp[i][j-1] + 1)
+                dp[i][j] = min(dp[i-1][j] + 1, dp[i][j-1] + 1) # 比较i增，j增
                 if word1[i-1] != word2[j-1]:
-                    dp[i][j] = min(dp[i][j], dp[i-1][j-1]+1)
+                    dp[i][j] = min(dp[i][j], dp[i-1][j-1]+1)  # 比较修改
                 else:
-                    dp[i][j] = min(dp[i][j], dp[i-1][j-1])
+                    dp[i][j] = min(dp[i][j], dp[i-1][j-1])   # 比较不用修改
         return dp[n][m]
 
 
@@ -14184,6 +14249,380 @@ class Solution:
                 right-=1
         return ans
 ```
+
+#### 51 . [115. 不同的子序列](https://leetcode-cn.com/problems/distinct-subsequences/)
+
+```python
+# 给定一个字符串 s 和一个字符串 t ，计算在 s 的子序列中 t 出现的个数。 
+# 
+#  字符串的一个 子序列 是指，通过删除一些（也可以不删除）字符且不干扰剩余字符相对位置所组成的新字符串。（例如，"ACE" 是 "ABCDE" 的一个子序列
+# ，而 "AEC" 不是） 
+# 
+#  题目数据保证答案符合 32 位带符号整数范围。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：s = "rabbbit", t = "rabbit"
+# 输出：3
+# 解释：
+# 如下图所示, 有 3 种可以从 s 中得到 "rabbit" 的方案。
+# (上箭头符号 ^ 表示选取的字母)
+# rabbbit
+# ^^^^ ^^
+# rabbbit
+# ^^ ^^^^
+# rabbbit
+# ^^^ ^^^
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：s = "babgbag", t = "bag"
+# 输出：5
+# 解释：
+# 如下图所示, 有 5 种可以从 s 中得到 "bag" 的方案。 
+# (上箭头符号 ^ 表示选取的字母)
+# babgbag
+# ^^ ^
+# babgbag
+# ^^    ^
+# babgbag
+# ^    ^^
+# babgbag
+#   ^  ^^
+# babgbag
+#     ^^^ 
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  0 <= s.length, t.length <= 1000 
+#  s 和 t 由英文字母组成 
+#  
+#  Related Topics 字符串 动态规划 
+#  👍 382 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def numDistinct(self, s: str, t: str) -> int:
+        m, n = len(s), len(t)
+        # 边界条件1
+        if m < n:
+            return 0
+        dp = [[0] * (n+1) for _ in range(m+1)]
+        # 预处理边界条件2：空字符串是任何字符串的子字符串
+        for i in range(m+1):
+            dp[i][n] = 1
+        for i in range(m-1, -1, -1):
+            for j in range(n-1, -1, -1):
+                if s[i] == t[j]:
+                    dp[i][j] = dp[i+1][j+1] + dp[i+1][j]  # 如果相等，则包含两种可能
+                else:
+                    dp[i][j] = dp[i+1][j]
+        return dp[0][0]
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+# 从前向后
+class Solution:
+    def numDistinct(self, s: str, t: str) -> int:
+        n1 = len(s)
+        n2 = len(t)
+        dp = [[0] * (n1 + 1) for _ in range(n2 + 1)]
+        for j in range(n1 + 1):
+            dp[0][j] = 1
+        for i in range(1, n2 + 1):
+            for j in range(1, n1 + 1):
+                if t[i - 1] == s[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1]  + dp[i][j - 1]
+                else:
+                    dp[i][j] = dp[i][j - 1]
+        #print(dp)
+        return dp[-1][-1]
+
+作者：powcai
+链接：https://leetcode-cn.com/problems/distinct-subsequences/solution/dong-tai-gui-hua-by-powcai-5/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 52. [407. 接雨水 II](https://leetcode-cn.com/problems/trapping-rain-water-ii/)
+
+```python
+# 给你一个 m x n 的矩阵，其中的值均为非负整数，代表二维高度图每个单元的高度，请计算图中形状最多能接多少体积的雨水。 
+# 
+#  
+# 
+#  示例： 
+# 
+#  给出如下 3x6 的高度图:
+# [
+#   [1,4,3,1,3,2],
+#   [3,2,1,3,2,4],
+#   [2,3,3,2,3,1]
+# ]
+# 
+# 返回 4 。
+#  
+# 
+#  
+# 
+#  如上图所示，这是下雨前的高度图[[1,4,3,1,3,2],[3,2,1,3,2,4],[2,3,3,2,3,1]] 的状态。 
+# 
+#  
+# 
+#  
+# 
+#  下雨后，雨水将会被存储在这些方块中。总的接雨水量是4。 
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  1 <= m, n <= 110 
+#  0 <= heightMap[i][j] <= 20000 
+#  
+#  Related Topics 堆 广度优先搜索 
+#  👍 310 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+import heapq
+
+
+class Solution:
+    def trapRainWater(self, heightMap: List[List[int]]) -> int:
+        if len(heightMap) == 0 or len(heightMap[0]) == 0:
+            return 0
+        m, n = len(heightMap), len(heightMap[0])
+        vis = set()
+        li = list()
+        for i in range(m):
+            for j in range(n):
+                if i == 0 or i == m - 1 or j == 0 or j == n - 1:
+                    #heapq.heappush(li, (heightMap[i][j], i, j))
+                    li.append((heightMap[i][j], i, j))
+                    vis.add((i, j))
+        heapq.heapify(li)
+        res = 0
+        moves = [-1, 0, 1, 0, -1]
+        while li:
+            # print(vis)
+            h, x, y = heapq.heappop(li)
+            for i in range(4):  # 看似四个方向遍历，其实同边和外围都已经遍历过，这里只能向内遍历
+                nx = x + moves[i]   # 不能简单的使用 x= x+move[i] ，因为这是一次循环，下次还是要用x的原值
+                ny = y + moves[i+1]
+                if 0 <= nx < m and 0 <= ny < n and (nx, ny) not in vis:
+                    if h > heightMap[nx][ny]:
+                        res += h - heightMap[nx][ny]
+                    heapq.heappush(li, (max(h, heightMap[nx][ny]), nx, ny))
+                    vis.add((nx, ny))
+                    # print(res, x, y, h)
+        return res
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
+
+#### 53. [460. LFU 缓存](https://leetcode-cn.com/problems/lfu-cache/)
+
+```python
+# 请你为 最不经常使用（LFU）缓存算法设计并实现数据结构。 
+# 
+#  实现 LFUCache 类： 
+# 
+#  
+#  LFUCache(int capacity) - 用数据结构的容量 capacity 初始化对象 
+#  int get(int key) - 如果键存在于缓存中，则获取键的值，否则返回 -1。 
+#  void put(int key, int value) - 如果键已存在，则变更其值；如果键不存在，请插入键值对。当缓存达到其容量时，则应该在插入新项之
+# 前，使最不经常使用的项无效。在此问题中，当存在平局（即两个或更多个键具有相同使用频率）时，应该去除 最久未使用 的键。 
+#  
+# 
+#  注意「项的使用次数」就是自插入该项以来对其调用 get 和 put 函数的次数之和。使用次数会在对应项被移除后置为 0 。 
+# 
+#  为了确定最不常使用的键，可以为缓存中的每个键维护一个 使用计数器 。使用计数最小的键是最久未使用的键。 
+# 
+#  当一个键首次插入到缓存中时，它的使用计数器被设置为 1 (由于 put 操作)。对缓存中的键执行 get 或 put 操作，使用计数器的值将会递增。 
+# 
+#  
+# 
+#  示例： 
+# 
+#  
+# 输入：
+# ["LFUCache", "put", "put", "get", "put", "get", "get", "put", "get", "get", "g
+# et"]
+# [[2], [1, 1], [2, 2], [1], [3, 3], [2], [3], [4, 4], [1], [3], [4]]
+# 输出：
+# [null, null, null, 1, null, -1, 3, null, -1, 3, 4]
+# 
+# 解释：
+# // cnt(x) = 键 x 的使用计数
+# // cache=[] 将显示最后一次使用的顺序（最左边的元素是最近的）
+# LFUCache lFUCache = new LFUCache(2);
+# lFUCache.put(1, 1);   // cache=[1,_], cnt(1)=1
+# lFUCache.put(2, 2);   // cache=[2,1], cnt(2)=1, cnt(1)=1
+# lFUCache.get(1);      // 返回 1
+#                       // cache=[1,2], cnt(2)=1, cnt(1)=2
+# lFUCache.put(3, 3);   // 去除键 2 ，因为 cnt(2)=1 ，使用计数最小
+#                       // cache=[3,1], cnt(3)=1, cnt(1)=2
+# lFUCache.get(2);      // 返回 -1（未找到）
+# lFUCache.get(3);      // 返回 3
+#                       // cache=[3,1], cnt(3)=2, cnt(1)=2
+# lFUCache.put(4, 4);   // 去除键 1 ，1 和 3 的 cnt 相同，但 1 最久未使用
+#                       // cache=[4,3], cnt(4)=1, cnt(3)=2
+# lFUCache.get(1);      // 返回 -1（未找到）
+# lFUCache.get(3);      // 返回 3
+#                       // cache=[3,4], cnt(4)=1, cnt(3)=3
+# lFUCache.get(4);      // 返回 4
+#                       // cache=[3,4], cnt(4)=2, cnt(3)=3 
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  0 <= capacity, key, value <= 104 
+#  最多调用 105 次 get 和 put 方法 
+#  
+# 
+#  
+# 
+#  进阶：你可以为这两种操作设计时间复杂度为 O(1) 的实现吗？ 
+#  Related Topics 设计 
+#  👍 352 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+'''
+与LRU缓存不同的是，LFU是根据key的频率对key进行排序，当缓存已满时，应关闭访问频率最低的key，并加入新的key，设其频率为1。因此，需要维护key出现的频率。
+
+要求时间复杂度O(1)，则对于删除key，应用链表实现，对于访问key，应用hash表实现：
+
+使用一个hashmap存储key到node的映射，{key:node}形式，便于直接根据key定位node，进而进行删除等操作
+使用一个hashmap存储频率freq到key的映射，同一个频率可能有多个key，对于同一个频率的key，应优先删除最先加入的key，因此对于每个频率freq应维护一个双端链表，固定地从一端加入key，从而实现key之间的有序性。因此，存储每个频率到key的映射的字典形式为{freq:dlink, }，dlink是我们自己实现的双向链表。
+每个节点里存储key、value、freq，便于利用节点直接得出相应的信息。
+注意缓存容量可能为0。
+综上，我们需要维护的是两个hash表，其中一个存储key到node的映射，另一个存储freq到dlink的映射。
+
+具体实现时，可以自顶向下地设计，先明确需要哪些功能。通过分析可以发现，与LRU缓存结构类似，LFU的核心操作是提升key的频率和删除频率最低的key（同频率则删除最久没访问的key），这两个功能在实现时需要实时维护和更新两个hash表和key的频率，因此可以单独先实现这两个功能的细节。
+
+提高key的频率时，先在原频率对应的双向链表中删除key，再在freq+1的双向链表中添加key。
+删除最低频率key时，如果最低频率的key有多个，则删除最久没有访问的那一个。
+注意，两个hash表和节点频率需要同时更新。
+
+'''
+
+
+class Node:  # 双向链表的节点结构
+    def __init__(self, key=None, value=None):
+        self.key = key
+        self.value = value
+        self.freq = 1
+        self.next = None
+        self.prev = None
+
+
+class Dlink:  # 双端列表类，包括构造，节点入队，节点出队操作
+    def __init__(self):
+        self.head = Node()
+        self.tail = Node()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.size = 0
+
+    def _append(self, node):  # 入队
+        node.prev = self.tail.prev
+        node.prev.next = node
+        node.next = self.tail
+        self.tail.prev = node
+        self.size += 1
+
+    def _pop_node(self, node=None):  # 出队，一种是默认出队，意思是lFU，一种是选择出队，是更新频率
+        if not node:
+            node = self.head.next
+            self.head.next = node.next
+            node.next.prev = self.head
+        else:
+            # print(node.value, node.prev.value)
+            node.prev.next = node.next
+            node.next.prev = node.prev
+        self.size -= 1
+        return node
+
+
+class LFUCache:
+
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.key_node = dict()
+        self.freq = dict()
+        self.min_freq = 0
+
+    def get(self, key: int) -> int:
+        if key in self.key_node:
+            node = self.key_node[key]
+            self.increase_freq_key(key)
+            return node.value
+        return -1
+
+    def put(self, key: int, value: int) -> None:
+        if self.capacity == 0:  # 如果容量为0，那就直接返回就好
+            return
+        elif key in self.key_node:   # 如果key在里面，也不会考虑容量问题，只用更新值、频率和所在链表
+            self.key_node[key].value = value
+            self.increase_freq_key(key)
+        else:
+            # 只有前两种可能排出，才要考虑淘汰，以及可能的创建新的频率链表
+            if len(self.key_node) >= self.capacity:
+                self.remove_minfreq_key()
+            if 1 not in self.freq:
+                self.freq[1] = Dlink()
+            node = Node(key, value)
+            self.key_node[key] = node
+            self.freq[1]._append(node)
+            self.min_freq = 1  # 最小频率为1
+
+    def increase_freq_key(self, key):  # 增加频率
+        # 节点一定会有
+        node = self.key_node[key]
+        node_freq = node.freq
+        self.freq[node_freq]._pop_node(node)  # 原本的频率出队
+        if self.min_freq == node_freq and self.freq[node_freq].size == 0:
+            # 如果出队后，原本的频率链为空，那么当前最小频率+1
+            self.min_freq += 1
+        node_freq += 1  # 该节点的频率 + 1
+        if node_freq not in self.freq:  # 如果这个频率是新的
+            self.freq[node_freq] = Dlink()   # 就创建一条这个链
+        self.freq[node_freq]._append(node)
+        self.key_node[key] = node
+
+    def remove_minfreq_key(self):
+        node = self.freq[self.min_freq]._pop_node()  # 链表根据LFU淘汰
+
+        del self.key_node[node.key]    # 哈希表中删除节点
+
+
+# Your LFUCache object will be instantiated and called as such:
+# obj = LFUCache(capacity)
+# param_1 = obj.get(key)
+# obj.put(key,value)
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
+
+
 
 
 
