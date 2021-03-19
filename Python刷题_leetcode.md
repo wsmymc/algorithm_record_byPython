@@ -11925,7 +11925,150 @@ class Solution:
 
 ```
 
+#### 174. [785. 判断二分图](https://leetcode-cn.com/problems/is-graph-bipartite/)
 
+```python
+# 存在一个 无向图 ，图中有 n 个节点。其中每个节点都有一个介于 0 到 n - 1 之间的唯一编号。给你一个二维数组 graph ，其中 graph[u]
+#  是一个节点数组，由节点 u 的邻接节点组成。形式上，对于 graph[u] 中的每个 v ，都存在一条位于节点 u 和节点 v 之间的无向边。该无向图同时具有
+# 以下属性：
+#  
+#  不存在自环（graph[u] 不包含 u）。 
+#  不存在平行边（graph[u] 不包含重复值）。 
+#  如果 v 在 graph[u] 内，那么 u 也应该在 graph[v] 内（该图是无向图） 
+#  这个图可能不是连通图，也就是说两个节点 u 和 v 之间可能不存在一条连通彼此的路径。 
+#  
+# 
+#  二分图 定义：如果能将一个图的节点集合分割成两个独立的子集 A 和 B ，并使图中的每一条边的两个节点一个来自 A 集合，一个来自 B 集合，就将这个图称
+# 为 二分图 。 
+# 
+#  如果图是二分图，返回 true ；否则，返回 false 。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：graph = [[1,2,3],[0,2],[0,1,3],[0,2]]
+# 输出：false
+# 解释：不能将节点分割成两个独立的子集，以使每条边都连通一个子集中的一个节点与另一个子集中的一个节点。 
+# 
+#  示例 2： 
+# 
+#  
+# 输入：graph = [[1,3],[0,2],[1,3],[0,2]]
+# 输出：true
+# 解释：可以将节点分成两组: {0, 2} 和 {1, 3} 。 
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  graph.length == n 
+#  1 <= n <= 100 
+#  0 <= graph[u].length < n 
+#  0 <= graph[u][i] <= n - 1 
+#  graph[u] 不会包含 u 
+#  graph[u] 的所有值 互不相同 
+#  如果 graph[u] 包含 v，那么 graph[v] 也会包含 u 
+#  
+#  Related Topics 深度优先搜索 广度优先搜索 图 
+#  👍 239 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def isBipartite(self, graph: List[List[int]]) -> bool:
+        n = len(graph)
+        uncolored, red, green = 0, 1, 2
+        color = [uncolored] * n
+        valid = True
+
+        def dfs(node, c):
+            nonlocal valid
+            color[node] = c
+            c_nei = green if c == red else red
+            for neighbor in graph[node]:
+                if color[neighbor] == uncolored:
+                    dfs(neighbor, c_nei)
+                    if not valid:
+                        return
+                elif color[neighbor] != c_nei:
+                    valid = False
+                    return
+        for i in range(n):
+            if color[i] == uncolored:
+                dfs(i, red)
+                if not valid:
+                    break
+        return valid
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
+
+#### 175. [1734. 解码异或后的排列](https://leetcode-cn.com/problems/decode-xored-permutation/)
+
+```python
+# 给你一个整数数组 perm ，它是前 n 个正整数的排列，且 n 是个 奇数 。 
+# 
+#  它被加密成另一个长度为 n - 1 的整数数组 encoded ，满足 encoded[i] = perm[i] XOR perm[i + 1] 。比方说
+# ，如果 perm = [1,3,2] ，那么 encoded = [2,1] 。 
+# 
+#  给你 encoded 数组，请你返回原始数组 perm 。题目保证答案存在且唯一。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  输入：encoded = [3,1]
+# 输出：[1,2,3]
+# 解释：如果 perm = [1,2,3] ，那么 encoded = [1 XOR 2,2 XOR 3] = [3,1]
+#  
+# 
+#  示例 2： 
+# 
+#  输入：encoded = [6,5,4,6]
+# 输出：[2,4,1,5,3]
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  3 <= n < 105 
+#  n 是奇数。 
+#  encoded.length == n - 1 
+#  
+#  Related Topics 位运算 
+#  👍 17 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def decode(self, encoded: List[int]) -> List[int]:
+        n = len(encoded) + 1
+        res = [0] * n
+        total = 0
+        i = 1
+        while i < n-1:
+            total ^= encoded[i]
+            i += 2
+        all = 0
+        for i in range(1,n+1):
+            all ^=i
+        res[0] = all ^ total
+        for i in range(n-1):
+            res[i+1] = res[i] ^ encoded[i];
+        return res
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
 
 
 
@@ -14616,6 +14759,102 @@ class LFUCache:
 # obj = LFUCache(capacity)
 # param_1 = obj.get(key)
 # obj.put(key,value)
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### 54. [1643. 第 K 条最小指令](https://leetcode-cn.com/problems/kth-smallest-instructions/)
+
+```python
+# Bob 站在单元格 (0, 0) ，想要前往目的地 destination ：(row, column) 。他只能向 右 或向 下 走。你可以为 Bob 提
+# 供导航 指令 来帮助他到达目的地 destination 。 
+# 
+#  指令 用字符串表示，其中每个字符： 
+# 
+#  
+#  'H' ，意味着水平向右移动 
+#  'V' ，意味着竖直向下移动 
+#  
+# 
+#  能够为 Bob 导航到目的地 destination 的指令可以有多种，例如，如果目的地 destination 是 (2, 3)，"HHHVV" 和 "
+# HVHVH" 都是有效 指令 。 
+# 
+#  
+#  
+# 
+#  然而，Bob 很挑剔。因为他的幸运数字是 k，他想要遵循 按字典序排列后的第 k 条最小指令 的导航前往目的地 destination 。k 的编号 从 
+# 1 开始 。 
+# 
+#  给你一个整数数组 destination 和一个整数 k ，请你返回可以为 Bob 提供前往目的地 destination 导航的 按字典序排列后的第 k
+#  条最小指令 。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 
+#  
+# 输入：destination = [2,3], k = 1
+# 输出："HHHVV"
+# 解释：能前往 (2, 3) 的所有导航指令 按字典序排列后 如下所示：
+# ["HHHVV", "HHVHV", "HHVVH", "HVHHV", "HVHVH", "HVVHH", "VHHHV", "VHHVH", "VHVH
+# H", "VVHHH"].
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 
+#  
+# 输入：destination = [2,3], k = 2
+# 输出："HHVHV"
+#  
+# 
+#  示例 3： 
+# 
+#  
+# 
+#  
+# 输入：destination = [2,3], k = 3
+# 输出："HHVVH"
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  destination.length == 2 
+#  1 <= row, column <= 15 
+#  1 <= k <= nCr(row + column, row)，其中 nCr(a, b) 表示组合数，即从 a 个物品中选 b 个物品的不同方案数。 
+#  
+#  Related Topics 动态规划 
+#  👍 28 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def kthSmallestPath(self, destination: List[int], k: int) -> str:
+        # 组合数递推式
+        # c[n][k] = c[n−1][k−1]+c[n−1][k]
+        v, h = destination
+        ans = list()
+        for i in range(h + v):
+            if h > 0:
+                o = math.comb(h + v - 1, h - 1)
+                if k > o:
+                    ans.append("V")
+                    v -= 1
+                    k -= o
+                else:
+                    ans.append("H")
+                    h -= 1
+            else:
+                ans.append("V")
+                v -= 1
+        return "".join(ans)
+
 # leetcode submit region end(Prohibit modification and deletion)
 
 ```

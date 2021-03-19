@@ -2473,6 +2473,174 @@ class Solution {
 
 ```
 
+### 23. [785. 判断二分图](https://leetcode-cn.com/problems/is-graph-bipartite/)
+
+```java
+//存在一个 无向图 ，图中有 n 个节点。其中每个节点都有一个介于 0 到 n - 1 之间的唯一编号。给你一个二维数组 graph ，其中 graph[u]
+// 是一个节点数组，由节点 u 的邻接节点组成。形式上，对于 graph[u] 中的每个 v ，都存在一条位于节点 u 和节点 v 之间的无向边。该无向图同时具有
+//以下属性：
+// 
+// 不存在自环（graph[u] 不包含 u）。 
+// 不存在平行边（graph[u] 不包含重复值）。 
+// 如果 v 在 graph[u] 内，那么 u 也应该在 graph[v] 内（该图是无向图） 
+// 这个图可能不是连通图，也就是说两个节点 u 和 v 之间可能不存在一条连通彼此的路径。 
+// 
+//
+// 二分图 定义：如果能将一个图的节点集合分割成两个独立的子集 A 和 B ，并使图中的每一条边的两个节点一个来自 A 集合，一个来自 B 集合，就将这个图称
+//为 二分图 。 
+//
+// 如果图是二分图，返回 true ；否则，返回 false 。 
+//
+// 
+//
+// 示例 1： 
+//
+// 
+//输入：graph = [[1,2,3],[0,2],[0,1,3],[0,2]]
+//输出：false
+//解释：不能将节点分割成两个独立的子集，以使每条边都连通一个子集中的一个节点与另一个子集中的一个节点。 
+//
+// 示例 2： 
+//
+// 
+//输入：graph = [[1,3],[0,2],[1,3],[0,2]]
+//输出：true
+//解释：可以将节点分成两组: {0, 2} 和 {1, 3} 。 
+//
+// 
+//
+// 提示： 
+//
+// 
+// graph.length == n 
+// 1 <= n <= 100 
+// 0 <= graph[u].length < n 
+// 0 <= graph[u][i] <= n - 1 
+// graph[u] 不会包含 u 
+// graph[u] 的所有值 互不相同 
+// 如果 graph[u] 包含 v，那么 graph[v] 也会包含 u 
+// 
+// Related Topics 深度优先搜索 广度优先搜索 图 
+// 👍 239 👎 0
+
+
+import com.sun.org.apache.xpath.internal.functions.FuncFalse;
+
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    public boolean isBipartite(int[][] graph) {
+        // // 定义 visited 数组，初始值为 0 表示未被访问，赋值为 1 或者 -1 表示两种不同的颜色。
+        int[] visited = new int[graph.length];
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i=0;i<graph.length; i++){
+            // 因为图中可能含有多个连通域，所以我们需要判断是否存在顶点未被访问，若存在则从它开始再进行一轮 bfs 染色。
+            if (visited[i] != 0){
+                continue;
+            }
+            // 每出队一个顶点，将其所有邻接点染成相反的颜色并入队。
+            queue.offer(i);
+            visited[i] = 1;
+            while(!queue.isEmpty()){
+                int v = queue.poll();
+                for(int w: graph[v]){
+                    if (visited[w] == visited[v]){
+                        return false;
+                    }
+                    if (visited[w] == 0){
+                        visited[w] = - visited[v];   // 去反值；
+                        queue.offer(w);
+                    }
+                }
+            }
+
+        }
+        return true;
+
+
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+### 24. [1734. 解码异或后的排列](https://leetcode-cn.com/problems/decode-xored-permutation/)
+
+```java
+//给你一个整数数组 perm ，它是前 n 个正整数的排列，且 n 是个 奇数 。
+//
+// 它被加密成另一个长度为 n - 1 的整数数组 encoded ，满足 encoded[i] = perm[i] XOR perm[i + 1] 。比方说
+//，如果 perm = [1,3,2] ，那么 encoded = [2,1] 。
+//
+// 给你 encoded 数组，请你返回原始数组 perm 。题目保证答案存在且唯一。
+//
+//
+//
+// 示例 1：
+//
+// 输入：encoded = [3,1]
+//输出：[1,2,3]
+//解释：如果 perm = [1,2,3] ，那么 encoded = [1 XOR 2,2 XOR 3] = [3,1]
+//
+//
+// 示例 2：
+//
+// 输入：encoded = [6,5,4,6]
+//输出：[2,4,1,5,3]
+//
+//
+//
+//
+// 提示：
+//
+//
+// 3 <= n < 105
+// n 是奇数。
+// encoded.length == n - 1
+//
+// Related Topics 位运算
+// 👍 17 👎 0
+
+
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    public int[] decode(int[] encoded) {
+        // 只要一个数字确定，那么所有都确定了
+// 暴搜需要找n次，判断第一个数字是否合理，超时
+// 那么可以提前算出一个数字, 具体的：
+
+// (encoded共 n-1 个，a共n个)
+// encoded所有[奇数索引]异或 encoded[1] ^ encoded[3] ..... ^ encoded[n-2]  (最后一个n-2是奇数)
+// 就会得到a[1] ^ a[2] ^ a[3] ..... ^ a[n-2] ^ a[n-1] ，记为total
+
+// 发现了没，正好缺少a[0]，接下来可以想办法把a[0]，也就是第一个给求出来
+
+// 另 ALL = a[0] ^ a[1] ^ a[2] ^ a[3] ..... ^ a[n-2] ^ a[n-1] = 1 ^ 2.....^ n
+
+// 则 ALL = a[0] ^ total
+//    a[0] = ALL ^ total
+        int n = encoded.length + 1;
+        int[] res = new int[n];
+        int total = 0;
+        for(int i=1; i<n-1;i+=2){
+            total ^= encoded[i];
+        }
+        int ALL = 0;
+        for(int i=1;i<=n;i++){
+            ALL ^=i;
+        }
+        res[0] = total ^ ALL;
+        for(int i=0;i<n-1;i++){
+            res[i+1] = res[i] ^ encoded[i];
+        }
+        return res;
+
+
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+
+```
+
 
 
 
