@@ -12070,6 +12070,347 @@ class Solution:
 
 ```
 
+#### 176. [61. 旋转链表](https://leetcode-cn.com/problems/rotate-list/)
+
+```python
+# 给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：head = [1,2,3,4,5], k = 2
+# 输出：[4,5,1,2,3]
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：head = [0,1,2], k = 4
+# 输出：[2,0,1]
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  链表中节点的数目在范围 [0, 500] 内 
+#  -100 <= Node.val <= 100 
+#  0 <= k <= 2 * 109 
+#  
+#  Related Topics 链表 双指针 
+#  👍 513 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def rotateRight(self, head: ListNode, k: int) -> ListNode:
+        if not head:
+            return head
+        n = 0
+        dummy = ListNode()
+        dummy.next = head
+        cur = dummy
+        while cur.next:
+            n += 1
+            cur = cur.next
+
+        tail = cur
+        k = n - k % n
+        # print('k:', k)
+        cur = dummy
+        if k % n == 0:   # 如果交换的是整个链表，说明没有交换
+            return head
+        while k:
+            # print(cur.val)
+            k -= 1
+            cur = cur.next
+        dummy.next = cur.next
+        tail.next = head
+        cur.next = None
+        return dummy.next
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### 177. [1801. 积压订单中的订单总数](https://leetcode-cn.com/problems/number-of-orders-in-the-backlog/)
+
+```python
+# 给你一个二维整数数组 orders ，其中每个 orders[i] = [pricei, amounti, orderTypei] 表示有 amounti 
+# 笔类型为 orderTypei 、价格为 pricei 的订单。 
+# 
+#  订单类型 orderTypei 可以分为两种： 
+# 
+#  
+#  0 表示这是一批采购订单 buy 
+#  1 表示这是一批销售订单 sell 
+#  
+# 
+#  注意，orders[i] 表示一批共计 amounti 笔的独立订单，这些订单的价格和类型相同。对于所有有效的 i ，由 orders[i] 表示的所有订
+# 单提交时间均早于 orders[i+1] 表示的所有订单。 
+# 
+#  存在由未执行订单组成的 积压订单 。积压订单最初是空的。提交订单时，会发生以下情况： 
+# 
+#  
+#  如果该订单是一笔采购订单 buy ，则可以查看积压订单中价格 最低 的销售订单 sell 。如果该销售订单 sell 的价格 低于或等于 当前采购订单 b
+# uy 的价格，则匹配并执行这两笔订单，并将销售订单 sell 从积压订单中删除。否则，采购订单 buy 将会添加到积压订单中。 
+#  反之亦然，如果该订单是一笔销售订单 sell ，则可以查看积压订单中价格 最高 的采购订单 buy 。如果该采购订单 buy 的价格 高于或等于 当前销售
+# 订单 sell 的价格，则匹配并执行这两笔订单，并将采购订单 buy 从积压订单中删除。否则，销售订单 sell 将会添加到积压订单中。 
+#  
+# 
+#  输入所有订单后，返回积压订单中的 订单总数 。由于数字可能很大，所以需要返回对 109 + 7 取余的结果。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：orders = [[10,5,0],[15,2,1],[25,1,1],[30,4,0]]
+# 输出：6
+# 解释：输入订单后会发生下述情况：
+# - 提交 5 笔采购订单，价格为 10 。没有销售订单，所以这 5 笔订单添加到积压订单中。
+# - 提交 2 笔销售订单，价格为 15 。没有采购订单的价格大于或等于 15 ，所以这 2 笔订单添加到积压订单中。
+# - 提交 1 笔销售订单，价格为 25 。没有采购订单的价格大于或等于 25 ，所以这 1 笔订单添加到积压订单中。
+# - 提交 4 笔采购订单，价格为 30 。前 2 笔采购订单与价格最低（价格为 15）的 2 笔销售订单匹配，从积压订单中删除这 2 笔销售订单。第 3 笔
+# 采购订单与价格最低的 1 笔销售订单匹配，销售订单价格为 25 ，从积压订单中删除这 1 笔销售订单。积压订单中不存在更多销售订单，所以第 4 笔采购订单需要添
+# 加到积压订单中。
+# 最终，积压订单中有 5 笔价格为 10 的采购订单，和 1 笔价格为 30 的采购订单。所以积压订单中的订单总数为 6 。
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：orders = [[7,1000000000,1],[15,3,0],[5,999999995,0],[5,1,1]]
+# 输出：999999984
+# 解释：输入订单后会发生下述情况：
+# - 提交 109 笔销售订单，价格为 7 。没有采购订单，所以这 109 笔订单添加到积压订单中。
+# - 提交 3 笔采购订单，价格为 15 。这些采购订单与价格最低（价格为 7 ）的 3 笔销售订单匹配，从积压订单中删除这 3 笔销售订单。
+# - 提交 999999995 笔采购订单，价格为 5 。销售订单的最低价为 7 ，所以这 999999995 笔订单添加到积压订单中。
+# - 提交 1 笔销售订单，价格为 5 。这笔销售订单与价格最高（价格为 5 ）的 1 笔采购订单匹配，从积压订单中删除这 1 笔采购订单。
+# 最终，积压订单中有 (1000000000-3) 笔价格为 7 的销售订单，和 (999999995-1) 笔价格为 5 的采购订单。所以积压订单中的订单总
+# 数为 1999999991 ，等于 999999984 % (109 + 7) 。 
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  1 <= orders.length <= 105 
+#  orders[i].length == 3 
+#  1 <= pricei, amounti <= 109 
+#  orderTypei 为 0 或 1 
+#  
+#  Related Topics 堆 贪心算法 
+#  👍 10 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+import heapq
+class Solution:
+    def getNumberOfBacklogOrders(self, orders: List[List[int]]) -> int:
+        sell = []
+        buy = []
+        for order in orders:
+            if order[2] == 0:
+                # buy
+                if not sell or sell[0][0] > order[0]:  # 栈为空，或者条件不符合磋商，就将订单累计
+                    heapq.heappush(buy, [-order[0], order[1]])
+                else:
+                    rem = order[1]
+                    while rem > 0 and sell and sell[0][0] <= order[0]:
+                        k, s = heapq.heappop(sell)
+                        cancel = min(s, rem)
+                        s -= cancel
+                        rem -= cancel
+                    if rem > 0:  # 订单没有消化掉
+                        heapq.heappush(buy, [-order[0], rem])
+                    if s > 0:   # 没有用完，放回去
+                        heapq.heappush(sell, [k, s])
+            if order[2] == 1:
+                # sell
+                if not buy or -buy[0][0] < order[0]:
+                    heapq.heappush(sell, [order[0], order[1]])
+                else:
+                    rem = order[1]
+                    while rem > 0 and buy and -buy[0][0] >= order[0]:
+                        k, s = heapq.heappop(buy)
+                        cancel = min(s, rem)
+                        s -= cancel
+                        rem -= cancel
+                    if rem > 0:
+                        heapq.heappush(sell, [order[0], rem])
+                    if s > 0:
+                        heapq.heappush(buy, [k, s])
+        return (sum([a[1] for a in sell]) + sum([a[1] for a in buy])) % (10**9 + 7)
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### 178. [1798. 你能构造出连续值的最大数目](https://leetcode-cn.com/problems/maximum-number-of-consecutive-values-you-can-make/)
+
+```python
+# 给你一个长度为 n 的整数数组 coins ，它代表你拥有的 n 个硬币。第 i 个硬币的值为 coins[i] 。如果你从这些硬币中选出一部分硬币，它们的
+# 和为 x ，那么称，你可以 构造 出 x 。 
+# 
+#  请返回从 0 开始（包括 0 ），你最多能 构造 出多少个连续整数。 
+# 
+#  你可能有多个相同值的硬币。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：coins = [1,3]
+# 输出：2
+# 解释：你可以得到以下这些值：
+# - 0：什么都不取 []
+# - 1：取 [1]
+# 从 0 开始，你可以构造出 2 个连续整数。 
+# 
+#  示例 2： 
+# 
+#  
+# 输入：coins = [1,1,1,4]
+# 输出：8
+# 解释：你可以得到以下这些值：
+# - 0：什么都不取 []
+# - 1：取 [1]
+# - 2：取 [1,1]
+# - 3：取 [1,1,1]
+# - 4：取 [4]
+# - 5：取 [4,1]
+# - 6：取 [4,1,1]
+# - 7：取 [4,1,1,1]
+# 从 0 开始，你可以构造出 8 个连续整数。 
+# 
+#  示例 3： 
+# 
+#  
+# 输入：nums = [1,4,10,3,1]
+# 输出：20 
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  coins.length == n 
+#  1 <= n <= 4 * 104 
+#  1 <= coins[i] <= 4 * 104 
+#  
+#  Related Topics 贪心算法 
+#  👍 13 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def getMaximumConsecutive(self, coins: List[int]) -> int:
+        """
+        把硬币从小到大排序。
+假设前3个硬币能组成0~7，那第4个硬币如果是3，可以使用0~7里的数配合上3，必能组成8（5+3）、9（6+3）、10（7+3）。同理如果是4，可以组成8、9、10、11，如果是5可以组成8、9、10、11、12，...。第4个硬币是几，整数范围就能加几。
+但是，如果第4个硬币是“9”，则无论如何组合都不可能组成“8”，而且后面的硬币只会更大，更不可能组成8，数字“8”将永远缺失，不用再往下看了，直接0~7就是答案。
+
+        Args:
+            coins:
+
+        Returns:
+
+        """
+        coins.sort()
+        x = 0
+        for y in coins:
+            if y > x+1:  # 不断扩展从0 开始的右边界
+                break
+            x += y
+        return x + 1 # 算上0
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### 179. [1802. 有界数组中指定下标处的最大值](https://leetcode-cn.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/)
+
+```java
+# 给你三个正整数 n、index 和 maxSum 。你需要构造一个同时满足下述所有条件的数组 nums（下标 从 0 开始 计数）： 
+# 
+#  
+#  nums.length == n 
+#  nums[i] 是 正整数 ，其中 0 <= i < n 
+#  abs(nums[i] - nums[i+1]) <= 1 ，其中 0 <= i < n-1 
+#  nums 中所有元素之和不超过 maxSum 
+#  nums[index] 的值被 最大化 
+#  
+# 
+#  返回你所构造的数组中的 nums[index] 。 
+# 
+#  注意：abs(x) 等于 x 的前提是 x >= 0 ；否则，abs(x) 等于 -x 。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  输入：n = 4, index = 2,  maxSum = 6
+# 输出：2
+# 解释：数组 [1,1,2,1] 和 [1,2,2,1] 满足所有条件。不存在其他在指定下标处具有更大值的有效数组。
+#  
+# 
+#  示例 2： 
+# 
+#  输入：n = 6, index = 1,  maxSum = 10
+# 输出：3
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  1 <= n <= maxSum <= 109 
+#  0 <= index < n 
+#  
+#  Related Topics 贪心算法 二分查找 
+#  👍 18 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def maxValue(self, n: int, index: int, maxSum: int) -> int:
+        """
+        平铺模拟法，逐层累加
+
+        """
+        gap = maxSum - n   # 一开始统一铺一层
+        left = right =index  #左右端点一开始都在index，然后才延展
+        res = 1
+        dl, dr =0,0  # index两边的延伸出的长度
+        while gap >0:
+            left -=1
+            right += 1
+            if left>=0:
+                dl += 1
+            if right < n:
+                dr += 1
+            if left < 0 and right >= n:
+                res += gap//n if gap %n == 0 else gap//n +1
+                return res
+            res += 1
+            gap -= (dl+ dr +1)
+        return res
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
 
 
 ## hard

@@ -2641,6 +2641,51 @@ class Solution {
 
 ```
 
+### 25.[61. 旋转链表](https://leetcode-cn.com/problems/rotate-list/)
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode rotateRight(ListNode head, int k) {
+        if(head == null || k ==0)  return head;
+        ListNode t= head;
+        int len = 0;
+        while (t!=null){
+            len++;
+            t = t.next;
+        }
+        k = k % len;
+        if (k ==0 )  return head;   // 如果是整个转换，就不用了，直接返回   
+        t = head;
+        while (k>0){
+            k--;
+            t =t.next;
+        }
+        ListNode fin = head;
+        while (t.next != null){
+            fin = fin.next;
+            t = t.next;
+        }
+        ListNode res = fin.next;
+        fin.next = null;
+        t.next = head;
+        return res;
+
+    }
+}
+
+    
+```
+
 
 
 
