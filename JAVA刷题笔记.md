@@ -2686,7 +2686,90 @@ class Solution {
     
 ```
 
+### 26. [173. 二叉搜索树迭代器](https://leetcode-cn.com/problems/binary-search-tree-iterator/)
 
+```Java
+class BSTIterator {
+    private TreeNode cur;
+    private Deque<TreeNode> stack;
+
+    public BSTIterator(TreeNode root) {
+        cur = root;
+        stack = new LinkedList<TreeNode>();
+
+    }
+    
+    public int next() {
+        while (cur != null){  // 当前节点不为空，不断入栈，如果为空，就直接从栈中取一个
+            stack.push(cur);
+            cur = cur.left;
+        }
+        cur = stack.pop();
+        int res = cur.val;
+        cur = cur.right;
+        return res;
+
+    }
+    
+    public boolean hasNext() {
+        return cur != null || !stack.isEmpty();
+
+    }
+}
+```
+
+
+
+### 27. [15. 三数之和](https://leetcode-cn.com/problems/3sum/)
+
+```java
+class Solution {//双指针解法
+    public List<List<Integer>> threeSum(int[] nums) {
+
+        List<List<Integer>> res=new ArrayList<>();
+        int len=nums.length;
+        if(nums==null||len<3)   return res;//不足三个的话，视为失败
+
+        Arrays.sort(nums);//先排序
+
+        for(int i=0;i<len;i++){
+            if(nums[i]>0)  break;//最小值大于零，就不用要了
+
+            if(i>0&&nums[i]==nums[i-1])  continue;//如果有重复的，直接跳到下一个
+            
+
+            int L=i+1;//左指针
+            int R=len-1;//右指针
+
+            while(L<R){
+                int sum=nums[i]+nums[L]+nums[R];
+                if(sum==0){
+                    res.add(Arrays.asList(nums[i],nums[L],nums[R]));
+                    while(L<R&&nums[L]==nums[L+1])   L++;//如果有重复的，直接跳到下一个
+                    while(L<R&&nums[R]==nums[R-1])   R--;//如果有重复的，直接跳到下一个
+
+
+                    L++;
+                    R--;
+                }
+               else if (sum < 0) L++;//右移左指针
+                else if (sum > 0) R--;//左移右指针
+                
+
+
+            }
+        }
+    
+
+
+
+        return res;
+
+
+
+    }
+}
+```
 
 
 

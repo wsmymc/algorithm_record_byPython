@@ -6911,6 +6911,7 @@ class Solution:
 
 ```python
 # 和三数之和差不多，多了一层循环而已，双指针都是要有的
+# 时间复杂度O（n^3)
 
 class Solution:
     def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
@@ -12407,6 +12408,109 @@ class Solution:
             gap -= (dl+ dr +1)
         return res
 
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### 180. [173. 二叉搜索树迭代器](https://leetcode-cn.com/problems/binary-search-tree-iterator/)
+
+```python
+class BSTIterator:
+	# 实现了高端需求
+    # next() 和 hasNext() 操作均摊时间复杂度为 O(1) ，并使用 O(h) 内存。其中 h 是树的高度
+    def __init__(self, root: TreeNode):
+        self.stack = []
+        while root:
+            self.stack.append(root)
+            root = root.left
+
+    def next(self) -> int:
+        cur = self.stack.pop()
+        node = cur.right
+        while node:
+            self.stack.append(node)
+            node = node.left
+        return cur.val
+
+    def hasNext(self) -> bool:
+        return len(self.stack) > 0
+
+```
+
+#### 181. [15. 三数之和](https://leetcode-cn.com/problems/3sum/)
+
+```python
+# 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有和为 0 且不重
+# 复的三元组。 
+# 
+#  注意：答案中不可以包含重复的三元组。 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：nums = [-1,0,1,2,-1,-4]
+# 输出：[[-1,-1,2],[-1,0,1]]
+#  
+# 
+#  示例 2： 
+# 
+#  
+# 输入：nums = []
+# 输出：[]
+#  
+# 
+#  示例 3： 
+# 
+#  
+# 输入：nums = [0]
+# 输出：[]
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  0 <= nums.length <= 3000 
+#  -105 <= nums[i] <= 105 
+#  
+#  Related Topics 数组 双指针 
+#  👍 3159 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        res = []
+        n = len(nums)
+        if not nums or n <3:
+            return res
+        nums.sort()  # 先排序，利用自身的有序性
+        for i in range(n):
+            if nums[i] > 0:   # 如果最小值大于零，那就不用要了，肯定符合结果的没有0
+                break
+            if i > 0 and nums[i] == nums[i-1]:  # 如果值重复，可以直接跳过去
+                continue
+            L, R = i+1, n-1   # 初始化左右指针
+            while L < R:  # 双指针玩法
+                # print(n, i, L, R)
+                total = nums[i] + nums[L] + nums[R]
+                if total < 0:
+                    L += 1
+                elif total > 0:
+                    R -= 1
+                elif total == 0:
+                    res.append([nums[i], nums[L], nums[R]])
+                    # 排序后重复的值，在一起，如果重复，就直接跳过
+                    while L < R and nums[L] == nums[L+1]:
+                        L += 1
+                    while L < R and nums[R-1] == nums[R]:
+                        R -= 1
+                    L += 1
+                    R -= 1
+        return res
 # leetcode submit region end(Prohibit modification and deletion)
 
 ```
