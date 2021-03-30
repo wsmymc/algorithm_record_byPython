@@ -1346,6 +1346,34 @@ class MyHashSet {
 
 
 
+### 43. [1805. 字符串中不同整数的数目](https://leetcode-cn.com/problems/number-of-different-integers-in-a-string/)
+
+```java
+class Solution {
+    public int numDifferentIntegers(String word) {
+        Set<Long> s = new HashSet<>();
+        for (int i=0; i<word.length(); i++){
+            char c = word.charAt(i);
+            if (Character.isDigit(c)){   // 判断是否是数字，需要用到Character类， 而不是字符自带的方法
+                long num = c - '0';     // 不能用int(强制转型)，那样给到的ACSII，不是实际数字
+                int j= i+1;
+                while (j<word.length() && Character.isDigit(word.charAt(j))){
+                    num = num *10 + word.charAt(j) - '0';
+                    j ++;
+                }
+                i = j - 1;
+                s.add(num);
+            }
+        }
+//        for (long r:s){
+//            System.out.println(r);
+//        }
+        return s.size();
+
+    }
+}
+```
+
 
 
 ## mediium
@@ -2766,6 +2794,91 @@ class Solution {//双指针解法
         return res;
 
 
+
+    }
+}
+```
+
+### 28. [74. 搜索二维矩阵](https://leetcode-cn.com/problems/search-a-2d-matrix/)
+
+```java
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if (matrix == null || matrix.length ==0 || matrix[0].length == 0){
+            return false;
+        }
+        int m = matrix.length, n = matrix[0].length;
+        int u = 0, d = m - 1;
+        while (u < d){
+            int mid = (u + d) >>1;
+            if (matrix[mid][n-1] < target){
+                u++;
+            }else{
+                d = mid;
+            }
+        }
+
+        int l=0, r = n - 1;
+        while (l <r){
+            int mid = (l+r)>>1;
+            if (matrix[d][mid] < target){
+                l ++;
+            }else{
+                r = mid;
+            }
+        }
+        return matrix[d][l] == target;
+
+    }
+}
+```
+
+### 29. [1806. 还原排列的最少操作步数](https://leetcode-cn.com/problems/minimum-number-of-operations-to-reinitialize-a-permutation/)
+
+```java
+class Solution {
+    public int reinitializePermutation(int n) {
+        int pos = 1, res = 0;
+        do{
+            pos = (pos & 1) == 1 ? n/2 + (pos -1)/2: pos /2;
+            res ++;
+        }while(pos !=1);
+        return res;
+
+    }
+}
+```
+
+### 30. [1807. 替换字符串中的括号内容](https://leetcode-cn.com/problems/evaluate-the-bracket-pairs-of-a-string/)
+
+```java
+import java.util.HashMap;
+class Solution {
+    public String evaluate(String s, List<List<String>> knowledge) {
+        Map<String, String> map = new HashMap<>();
+        for(List<String> l : knowledge){
+            map.put(l.get(0), l.get(1));
+        }
+
+        StringBuilder res = new StringBuilder();
+        StringBuilder tmp = new StringBuilder();
+        int keyCount = 0;
+
+        for (char c: s.toCharArray()){  //  转化成数组
+            if (c == '(') {
+
+                keyCount ++;
+            }else if (c ==')'){
+                keyCount --;
+                res.append(map.getOrDefault(tmp.toString(), "?"));  // 将sb  -- 》 string
+                tmp = new StringBuilder();
+            }else if (keyCount > 0){
+                tmp.append(c);
+            }else{
+                res.append(c);
+            }
+        }
+        return res.toString();
 
     }
 }

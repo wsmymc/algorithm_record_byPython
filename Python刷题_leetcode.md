@@ -4439,6 +4439,32 @@ class Solution:
 
 ```
 
+#### 170. [1805. 字符串中不同整数的数目](https://leetcode-cn.com/problems/number-of-different-integers-in-a-string/)
+
+```
+class Solution:
+    def numDifferentIntegers(self, word: str) -> int:
+        n = len(word)
+        s = set()
+        tmp = 0
+        flag = False
+        for c in word:
+            if c.isdigit():
+                tmp = tmp*10 + int(c)
+                flag = True
+            else:
+                if flag:
+                    s.add(tmp)
+                    tmp = 0
+                    flag = False
+                else:
+                    continue
+        # print(s)
+        if flag:
+            s.add(tmp)
+        return len(s)
+```
+
 
 
 
@@ -12514,6 +12540,61 @@ class Solution:
 # leetcode submit region end(Prohibit modification and deletion)
 
 ```
+
+#### 182. [1806. 还原排列的最少操作步数](https://leetcode-cn.com/problems/minimum-number-of-operations-to-reinitialize-a-permutation/)
+
+```python
+class Solution:
+    def reinitializePermutation(self, n: int) -> int:
+        #  原始的解法为模拟法， 每次按照规则执行，然后check直到遇到结果，不过更好的方法是数学证明后，
+        #  直接使用公式,首先明白题意，这道题是交换不同位置上的值，而不是修改值，如果搞错这个，模拟都没得
+        #
+        if n == 2:
+            return 1
+        k, pow2 = 1, 2
+        while pow2 != 1:
+            k += 1
+            pow2 = pow2 * 2 % (n-1)
+        return k
+```
+
+#### 183. [1807. 替换字符串中的括号内容](https://leetcode-cn.com/problems/evaluate-the-bracket-pairs-of-a-string/)
+
+```python
+class Solution:
+    def evaluate(self, s: str, knowledge: List[List[str]]) -> str:
+        left, right = False, False
+        res = []
+        dic = {}
+        for x, y in knowledge:
+            dic[x] = y
+        tmp = ''
+        for c in s:
+            if not left and not right and c not in ['(', ')']:
+                res.append(c)
+            elif c == '(':
+                left = True
+            elif c == ')':
+                if tmp in dic:
+                    res.append(dic[tmp])
+                else:
+                    res.append('?')
+                tmp = ''
+                left = False
+            elif c not in ['(', ')'] and left:
+                tmp += c
+        return "".join(res)
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
