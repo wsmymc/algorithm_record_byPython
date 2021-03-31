@@ -2884,6 +2884,38 @@ class Solution {
 }
 ```
 
+### 31. [90. 子集 II](https://leetcode-cn.com/problems/subsets-ii/)
+
+```java
+class Solution {
+    List<Integer> t = new ArrayList<>();
+    List<List<Integer>> res = new ArrayList<List<Integer>>();
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        Arrays.sort(nums);
+        dfs(false, 0 ,nums);
+//        for(List<Integer> l: res){
+//            System.out.println(l);
+//        }
+        return res;
+    }
+
+    public void dfs(boolean choosePre, int cur, int[] nums){
+        if (cur == nums.length){
+            res.add(new ArrayList<Integer>(t));
+            return;
+        }
+        dfs(false, cur + 1, nums);  // 当前结果不选，跳过
+        if (!choosePre && cur > 0 && nums[cur - 1] == nums[cur]){    //  在递归时，若发现没有选择上一个数，且当前数字与上
+                                                                    // 一个数相同，则可以跳过当前生成的子集（避免最终结果的重复）
+            return;
+        }
+        t.add(nums[cur]);   // 当前结果选，并递归回溯
+        dfs(true, cur + 1, nums);
+        t.remove(t.size() -1);
+    }
+}
+```
+
 
 
 ## hard
