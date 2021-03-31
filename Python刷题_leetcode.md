@@ -7347,8 +7347,8 @@ class Solution:
 #     def __init__(self, x):
 #         self.val = x
 #         self.next = None
-
-class Solution:
+#  a + (n+1)b + nc = 2(a+b)   ===> a = c + (n-1)(b+c)
+class Solution:  
     def detectCycle(self, head: ListNode) -> ListNode:
         if not head or not head.next:
             return None
@@ -7899,7 +7899,41 @@ class Solution:
                     record[node].random = dfs(node.random)
             return record[node]
         return dfs(head)
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
 
+        # *1.
+        # 复制节点，如A - B - C
+        # 变成
+        # A - A’-B - B’-C - C’
+        # *2.
+        # 依次遍历节点A, B, C，将这些节点的随机指针与A’B’C’一致
+        # *3.
+        # 分离A - B - C和A’B’C’，A’B’C’便是需要求得链表
+        if not head:
+            return head
+        node = head
+        ## 先复制
+        while node:
+            new_clone = Node(node.val)
+            new_clone.next = node.next
+            node.next = new_clone
+            node = new_clone.next
+        node = head
+        # 依照相对位置，复制random指针
+        while node:
+            if node.random:
+                node.next.random = node.random.next
+            node = node.next.next
+        origin_node = head
+        new_node = head.next
+        res = new_node
+        while new_node:
+            origin_node.next = new_node.next
+            new_node.next = origin_node.next.next if origin_node.next else None
+            origin_node = origin_node.next
+            new_node = new_node.next
+        return res
 
 ```
 
