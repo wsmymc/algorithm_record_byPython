@@ -15423,6 +15423,143 @@ class Solution:
 
 
 
+#### 55. [887. 鸡蛋掉落](https://leetcode-cn.com/problems/super-egg-drop/)
+
+```python
+class Solution:
+    def superEggDrop(self, k: int, n: int) -> int:
+        # 我们可以考虑使用动态规划来做这道题，状态可以表示成(k, n)(k, n)，其中
+        # kk
+        # 为鸡蛋数，nn
+        # 为楼层数。当我们从第
+        # xx
+        # 楼扔鸡蛋的时候：
+        #
+        # 如果鸡蛋不碎，那么状态变成(k, n - x)(k, n−x)，即我们鸡蛋的数目不变，但答案只可能在上方的
+        # n - xn−x
+        # 层楼了。也就是说，我们把原问题缩小成了一个规模为(k, n - x)(k, n−x) 的子问题；
+        #
+        # 如果鸡蛋碎了，那么状态变成(k - 1, x - 1)(k−1, x−1)，即我们少了一个鸡蛋，但我们知道答案只可能在第
+        # xx
+        # 楼下方的
+        # x - 1
+        # x−1
+        # 层楼中了。也就是说，我们把原问题缩小成了一个规模为(k - 1, x - 1)(k−1, x−1) 的子问题。
+
+        memo = {}
+        def dp(k, n):
+            if (k, n) not in memo:
+                if n == 0:    # 0层高的楼，自然不用
+                    ans = 0
+                elif k == 1:  # 只有一个鸡蛋，只能从低向高，逐层测试
+                    ans = n
+                else:
+                    lo, hi = 1, n
+                    # keep a gap of 2 x values to manually check later
+                    while lo + 1 < hi:     # 二分 + dfs
+                        x = (lo + hi) // 2
+                        t1 = dp(k - 1, x - 1)   # 假设这一层破了， 向下面几层找
+                        t2 = dp(k, n - x)       # 假设这一层没有破， 向上面几层找
+
+                        if t1 < t2:    # 通过二分找到一个恰好的位置
+                            lo = x
+                        elif t1 > t2:
+                            hi = x
+                        else:
+                            lo = hi = x
+
+                    ans = 1 + min(max(dp(k - 1, x - 1), dp(k, n - x))
+                                  for x in (lo, hi))
+
+                memo[k, n] = ans     # 记忆化
+            return memo[k, n]
+
+        return dp(k, n)
+
+    
+    class Solution:
+    def superEggDrop(self, k: int, n: int) -> int:
+        if n == 1:
+            return 1
+        f = [[0] * (k + 1) for _ in range(n + 1)]
+        for i in range(1, k + 1):
+            f[1][i] = 1
+        ans = -1
+        for i in range(2, n + 1):
+            for j in range(1, k + 1):
+                f[i][j] = 1 + f[i - 1][j - 1] + f[i - 1][j]
+            if f[i][k] >= n:
+                ans = i
+                break
+        return ans
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/super-egg-drop/solution/ji-dan-diao-luo-by-leetcode-solution-2/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 56. [128. 最长连续序列](https://leetcode-cn.com/problems/longest-consecutive-sequence/)
+
+```python
+# 给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。 
+# 
+#  
+# 
+#  进阶：你可以设计并实现时间复杂度为 O(n) 的解决方案吗？ 
+# 
+#  
+# 
+#  示例 1： 
+# 
+#  
+# 输入：nums = [100,4,200,1,3,2]
+# 输出：4
+# 解释：最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。 
+# 
+#  示例 2： 
+# 
+#  
+# 输入：nums = [0,3,7,2,5,8,4,6,0,1]
+# 输出：9
+#  
+# 
+#  
+# 
+#  提示： 
+# 
+#  
+#  0 <= nums.length <= 104 
+#  -109 <= nums[i] <= 109 
+#  
+#  Related Topics 并查集 数组 
+#  👍 728 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def longestConsecutive(self, nums: List[int]) -> int:
+        dic = dict()
+        max_length = 0
+        for i in nums:
+            if i not in dic:
+                left = dic.get(i -1, 0)
+                right = dic.get(i+1, 0)
+                cur_length = 1 + left + right
+                max_length = max(max_length, cur_length)
+
+                dic[i] = cur_length
+                dic[i - left] = cur_length
+                dic[i + right] = cur_length
+        return max_length
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
+
+
+
 
 
 ## 需要注意的边界条件：

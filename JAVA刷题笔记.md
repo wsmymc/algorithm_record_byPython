@@ -2916,6 +2916,32 @@ class Solution {
 }
 ```
 
+### 32. [48. 旋转图像](https://leetcode-cn.com/problems/rotate-image/)
+
+```java
+class Solution {
+    public void rotate(int[][] matrix) {
+        /*
+        * 以旋转法来做题，首先要考虑到奇数、偶数边长，旋转的范围，由此确定循环边界条件
+        * 然后模拟一个旋转过程，找到索引替换的公式*/
+        int n = matrix.length; 
+        for(int i=0; i< n/2; i++){    
+            for (int j=0;i<(n+1)/2; j++){
+                int tmp = matrix[i][j];  
+                matrix[i][j] = matrix[n- j -1][i];
+                matrix[n - j -1][i] = matrix[n - i -1][n- j -1];
+                matrix[n- i-1][n-j-1] = matrix[j][n - i -1];
+                matrix[j][n - i -1] = tmp;
+
+            }
+        }
+
+
+
+    }
+}
+```
+
 
 
 ## hard
