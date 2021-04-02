@@ -4465,6 +4465,24 @@ class Solution:
         return len(s)
 ```
 
+#### 171. [543. 二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/)
+
+```python
+class Solution:
+    def diameterOfBinaryTree(self, root: TreeNode) -> int:
+        """一条路径的长度为该路径经过的节点数减一，所以求直径（即求路径长度的最大值）等效于求路径经过节点数的最大值减一"""
+        self.res = 1
+        def depth(node):
+            if not node:
+                return 0
+            L = depth(node.left)
+            R = depth(node.right)
+            self.res = max(self.res, L + R + 1)  # 当前节点
+            return max(L, R) + 1   # 返回以该节点为根的子树的深度
+        depth(root)
+        return self.res - 1
+```
+
 
 
 
@@ -12620,6 +12638,43 @@ class Solution:
         return "".join(res)
 ```
 
+#### 184. [199. 二叉树的右视图](https://leetcode-cn.com/problems/binary-tree-right-side-view/)
+
+```python
+class Solution:
+    def rightSideView(self, root: TreeNode) -> List[int]:
+        # bfs ,或者说是层序遍历
+        right_depth = {}
+        max_depth = -1
+        queue = deque([(root, 0)])
+        while queue:
+            node, depth = queue.popleft()
+            if node is not None:
+                max_depth = max(max_depth, depth)     # 更新最大深度
+                right_depth[depth] = node.val         # 不断更新,根据插入顺序和队列特性，最后一次更新就是最右值
+                queue.append((node.left, depth+1))
+                queue.append((node.right, depth+1))
+        return [right_depth[depth] for depth in range(max_depth+1)]
+    
+class Solution:
+    def rightSideView(self, root: TreeNode) -> List[int]:
+        # dfs
+        right_depth = {}
+        max_depth = -1
+        stack = [(root, 0)]
+        while stack:
+            node, depth = stack.pop()
+            if node is not None:
+                max_depth = max(max_depth, depth)     # 维护更新最大深度
+                right_depth.setdefault(depth, node.val)    # 如果不存在对应深度的节点，才插入，setdefault 类似默认插入，
+                # 没有才插入，有则不插入
+                # 因为栈先进后出，为了维护这个顺序，所以插入时先左后右，使右侧先出栈
+                stack.append((node.left, depth + 1))
+                stack.append((node.right, depth + 1))
+        return [right_depth[depth] for depth in range(max_depth+1)]
+
+```
+
 
 
 
@@ -15548,12 +15603,61 @@ class Solution:
                 cur_length = 1 + left + right
                 max_length = max(max_length, cur_length)
 
-                dic[i] = cur_length
+                dic[i] = 1  # 表示在hash中
+                # 更新左右端点
                 dic[i - left] = cur_length
                 dic[i + right] = cur_length
         return max_length
 # leetcode submit region end(Prohibit modification and deletion)
 
+
+#另一种思路
+class Solution:
+    def longestConsecutive(self, nums):
+        longest_streak = 0
+        num_set = set(nums)
+
+        for num in num_set:
+            if num - 1 not in num_set:
+                current_num = num
+                current_streak = 1
+
+                while current_num + 1 in num_set:
+                    current_num += 1
+                    current_streak += 1
+
+                longest_streak = max(longest_streak, current_streak)
+
+        return longest_streak
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/longest-consecutive-sequence/solution/zui-chang-lian-xu-xu-lie-by-leetcode-solution/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 57. [124. 二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)
+
+```python
+class Solution:
+    def __init__(self):
+        self.max_sum = float('-inf')
+
+    def maxPathSum(self, root: TreeNode) -> int:
+        def get_gain(node):
+            if not node:
+                return 0
+            left = max(get_gain(node.left), 0)
+            right = max(get_gain(node.right), 0)
+
+            # 查看以该节点为根节点的路径最大值
+            tmp_path_val = node.val + left + right
+            self.max_sum = max(self.max_sum, tmp_path_val)
+
+            return node.val + max(left, right)   # 对待调用的上层，只能够返回根节点 + 左 或者右的路径
+
+        get_gain(root)
+        return self.max_sum
 ```
 
 
