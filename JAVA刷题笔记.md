@@ -5,7 +5,19 @@
 ## 语法点
 
 1. https://leetcode-cn.com/circle/article/dnbYTt/
+
 2. LinkedList遍历方法：[13,Java LinkedList遍历的7种方法 - 简书 (jianshu.com)](https://www.jianshu.com/p/46155da1e2cf)
+
+3. ```java
+           char[] b = a.toCharArray();   // String --> char[]
+         
+   ```
+
+4. ```java
+    //左闭右开的截取字符串substring   
+   ```
+
+5. 
 
 ## easy
 
@@ -1370,6 +1382,82 @@ class Solution {
 //        }
         return s.size();
 
+    }
+}
+```
+
+
+
+### 44 [231. 2 的幂](https://leetcode-cn.com/problems/power-of-two/)
+
+```java
+class Solution {
+    private static final int big = 1<<30;
+    public boolean isPowerOfTwo(int n) {
+        return n> 0 && big %n ==0;
+
+    }
+}
+
+// low bit 
+class Solution {
+    public boolean isPowerOfTwo(int n) {
+        return n > 0 && (n&(n-1)) == 0;
+
+    }
+}
+```
+
+
+
+### 45 [5772. 检查某单词是否等于两单词之和](https://leetcode-cn.com/problems/check-if-word-equals-summation-of-two-words/)
+
+```java
+class Solution {
+    public boolean isSumEqual(String firstWord, String secondWord, String targetWord) {
+
+        return get(firstWord) + get(secondWord) == get(targetWord);
+    }
+    public int get(String a){
+        int res  = 0;
+        char[] b = a.toCharArray();   // String -- > char[]
+        //System.out.println(b);
+        for (char c: b){
+
+            System.out.println(c -'a');
+            res = res *10 + c -'a';
+        }
+       // System.out.println(res);
+        return res;
+    }
+}
+```
+
+### 46 [5754. 长度为三且各字符不同的子字符串](https://leetcode-cn.com/problems/substrings-of-size-three-with-distinct-characters/)
+
+```java
+class Solution {
+    // 用了三个变量轮转，还是有点复杂了，直接i，i+1， i+2.就OK的
+    public int countGoodSubstrings(String s) {
+        if (s.length() <3){
+            return 0;
+        }
+        char x = s.charAt(0), y = s.charAt(1),z = s.charAt(2);
+        int  i = 3;
+        int res =check(x,y,z)? 1:0;
+        for (;i<s.length();i++){
+            x = y;
+            y = z;
+            z = s.charAt(i);
+            if (check(x,y,z)){
+                res +=1;
+            }
+        }
+        return res;
+
+    }
+    public boolean check(char a, char b ,char c){
+        return a != b && a !=c  && b !=c;
     }
 }
 ```
@@ -2942,7 +3030,31 @@ class Solution {
 }
 ```
 
+### 33. [5773. 插入后的最大值](https://leetcode-cn.com/problems/maximum-value-after-insertion/)
 
+```java
+// 方法想对了，但是返回是string 而不是int
+
+// 左闭右开的截取字符串substring
+class Solution {
+    public String maxValue(String n, int x) {
+        if(n.charAt(0) == '-'){
+            int k = 0;
+            while(k< n.length() &&(n.charAt(k)-'0')  <= x){
+                k++;
+            }
+            return n.substring(0,k) + ""+x + n.substring(k,n.length());
+            
+        }else{
+            int k = 0;
+            while(k< n.length() && (n.charAt(k)-'0') >= x){
+                k++;
+            }
+            return n.substring(0,k) + ""+x + n.substring(k,n.length());     
+        }
+    }
+}
+```
 
 ## hard
 

@@ -12675,9 +12675,47 @@ class Solution:
 
 ```
 
+#### 185.[56. 合并区间](https://leetcode-cn.com/problems/merge-intervals/)
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        intervals.sort(key = lambda x: x[0])
+        merged = []
+        for i in intervals:
+            if not merged or merged[-1][1] < i[0]:
+                merged.append(i)
+            else:
+                merged[-1][1] = max(merged[-1][1], i[1])
+        return merged
+```
 
 
 
+#### 186.[31. 下一个排列](https://leetcode-cn.com/problems/next-permutation/)
+
+```python
+class Solution:
+    def nextPermutation(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        i = len(nums) - 2
+        # 从后向前找到需要交换的那个较小的数
+        while i >= 0 and nums[i] >= nums[i+1]:
+            i -= 1
+        if i >= 0:   # 如果这个数存在
+            j = len(nums) - 1
+            while j >= i and nums[i] >= nums[j]:    # 从后向前找到相对较大的数,注意不要超过i
+                j -= 1
+            nums[i], nums[j] = nums[j], nums[i]
+        left, right = i+1, len(nums) - 1
+        # 将后半反转
+        while left < right:
+            nums[left], nums[right] = nums[right], nums[left]
+            left += 1
+            right -= 1
+```
 
 
 
