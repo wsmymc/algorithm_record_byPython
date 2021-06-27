@@ -17,7 +17,31 @@
     //左闭右开的截取字符串substring   
    ```
 
-5. 
+5. 多维数组排序
+
+    ```java
+    
+    int [][]a = new int [5][2];
+    
+    //定义一个二维数组，其中所包含的一维数组具有两个元素
+    
+    对于一个已定义的二位数组a进行如下规则排序,首先按照每一个对应的一维数组第一个元素进行升序排序（即a[][0]）,若第一个元素相等,则按照第二个元素进行升序排序（a[][1]）。(特别注意,这里的a[][0]或者a[][1]在java中是不能这么定义的,这里只是想说明是对于某一个一维数组的第0或1个元素进行排序)
+    
+    Arrays.sort(a, new Comparator<int[]>() {
+    @Override
+    public int compare(int[] o1, int[] o2) {
+    if (o1[0]==o2[0]) return o1[1]-o2[1];
+    return o1[0]-o2[0];
+    }
+    });
+    其中o1[1]-o2[1]表示对于第二个元素进行升序排序如果为o2[1]-o1[1]则表示为降序。
+    
+    // 也可以用lamdba
+            Arrays.sort(mat, (o1,o2)-> (o2[0] - o1[0]));
+            System.out.println(Arrays.deepToString(mat));
+    ```
+
+    
 
 ## easy
 
@@ -1458,6 +1482,179 @@ class Solution {
     }
     public boolean check(char a, char b ,char c){
         return a != b && a !=c  && b !=c;
+    }
+}
+```
+
+### 47. [492. 构造矩形](https://leetcode-cn.com/problems/construct-the-rectangle/)
+
+```java
+class Solution {
+    public int[] constructRectangle(int area) {
+        int width = (int) Math.sqrt(area);
+        int length;
+        while (area % width != 0) {
+            width--;
+        }
+        length = area / width;
+        return new int[]{length, width};
+    }
+}
+// 没啥意思，就是先开根号，然后先确定宽，再确定长
+class Solution {
+    public int[] constructRectangle(int area) {
+        int width = (int) Math.sqrt(area);
+        while( area % width != 0) width--;
+        return new int[]{area / width, width};
+    }
+}
+
+
+
+
+```
+
+### 48. [453. 最小操作次数使数组元素相等](https://leetcode-cn.com/problems/minimum-moves-to-equal-array-elements/)
+
+```java
+public class Solution {
+    public int minMoves(int[] nums) {
+        // 先排序，然后确定每个元素之间的gap， 累计求和
+        Arrays.sort(nums);
+        int count = 0;
+        for (int i = nums.length - 1; i > 0; i--) {
+            count += nums[i] - nums[0];
+        }
+        return count;
+    }
+}
+
+/*
+该方法基于以下思路：将除了一个元素之外的全部元素+1，等价于将该元素-1，因为我们只对元素的相对大小感兴趣。因此，该问题简化为需要进行的减法次数。
+
+显然，我们只需要将所有的数都减到最小的数即可。为了找到答案，我们不需要真的操作这些元素。只需要 moves=sum(nums) - min(nums) *length
+
+本质上，理解成一个消消乐，超出min的都要消掉，每次操作，只能够消掉一个“1”， 所以求和就好*/
+public class Solution {
+    public int minMoves(int[] nums) {
+        int moves = 0, min = Integer.MAX_VALUE;
+        for (int i = 0; i < nums.length; i++) {
+            moves += nums[i];
+            min = Math.min(min, nums[i]);
+        }
+        return moves - min * nums.length;
+    }
+}
+
+```
+
+### 49 [1886. 判断矩阵经轮转后是否一致](https://leetcode-cn.com/problems/determine-whether-matrix-can-be-obtained-by-rotation/)
+
+```java
+// 简单题未必有巧妙解法，也可能仅仅只是数据量很小，所以解法很直
+// 主要是看deepequal（）
+class Solution {
+    //顺时针旋转90°==先水平转矩阵，再按照对角线反转矩阵
+    public boolean findRotation(int[][] mat, int[][] target) {
+        if(Arrays.deepEquals(mat,target)) return true;  // 不旋转的情况是否相等
+        // 顺时针旋转360°等于没旋转，所以最多旋转三次，如果不相等直接返回false
+        int index = 3;
+        while(index-->0){
+            reverseMatrix(mat); 
+            // deepEquals深比较
+            if(Arrays.deepEquals(mat,target)) return true;
+        }
+        return false;
+    }
+
+    public void reverseMatrix(int[][] martrix){  // 旋转matrix90°
+        int m = martrix.length,n = martrix[0].length;
+        // 先水平转矩阵
+        for(int i=0;i<m/2;i++){
+            for(int j=0;j<n;j++){
+                int temp = martrix[i][j];
+                martrix[i][j] = martrix[m-i-1][j];
+                martrix[m-i-1][j] = temp;
+            }
+        }
+        // 按照对角线反转矩阵
+        for(int i=0;i<m;i++){
+            for(int j=i+1;j<n;j++){
+                int temp = martrix[i][j];
+                martrix[i][j] = martrix[j][i];
+                martrix[j][i] = temp;
+            }
+        }
+    }
+}
+```
+
+### 50 [5780. 删除一个元素使数组严格递增](https://leetcode-cn.com/problems/remove-one-element-to-make-the-array-strictly-increasing/)
+
+```java
+class Solution {
+        public boolean canBeIncreasing(int[] nums) {
+        int n = nums.length;
+        if (n <2){
+            return true;
+        }
+        int cnt = 0;
+        if(check(nums)){
+            return true;
+        }
+        for(int i =0;i<n;i++){
+            int[] tmp = new int[n-1];
+            int k =0;
+            for(int j=0;j<n;j++){
+                if(i ==j){
+                    continue;
+                }else{
+                    tmp[k++] = nums[j];
+                }
+            }
+            if(check(tmp)){
+                return true;
+            }
+        }
+        return false;
+
+
+    }
+    private boolean check(int[] nums){
+        for(int i=0;i<nums.length -1;i++){
+            if (nums[i]>=nums[i+1]){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+///
+class Solution {
+    public boolean canBeIncreasing(int[] nums) {
+        // 枚举比较，暴力解决
+        for(int i= -1; i<nums.length;i++){ // -1开始，可以表示全部数据
+            boolean flag = false;
+            int last = 0;
+            for(int j=0;j<nums.length;j++){
+                // 自己相比，跳过
+                if(j==i){
+                    continue;
+                }
+                if(nums[j] <= last){
+                    flag = true;
+                }
+                // 每次更新last，实际上就是两个窗口的移动
+                last = nums[j];
+            }
+            // 任何一次ok，直接返回true
+            if(!flag){
+                return true;
+            }
+        }
+        return false;
+
     }
 }
 ```
@@ -3056,7 +3253,114 @@ class Solution {
 }
 ```
 
+### 34. [5781. 删除一个字符串中所有出现的给定子字符串](https://leetcode-cn.com/problems/remove-all-occurrences-of-a-substring/)
+
+```java
+class Solution {
+    public String removeOccurrences(String s, String part) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            sb.append(s.charAt(i));
+        }
+        int n = part.length();
+        int cnt = 1;
+        while (cnt > 0) {
+            int tmp = cnt;
+            for (int i = 0; i < sb.length() - n; i++) {
+                if (part.equals(sb.substring(i, i + n))) {
+                    sb.replace(i, i + n, "");
+                    tmp++;
+                    break;
+                }
+            }
+            for (int i = sb.length(); i > n; i--) {
+                if (part.equals(sb.substring(i - n, i))) {
+                    sb.replace(i - n, i, "");
+                    tmp++;
+                    break;
+                }
+            }
+            cnt = tmp - cnt;
+        }
+         if(sb.toString().equals(part)){
+            return "";
+        }
+        return sb.toString();
+
+
+    }
+}
+///
+class Solution {
+    public String removeOccurrences(String s, String part) {
+        // 不要被左右干扰，可以直接单向消除
+        // indexOf, substring() 方法要熟悉
+        while(true){
+            int idx = s.indexOf(part);
+            if(idx == -1)   break;
+            s = s.substring(0, idx) + s.substring(idx + part.length());
+        }
+        return s;
+
+    }
+}
+ 
+```
+
+### 35 [5782. 最大子序列交替和](https://leetcode-cn.com/problems/maximum-alternating-subsequence-sum/)
+
+```java
+必须在卖出上一股后才能买入下一股（可以当天卖出再当天买入）
+public long maxAlternatingSum(int[] nums) {
+        int n = nums.length;
+        long ans = 0;
+        int pre = 0;
+        for (int i = 0; i < n; i++) {
+            if (nums[i] > pre) {//价格比原先买入价格高，就卖出一股，并买入
+                ans += nums[i] - pre;
+                pre = nums[i];
+            } else pre = nums[i];//如果遇到价格更低的，则换成该天买入
+        }
+        return ans;
+    }
+
+作者：mei-mi-xiao-gan-xing
+链接：https://leetcode-cn.com/problems/maximum-alternating-subsequence-sum/solution/mo-ni-gu-piao-jiao-yi-by-mei-mi-xiao-gan-nxa3/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+///
+class Solution {
+
+    public long maxAlternatingSum(int[] nums) {
+        int n = nums.length;
+        // 理解成股票问题
+        // 左边多出一个作为初始化的0，
+        long[][] f = new long[n+1][2];
+        f[0][0] = 0;
+        for(int i = 1;i<=n;i++){
+            // 0- 当前的截止，或者说之前最大的为偶数，所以新加的要减去
+            f[i][0] = Math.max(f[i-1][0], f[i-1][1] -nums[i-1]);
+            // 1- 当前的截止，最大的串作为奇数，所以最后的要加上，由于之前的算法可能为负数，所以这里需要内部max一下，如果负数，不如相当于之前全都不计算，为0
+            f[i][1] = Math.max(f[i-1][1], Math.max(0L, f[i-1][0]) + nums[i-1]);
+        }
+        return Math.max(f[n][0], f[n][1]);     
+    }
+}
+```
+
+
+
+
+
+
+
+
+
 ## hard
+
+
 
 ### 1. [164. 最大间距](https://leetcode-cn.com/problems/maximum-gap/)
 
@@ -3693,6 +3997,290 @@ class Solution {
 
 作者：chen-wen-liang
 链接：https://leetcode-cn.com/problems/maximum-score-of-a-good-subarray/solution/84-zhu-zhuang-tu-zhong-zui-da-de-ju-xing-42xm/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 10 .149. 直线上最多的点数](https://leetcode-cn.com/problems/max-points-on-a-line/)
+
+```java
+class Solution {
+    public int maxPoints(int[][] points) {
+        int n = points.length;
+        // 极小边界
+        if(n<=2){
+            return n;
+        }
+        int res = 0;
+        for(int i=0; i<n;i++){
+            // 当前最大的值 >= 剩下未统计的的点（因为最多剩下的点共线），或者大于一半的点（原因相同），直接返回
+            if(res >= n- i || res >n /2){
+                break;
+            }
+            Map<Integer,Integer> map = new HashMap<>();
+            for(int j = i+1;j<n;j++){
+                // 固定一点，遍历之后的所有点
+                int x = points[i][0] - points[j][0];
+                int y = points[i][1] - points[j][1];
+                // 极端斜率
+                if(x==0){
+                    y = 1;
+                }
+                else if(y ==0){
+                    x = 1;
+                }
+                else{
+                    // 规定y非负
+                    if (y<0){
+                        x = -x;
+                        y = -y;
+                    }
+                    // 分子式最简化
+                    int gcdXY = gcd(Math.abs(x), Math.abs(y));
+                    x /= gcdXY;
+                    y /=gcdXY;
+                }
+                // 以点i为基点， 与j构造成相同斜率的次数统计在map中，其实就是共线了。这里的100000，是为了避免可能的重合
+                int key = y + x * 100000;
+                map.put(key, map.getOrDefault(key, 0) +1);
+            }
+            int max = 0;
+            //
+            for(Map.Entry<Integer, Integer> pair : map.entrySet()){
+                int num = pair.getValue();
+                max = Math.max(num + 1, max);
+            }
+            res = Math.max(max, res);
+        }
+        return res;
+
+    }
+    // 辗转相除求最大公约数
+    public int gcd(int a, int b){
+        return b == 0 ? a: gcd(b, a%b);
+    }
+}
+```
+
+### 11.[5783. 设计电影租借系统](https://leetcode-cn.com/problems/design-movie-rental-system/)
+
+```java
+class MovieRentingSystem {
+    private int n;
+    List<Set<Integer>> movieSetList; // 每个商店未借出电影
+    List<Map<Integer, Integer>> moviePriceList; // 每个商店电影价格；
+    Map<Integer, TreeSet<Movie>> searchTreeSetMap; // 每个商店的电影堆；
+    TreeSet<Movie> reportTreeSet; // 总的已经借出电影（shop, movie ,proce）
+
+    
+
+    public MovieRentingSystem(int n, int[][] entries) {
+        this.n = n;
+        movieSetList = new ArrayList<>();
+        moviePriceList = new ArrayList<>();
+        searchTreeSetMap = new HashMap<>();
+        reportTreeSet = new TreeSet<Movie>((o1,o2) -> {
+            if(o1.price != o2.price) return o1.price -o2.price;
+            if(o1.shop != o2.shop) return o1.shop -o2.shop;
+            return o1.movie - o2.movie;
+        });
+        for(int i=0;i<n;i++){
+            movieSetList.add(new HashSet<>());
+            moviePriceList.add(new HashMap<>());
+        }
+        for(int i=0;i<entries.length;i++){
+            int shop = entries[i][0];
+            int movie = entries[i][1];
+            int price = entries[i][2]; 
+            movieSetList.get(shop).add(movie);
+            moviePriceList.get(shop).put(movie, price);
+            // 针对每个电影，存入所有的拷贝信息,如果该电影不存在，需要初始化
+            if(!searchTreeSetMap.containsKey(movie)){
+                searchTreeSetMap.put(movie, new TreeSet<Movie>((o1,o2) ->{
+                    return o1.price == o2.price ? o1.shop -o2.shop : o1.price - o2.price;
+                }));
+            }
+            searchTreeSetMap.get(movie).add(new Movie(shop, movie, price));
+
+        }
+
+
+    }
+    
+    public List<Integer> search(int movie) {
+        if(!searchTreeSetMap.containsKey(movie)) return new ArrayList<>();
+        List<Integer> res = new ArrayList<>();
+        TreeSet<Movie> set = searchTreeSetMap.get(movie);
+        int i =0 ;
+        for(Movie m : set){
+            if(i>=5) break;
+            res.add(m.shop);
+            i++;
+        }
+        return res;
+
+    }
+    
+    public void rent(int shop, int movie) {
+        // 借出，需要更新相关集合
+        int price = moviePriceList.get(shop).get(movie);
+        movieSetList.get(shop).remove(movie);
+        reportTreeSet.add(new Movie(shop, movie, price));
+        if(searchTreeSetMap.containsKey(movie)){
+            searchTreeSetMap.get(movie).remove(new Movie(shop, movie, price));
+        }
+
+    }
+    
+    public void drop(int shop, int movie) {
+        // 返回，逆向更新
+ int price = moviePriceList.get(shop).get(movie);
+        movieSetList.get(shop).add(movie);
+        reportTreeSet.remove(new Movie(shop, movie, price));
+        if(searchTreeSetMap.containsKey(movie)){
+            searchTreeSetMap.get(movie).add(new Movie(shop, movie, price));
+        }
+
+    }
+    
+    public List<List<Integer>> report() {
+        List<List<Integer>> res = new ArrayList<>();
+        int i=0;
+        for(Movie m: reportTreeSet){
+            if(i >=5) break;
+            List<Integer> tmp = Arrays.asList(m.shop, m.movie);
+            res.add(tmp);
+            i++;
+        }
+        return res;
+
+    }
+
+
+    class Movie {
+        int shop;
+        int movie;
+        int price;
+
+        Movie(int a, int b,int c){
+            this.shop =a;
+            this.movie = b;
+            this.price = c;
+        }
+        @Override
+        public boolean equals(Object o){
+            if(this == o) {
+                return true;
+            }
+            if(o == null || getClass() != o.getClass()) return false;
+            Movie m = (Movie) o;
+            return m.shop == shop && m.movie == movie && m.price == price;
+        }
+
+        @Override
+        public int hashCode(){
+            return Objects.hash(shop, movie, price);
+        }
+    }
+}
+
+/**
+ * Your MovieRentingSystem object will be instantiated and called as such:
+ * MovieRentingSystem obj = new MovieRentingSystem(n, entries);
+ * List<Integer> param_1 = obj.search(movie);
+ * obj.rent(shop,movie);
+ * obj.drop(shop,movie);
+ * List<List<Integer>> param_4 = obj.report();
+ */
+
+//优先队列写法
+class MovieRentingSystem {
+    Map<Integer,PriorityQueue<int[]>>movies=new HashMap<>();
+    Set<int[]>set=new HashSet<>();
+    PriorityQueue<int[]>jie=new PriorityQueue<>(new Comparator<int[]>() {
+        @Override
+        public int compare(int[] o1, int[] o2) {
+            if(o1[2]!=o2[2])return o1[2]-o2[2];
+            else if(o1[1]!=o2[1])return o1[1]-o2[1];
+            else return o1[0]-o2[0];
+        }
+    });
+    Map<Integer,int[]>[]shops;
+    public MovieRentingSystem(int n, int[][] entries) {
+        shops=new Map[n];
+        for(int i=0;i<n;i++)
+            shops[i]=new HashMap();
+        for(int i=0;i<entries.length;i++)
+        {
+            int[]tem=entries[i];
+            if(movies.get(tem[1])==null)movies.put(tem[1],new PriorityQueue<>(new Comparator<int[]>() {
+                @Override
+                public int compare(int[] o1, int[] o2) {
+                    if(o1[2]!=o2[2])
+                        return o1[2]-o2[2];
+                    else return o1[0]-o2[0];
+                }
+            }));
+            movies.get(tem[1]).add(tem);
+            shops[tem[0]].put(tem[1],tem);
+        }
+    }
+    public List<Integer> search(int movie) {
+        int num=5;
+        List<Integer>list=new ArrayList<>();
+        if(movies.get(movie)==null)return list;
+        PriorityQueue<int[]>tem=(movies.get(movie));
+        Stack<int[]>stack=new Stack<>();
+        while (!tem.isEmpty()&&num>0)
+        {
+            int[]arr=tem.poll();
+            stack.add(arr);
+            if(!set.contains(arr)) {
+                list.add(arr[0]);
+                num--;
+            }
+        }
+
+        while (!stack.isEmpty())
+            tem.add(stack.pop());
+        return list;
+    }
+
+    public void rent(int shop, int movie) {
+        int[]tem=shops[shop].get(movie);
+        set.add(tem);
+        jie.add(tem);
+    }
+
+    public void drop(int shop, int movie) {
+        int[]tem=shops[shop].get(movie);
+        set.remove(tem);
+        jie.remove(tem);
+    }
+
+    public List<List<Integer>> report() {
+        int num=5;
+        PriorityQueue<int[]>tem=jie;
+        List<List<Integer>>list=new ArrayList<>();
+        Stack<int[]>stack=new Stack<>();
+        while (!tem.isEmpty()&&num>0)
+        {
+            int[]arr=tem.poll();
+            stack.add(arr);
+                List<Integer> ll = new ArrayList<>();
+                ll.add(arr[0]);
+                ll.add(arr[1]);
+                list.add(ll);
+                num--;
+        }
+        while (!stack.isEmpty())
+            jie.add(stack.pop());
+        return list;
+    }
+}
+
+作者：xiaoshuaila
+链接：https://leetcode-cn.com/problems/design-movie-rental-system/solution/javadai-ma-you-xian-dui-lie-by-xiaoshuai-u79l/
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
