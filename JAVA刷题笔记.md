@@ -1659,6 +1659,109 @@ class Solution {
 }
 ```
 
+### 51 [168. Excel表列名称](https://leetcode-cn.com/problems/excel-sheet-column-title/)
+
+```java
+class Solution {
+    public String convertToTitle(int columnNumber) {
+        StringBuffer sb = new StringBuffer();
+        while (columnNumber != 0) {
+            columnNumber--;
+            sb.append((char)(columnNumber % 26 + 'A'));
+            columnNumber /= 26;
+        }
+        return sb.reverse().toString();
+    }
+}
+
+
+```
+
+### 52.[1863. 找出所有子集的异或总和再求和](https://leetcode-cn.com/problems/sum-of-all-subset-xor-totals/)
+
+```java
+class Solution {
+    int res = 0;
+    public int subsetXORSum(int[] nums) {
+        if(nums.length == 1)return nums[0];
+        dfs(nums,0,0);
+        return res;
+    }
+    //i：表示来到第i个位置
+    public void dfs(int []nums,int i ,int xor_sum){
+        if(i == nums.length){
+            res+= xor_sum;
+            return;
+        }
+        //当前位置要
+        dfs(nums,i+1,xor_sum ^ nums[i]);
+        //当前位置不要
+        dfs(nums,i+1,xor_sum);
+    }
+}
+
+```
+
+### 52.[482. 密钥格式化](https://leetcode-cn.com/problems/license-key-formatting/)
+
+```java
+class Solution {
+    public String licenseKeyFormatting(String s, int k) {
+        String ns = s.replace("-","");
+        int n = ns.length();
+        int remain = n % k;
+        int cnt = n /k;
+        if (cnt == 0){
+            return ns;
+        }
+        StringBuilder sb = new StringBuilder();
+        int idx = n-1;
+        int sum = 0;
+        while(idx>=0){
+            char tmp = ns.charAt(idx);
+            sb.append(tmp);
+            sum++;
+            if(sum % k ==0 && idx !=0){
+                sb.append("-");
+            }
+            idx--;
+        }
+        return sb.reverse().toString().toUpperCase();
+
+    }
+}
+```
+
+### 53. [495. 提莫攻击](https://leetcode-cn.com/problems/teemo-attacking/)
+
+```java
+class Solution {
+    public int findPoisonedDuration(int[] timeSeries, int duration) {
+        Arrays.sort(timeSeries);
+        int res= 0;
+        int last = 0;
+        for(int i=0;i<timeSeries.length;i++){
+            if(i == 0){
+                last += duration -1 + timeSeries[0];
+                res += duration;
+            }else{
+                if(timeSeries[i]>last){
+                    last = timeSeries[i] + duration -1;
+                    res += duration;
+                }else{
+                    int pre = last;
+                    last = timeSeries[i] + duration -1;
+                    res += last - pre;
+                }
+            }
+
+        }
+        return res;
+
+    }
+}
+```
+
 
 
 ## mediium
@@ -3350,6 +3453,70 @@ class Solution {
 }
 ```
 
+### 36. [1915. 最美子字符串的数目](https://leetcode-cn.com/problems/number-of-wonderful-substrings/)
+
+```java
+class Solution {
+    public long wonderfulSubstrings(String word) {
+        // 实际上是一个变相前缀和的问题，这里需要计算累计字母频率
+        // 但是也要二进制表示一个奇偶状态，这一步我没由想全
+        int[] cnt = new int[1024];
+        cnt[0]++;
+        int n = word.length();
+        int[][] sum = new int[100020][10];
+        long res = 0;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0;j < 10; j++) {
+                if (word.charAt(i-1) - 'a' == j) {
+                    sum[i][j] = sum[i - 1][j] + 1;
+                } else {
+                    sum[i][j] = sum[i - 1][j];
+                }
+            }
+            int state = 0;
+            for (int j = 0; j < 10; j++) {
+                state = (state *2) + (sum[i][j] %2);
+            }
+            res += cnt[state];
+            for (int j = 0; j < 10; j++) {
+                res += cnt[state ^ (1 << j)];
+            }
+            cnt[state]++;
+        }
+        return res;
+
+    }
+}
+```
+
+### 37. [1871. 跳跃游戏 VII](https://leetcode-cn.com/problems/jump-game-vii/)
+
+```java
+    public boolean canReach(String v, int minJump, int maxJump) {
+        /**
+         * 是类似的遍历方式，只是其中可以用前缀和来做一点优化
+         */
+        int n = v.length();
+        char[] str = v.toCharArray();
+        int[] f = new int[n + 1];// dp
+        int[] s = new int[n + 1];// 前缀和
+        f[1] = 1;
+        s[1] = 1;
+        for(int i=2;i<=n;i++){
+            if(str[i-1] == '0' &&  i- minJump >= 1){
+                int l = Math.max(1, i- maxJump);
+                int r =  i - minJump;
+                if(s[r] > s[l - 1]){
+                    f[i] =1;
+                }
+            }
+            s[i] = s[i-1] + f[i];
+        }
+        return f[n] ==1;
+    }
+}
+```
+
 
 
 
@@ -4284,4 +4451,88 @@ class MovieRentingSystem {
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### 12. [1872. 石子游戏 VIII](https://leetcode-cn.com/problems/stone-game-viii/)
+
+```java
+class Solution {
+    public int stoneGameVIII(int[] stones) {
+        int n = stones.length;
+        int[] dp = new int[n+1];
+        int[] sum = new int[n+1];
+        // 从任何一个地方取值，值不会变，所以先搞前缀和
+        for(int i =1;i<=n;i++){
+            sum[i] = sum[i-1] + stones[i-1];
+        }
+        dp[n] = sum[n]; // 这里相当于最后全部都拿到，因为是倒序，所以要有、
+        // 题目说的两种情况，其实都是在说，自己减去对方最大。所以是从这里取全部的前缀的和和对方取之后获得的最大值的插值
+        for(int i= n-1;i>1;i--){
+            dp[i] = Math.max(dp[i+1], sum[i] -dp[i+1]);
+        }
+        return dp[2];
+
+    }
+}
+```
+
+### 13.[剑指 Offer 37. 序列化二叉树](https://leetcode-cn.com/problems/xu-lie-hua-er-cha-shu-lcof/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Codec {
+    public String serialize(TreeNode root) {
+        if(root == null) return "[]";
+        StringBuilder res = new StringBuilder("[");
+        Queue<TreeNode> queue = new LinkedList<>() {{ add(root); }};
+        while(!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            if(node != null) {
+                res.append(node.val + ",");
+                queue.add(node.left); // 如果为空会返回null，加入，否则为值，逐层加入
+                queue.add(node.right);
+            }
+            else res.append("null,");
+        }
+        res.deleteCharAt(res.length() - 1);
+        res.append("]");
+        return res.toString();
+    }
+
+    public TreeNode deserialize(String data) {
+        if(data.equals("[]")) return null;
+        String[] vals = data.substring(1, data.length() - 1).split(",");
+        TreeNode root = new TreeNode(Integer.parseInt(vals[0]));
+        Queue<TreeNode> queue = new LinkedList<>() {{ add(root); }};
+        int i = 1;
+        while(!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            if(!vals[i].equals("null")) {
+                node.left = new TreeNode(Integer.parseInt(vals[i]));
+                queue.add(node.left);
+            }
+            i++;
+            if(!vals[i].equals("null")) {
+                node.right = new TreeNode(Integer.parseInt(vals[i]));
+                queue.add(node.right);
+            }
+            i++;
+        }
+        return root;
+    }
+}
+
+
+// Codec codec = new Codec();
+// codec.deserialize(codec.serialize(root));
+```
+
+
 
