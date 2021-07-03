@@ -1762,6 +1762,157 @@ class Solution {
 }
 ```
 
+### 54. [1779. 找到最近的有相同 X 或 Y 坐标的点](https://leetcode-cn.com/problems/find-nearest-point-that-has-the-same-x-or-y-coordinate/)
+
+```java
+class Solution {
+    public int nearestValidPoint(int x, int y, int[][] points) {
+        int min = 100000;
+        int idx = -1;
+        for(int i = 0;i<points.length;i++){
+            if(points[i][0] == x || points[i][1] == y){
+                int tmp = Math.abs(x  - points[i][0]) + Math.abs(y  - points[i][1]);
+                if(tmp < min){
+                    idx = i;
+                    min = tmp;
+                }
+
+            }
+        }
+        return idx == -1? -1: idx;
+
+    }
+}
+```
+
+### 55. [1784. 检查二进制字符串字段](https://leetcode-cn.com/problems/check-if-binary-string-has-at-most-one-segment-of-ones/)
+
+```java
+class Solution {
+    public boolean checkOnesSegment(String s) {
+        String tmp = s.replace("0", " ");
+        String[] res = tmp.split(" ");
+        int cnt = 0;
+        for(String t : res){
+            t =t.trim();
+            if(t.length() >0){
+                cnt++;
+            }
+            if (cnt >1){
+                return false;
+            }
+        }
+        return true;
+
+    }
+}
+
+
+/// 不含前导0，所以一定是以1开头，绝不能存在01
+class Solution {
+    public boolean checkOnesSegment(String s) {
+        return !s.contains("01");
+    }
+}
+
+作者：jalonjia
+链接：https://leetcode-cn.com/problems/check-if-binary-string-has-at-most-one-segment-of-ones/solution/ji-ran-da-jia-du-yi-xing-dai-ma-na-javay-jpoc/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 56. [504. 七进制数](https://leetcode-cn.com/problems/base-7/)
+
+```java
+class Solution {
+    public String convertToBase7(int num) {
+        boolean f= false;
+
+        if(num<0){
+            num = -1 * num;
+            f = !f;
+        }
+        StringBuilder sb = new StringBuilder();
+        while(num>=0){
+            int tmp = num%7;
+            sb.append(tmp);
+            num = (num - tmp)/7;
+            if(num ==0){
+                break;
+            }
+        }
+        return f == true ? "-" + sb.reverse().toString(): sb.reverse().toString();
+
+    }
+}
+```
+
+### 58. [507. 完美数](https://leetcode-cn.com/problems/perfect-number/)
+
+```java
+class Solution {
+    public boolean checkPerfectNumber(int num) {
+        if(num == 1) {
+            return false;
+        }
+        int sum = 1; // 正整数一定会有一个1，同时不用考虑自身，所以单独处理
+        int i = 2;
+        double sqrt = Math.sqrt(num);
+        for(;i < sqrt;i++) {
+            if(num % i == 0) {
+                sum += i;
+                sum += num / i;
+            }
+        }
+        // 此处单独处理的原因在于只需要加1次i值，如果在循环中会加2次
+        if(i * i == num) {
+            sum += i;
+        }
+        return sum == num;
+    }
+}
+
+
+```
+
+### 59 .[506. 相对名次](https://leetcode-cn.com/problems/relative-ranks/)
+
+```java
+class Solution {
+    public String[] findRelativeRanks(int[] score) {
+        int n = score.length;
+
+        Map<Integer, Integer> map = new HashMap();
+        for(int i=0;i<score.length;i++){
+            map.put(score[i], i);
+            score[i] = -score[i];
+        }
+        Arrays.sort(score);
+        // for(int i=0;i<score.length;i++){
+        //     System.out.println(i +" "+ score[i] + " " +map.get(-score[i]));
+        // }
+        String[] res= new String[score.length];
+        for(int i=0;i < score.length;i++){
+            int idx = map.get(-score[i]);
+            res[idx] = String.valueOf(i +1);
+        }
+        
+        res[map.get(-score[0])] = "Gold Medal";
+        if(n==1){
+            return res;
+        }
+        res[map.get(-score[1])] = "Silver Medal";
+        if(n==2){
+            return res;
+        }
+        res[map.get(-score[2])] = "Bronze Medal";
+        return res;
+
+
+    }
+}
+```
+
 
 
 ## mediium
@@ -3515,6 +3666,36 @@ class Solution {
         return f[n] ==1;
     }
 }
+```
+
+### 38. [451. 根据字符出现频率排序](https://leetcode-cn.com/problems/sort-characters-by-frequency/)
+
+```java
+class Solution {
+    public String frequencySort(String s) {
+        Map<Character, Integer> map = new HashMap<Character, Integer>();
+        int length = s.length();
+        for (int i = 0; i < length; i++) {
+            char c = s.charAt(i);
+            int frequency = map.getOrDefault(c, 0) + 1;
+            map.put(c, frequency);
+        }
+        List<Character> list = new ArrayList<Character>(map.keySet());
+        Collections.sort(list, (a, b) -> map.get(b) - map.get(a)); 
+        StringBuffer sb = new StringBuffer();
+        int size = list.size();
+        for (int i = 0; i < size; i++) {
+            char c = list.get(i);
+            int frequency = map.get(c);
+            for (int j = 0; j < frequency; j++) {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+}
+
+
 ```
 
 
