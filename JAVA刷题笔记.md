@@ -3698,6 +3698,244 @@ class Solution {
 
 ```
 
+### 39.[1922. 统计好数字的数目](https://leetcode-cn.com/problems/count-good-numbers/)
+
+```java
+class Solution {
+   public int countGoodNumbers(long n) {
+        int N=(int)Math.pow(10,9)+7;
+       // 不能直接算，内部如果不取余的话，会有数据溢出，结果不对
+        return (int)(myPow(5, (n+1)/2, N) * myPow(4, n/2, N) %N);
+    }
+    //快速幂 (记得要取余N,不只是结果取余,每次乘机也要取余)
+    public long myPow(long x, long n,int N) {
+        if(n==0){
+            return 1;
+        }
+        /**
+        快速幂方式：1.res为1  2. 指数不断除以2， 3. 结果不断乘以底数，且循环中底数平方， 如果当前指数为奇数，结果多乘以一个底数
+        */
+        long res = 1;
+        while(n !=0){
+            if((n&1) == 1)  res = res *x % N;
+            x = x * x %N;
+            n >>=1;
+        }
+        return res;
+    }
+
+
+}
+```
+
+### 40 .[886. 可能的二分法](https://leetcode-cn.com/problems/possible-bipartition/)
+
+```java
+class Solution {
+    // 染色法，本质就是dfs
+	ArrayList<Integer>[] graph;// 使用邻接表存储图
+	Map<Integer,Integer> color;//记录上色结果
+	public boolean possibleBipartition(int N, int[][] dislikes) {
+		graph=new ArrayList[N+1];// 0位其实不用,使用的使1~N位
+		//ArrayList实例化
+		for (int i = 0; i !=N+1; i++) {
+			graph[i]=new ArrayList<Integer>();
+		}
+		//图初始化
+		for(int[] cp:dislikes) {
+			graph[cp[0]].add(cp[1]);
+			graph[cp[1]].add(cp[0]);	
+		}
+		color=new HashMap();
+		for(int node=1;node!=N+1;node++) {// 对该组N人遍历
+			if(!color.containsKey(node)) {// 还未上色
+				boolean OK=dfs(node,0);//从node开始深度遍历
+				if(!OK) return false; 
+			}
+		}
+		return true;
+	}
+	private boolean dfs(int node, int c) {
+		//从possibleBipartition调用时node是未上色的
+		if(color.containsKey(node)) {// 若已经上色则看是否上色正确
+			boolean OK=color.get(node)==c;
+			return OK;
+		}
+		color.put(node,c);// 上色
+		// 深度遍历
+		for(int noFriend:graph[node]) {
+			boolean OK=dfs(noFriend,c^1);
+			if(!OK) return false;
+		}
+		return true;
+	}
+}
+
+
+class Solution {
+    public boolean possibleBipartition(int N, int[][] dislikes) {
+        // 构造邻接表
+        List<List<Integer>> diss = new ArrayList<>();
+        for(int i = 0; i <= N; i++) {
+            diss.add(new ArrayList<>());
+        }
+
+        for(int [] dislike : dislikes) {
+            diss.get(dislike[0]).add(dislike[1]);
+            diss.get(dislike[1]).add(dislike[0]);
+        }
+
+        // 初始化并查集
+        UnionFind uf = new UnionFind(N+1);
+        for(int i = 1; i <= N; i++) {
+            List<Integer> dis = diss.get(i);
+            if(dis.isEmpty()) continue;
+            // 这里先判断是否相并
+            int root1 = uf.find(i);
+            int root2 = uf.find(dis.get(0));
+            if(root1 == root2) return false;
+            for(int j = 1; j < dis.size(); j++) {
+                int root3 = uf.find(dis.get(j));
+                if(root1 == root3) return false;
+                // 归并，将不喜欢的并在一起
+                uf.parents[root3] = root2;
+            }
+        }
+        return true;
+    }
+}
+// 并查集类
+class UnionFind{
+
+    int []parents;
+
+    public UnionFind(int count) {
+        // 构造函数初始化
+        parents = new int[count+1];
+        for(int i = 0; i <= count; i++) {
+            parents[i] = i;
+        }
+    }
+
+    int find(int x) {
+        // 归并
+        while(parents[x] != x) {
+            parents[x] = parents[parents[x]];
+            x = parents[x];
+        }
+        return x;
+    }
+}
+
+
+```
+
+
+
+### 41. [1923. 最长公共子路径](https://leetcode-cn.com/problems/longest-common-subpath/)
+
+```java
+
+class Solution {
+    int N = 100010;
+    int[][] paths; 
+    long[] p, h;
+    public int longestCommonSubpath(int n, int[][] paths) {
+        this.paths = paths;
+        p = new long[N];
+        h = new long[N];
+        int l = 0, r = N;
+        for (int[] pa : paths) {
+            r = Math.min(r, pa.length);
+        }
+        while (l < r) {
+            int mid = l + r + 1 >> 1;
+            if (check(mid)) l = mid;
+            else r = mid - 1;
+        }
+        return r;
+    }
+    public boolean check(int mid) {
+        HashSet<Long> set = new HashSet<>();
+        p[0] = 1;  // 初始化
+        int k = 0;
+        for (int[] pa : paths) {
+            int n = pa.length;
+            // 字符串哈希的公式。本质是是和指数的哈希进制转换
+            for (int i = 1; i <= n; ++i) {
+                p[i] = p[i - 1] * 133331;
+                h[i] = h[i - 1] * 133331 + pa[i - 1];
+            }
+            HashSet<Long> tmp = new HashSet<>();
+            for (int i = mid; i <= n; ++i) {
+                long t = get(i - mid + 1, i);
+                if (k == 0) {
+                    set.add(t);
+                } else {
+                    tmp.add(t);
+                }
+            }
+            if (k != 0) set.retainAll(tmp); // 移除不再这里的元素
+            if (set.size() == 0) return false; // 最终集合中需要有至少一个符合条件的哈希值
+            k++;
+        }
+        return true;
+    }
+    // 这里是字符串哈希公式
+    public long get(int l, int r) {
+        return h[r] - h[l - 1] * p[r - l + 1];
+    }
+}
+
+
+```
+
+### 42 [1418. 点菜展示表](https://leetcode-cn.com/problems/display-table-of-food-orders-in-a-restaurant/)
+
+```java
+class Solution {
+    public List<List<String>> displayTable(List<List<String>> orders) {
+        TreeMap<Integer, TreeMap<String, Integer>> map = new TreeMap<>();
+        Set<String> names= new HashSet<>();
+        for(List<String> order: orders){
+            TreeMap<String, Integer> table = map.getOrDefault(Integer.parseInt(order.get(1)), new TreeMap<>());
+            String name = order.get(2);
+            names.add(name);
+            table.put(name, table.getOrDefault(name, 0)+1);
+           map.put(Integer.parseInt(order.get(1)), table);
+        }
+        // System.out.println(map);
+        List<List<String>> res = new ArrayList<>();
+        List<String> row1 = new ArrayList<>();
+        row1.add("Table");
+        List<String> name_s = new ArrayList<>(names);
+        Collections.sort(name_s);
+        row1.addAll(name_s);
+        res.add(row1);
+        for(Map.Entry entry: map.entrySet()){
+            List<String> row = new ArrayList<>();
+            row.add( String.valueOf(entry.getKey()));
+            // System.out.println(entry.getValue());
+            for(String t: name_s){
+                // System.out.println(t);
+                    TreeMap<String, Integer> tmp = (TreeMap)entry.getValue();
+                    if(!tmp.containsKey(t)){
+                        row.add("0");
+                    }else{
+                        row.add(String.valueOf(tmp.get(t)));
+                    }
+                }
+                res.add(row);
+   
+        }
+        return res;
+
+        
+
+    }
+}
+```
+
 
 
 
@@ -4716,4 +4954,146 @@ public class Codec {
 ```
 
 
+
+### 14. [726. 原子的数量](https://leetcode-cn.com/problems/number-of-atoms/)
+
+```java
+class Solution {
+    // 全局变量复用
+    int i, n;
+    String formula;
+
+    public String countOfAtoms(String formula) {
+        this.i = 0;
+        this.n = formula.length();
+        this.formula = formula;
+        // 字符串存储每一层的原子和个数
+        Deque<Map<String, Integer>> stack = new LinkedList<Map<String, Integer>>();
+        // 先初始一个最外层，作为计算统计
+        stack.push(new HashMap<String, Integer>());
+        while (i < n) {
+            char ch = formula.charAt(i);
+            // 左括号，新的一个哈希表
+            if (ch == '(') {
+                i++;
+                stack.push(new HashMap<String, Integer>()); // 将一个空的哈希表压入栈中，准备统计括号内的原子数量
+                // 右括号，解析内部，同时考虑后缀数字
+            } else if (ch == ')') {
+                i++;
+                int num = parseNum(); // 括号右侧数字
+                Map<String, Integer> popMap = stack.pop(); // 弹出括号内的原子数量
+                Map<String, Integer> topMap = stack.peek();
+                for (Map.Entry<String, Integer> entry : popMap.entrySet()) {
+                    String atom = entry.getKey();
+                    int v = entry.getValue();
+                    // 将本层的结果放到次外层中
+                    topMap.put(atom, topMap.getOrDefault(atom, 0) + v * num); // 将括号内的原子数量乘上 num，加到上一层的原子数量中
+                }
+            } else {
+                // 平时对原子和个数的计算
+                String atom = parseAtom();
+                int num = parseNum();
+                // 将结果放在当前层中
+                Map<String, Integer> topMap = stack.peek();
+                topMap.put(atom, topMap.getOrDefault(atom, 0) + num); // 统计原子数量
+            }
+        }
+
+        // 循环完毕，这里只由最外层用于计算的一层
+        Map<String, Integer> map = stack.pop();
+        // 使用treemap，可以保证是按照字母是字典序的
+        TreeMap<String, Integer> treeMap = new TreeMap<String, Integer>(map);
+
+        StringBuffer sb = new StringBuffer();
+        for (Map.Entry<String, Integer> entry : treeMap.entrySet()) {
+            String atom = entry.getKey();
+            int count = entry.getValue();
+            sb.append(atom);
+            if (count > 1) {
+                sb.append(count);
+            }
+        }
+        return sb.toString();
+    }
+
+    public String parseAtom() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(formula.charAt(i++)); // 扫描首字母
+        // 判断是否为小写，如果是，继续加入
+        while (i < n && Character.isLowerCase(formula.charAt(i))) {
+            sb.append(formula.charAt(i++)); // 扫描首字母后的小写字母
+        }
+        return sb.toString();
+    }
+
+    public int parseNum() {
+        // Character 判断是否为数字的方法isDigit
+        if (i == n || !Character.isDigit(formula.charAt(i))) {
+            return 1; // 不是数字，视作 1
+        }
+        int num = 0;
+        // 这是考虑了不止一位数字
+        while (i < n && Character.isDigit(formula.charAt(i))) {
+            num = num * 10 + formula.charAt(i++) - '0'; // 扫描数字
+        }
+        return num;
+    }
+}
+
+```
+
+### 15. [1923. 最长公共子路径](https://leetcode-cn.com/problems/longest-common-subpath/)
+
+```java
+class Solution {
+    int N = 100010;
+    int[][] paths; 
+    long[] p, h;
+    public int longestCommonSubpath(int n, int[][] paths) {
+        this.paths = paths;
+        p = new long[N];
+        h = new long[N];
+        int l = 0, r = N;
+        for (int[] pa : paths) {
+            r = Math.min(r, pa.length);
+        }
+        while (l < r) {
+            int mid = l + r + 1 >> 1;
+            if (check(mid)) l = mid;
+            else r = mid - 1;
+        }
+        return r;
+    }
+    public boolean check(int mid) {
+        HashSet<Long> set = new HashSet<>();
+        p[0] = 1;  // 初始化
+        int k = 0;
+        for (int[] pa : paths) {
+            int n = pa.length;
+            // 字符串哈希的公式。本质是是和指数的哈希进制转换
+            for (int i = 1; i <= n; ++i) {
+                p[i] = p[i - 1] * 133331;
+                h[i] = h[i - 1] * 133331 + pa[i - 1];
+            }
+            HashSet<Long> tmp = new HashSet<>();
+            for (int i = mid; i <= n; ++i) {
+                long t = get(i - mid + 1, i);
+                if (k == 0) {
+                    set.add(t);
+                } else {
+                    tmp.add(t);
+                }
+            }
+            if (k != 0) set.retainAll(tmp); // 移除不再这里的元素
+            if (set.size() == 0) return false; // 最终集合中需要有至少一个符合条件的哈希值
+            k++;
+        }
+        return true;
+    }
+    // 这里是字符串哈希公式
+    public long get(int l, int r) {
+        return h[r] - h[l - 1] * p[r - l + 1];
+    }
+}
+```
 
