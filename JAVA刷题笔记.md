@@ -1913,6 +1913,62 @@ class Solution {
 }
 ```
 
+### 60. [806. 写字符串需要的行数](https://leetcode-cn.com/problems/number-of-lines-to-write-string/)
+
+```java
+class Solution {
+    public int[] numberOfLines(int[] widths, String s) {
+        int row = 1;
+        int preLong = 0;
+        int n = s.length();
+        int i =0;
+        int len = 0;
+        while(i<n){
+            int idx = s.charAt(i) -'a';
+            if(widths[idx] + len < 100){
+                len += widths[idx];
+            } else if(widths[idx] + len == 100){
+                preLong = 100;
+                len = 0;
+                row++;
+            }else{
+                preLong = len;
+                len = widths[idx];
+                row++;
+            }
+            i++;
+
+        }
+        return new int[]{len==0?row-1:row, len==0?preLong:len};
+
+    }
+}
+```
+
+### 61.[812. 最大三角形面积](https://leetcode-cn.com/problems/largest-triangle-area/)
+
+```java
+class Solution {
+    public double largestTriangleArea(int[][] points) {
+        // …… 就硬是暴力，特点在于鞋带公式计算三角形面积
+        int N = points.length;
+        double ans = 0;
+        for (int i = 0; i < N; ++i)
+            for (int j = i+1; j < N; ++j)
+                for (int k = j+1; k < N; ++k)
+                    ans = Math.max(ans, area(points[i], points[j], points[k]));
+        return ans;
+    }
+
+    public double area(int[] P, int[] Q, int[] R) {
+        return 0.5 * Math.abs(P[0]*Q[1] + Q[0]*R[1] + R[0]*P[1]
+                             -P[1]*Q[0] - Q[1]*R[0] - R[1]*P[0]);
+    }
+}
+
+
+```
+
 
 
 ## mediium
@@ -3931,6 +3987,37 @@ class Solution {
         return res;
 
         
+
+    }
+}
+```
+
+### 43. [1711. 大餐计数](https://leetcode-cn.com/problems/count-good-meals/)
+
+```java
+class Solution {
+    public int countPairs(int[] deliciousness) {
+        // 解法上还是两数之和的思路。优化的点，在于先设置好上限，然后每次枚举数的2倍
+        int max = deliciousness[0];
+        int mod = (int)1e9+7;
+        for(int i: deliciousness){
+            max = Math.max(max,i);
+        }
+        int maxSum = max *2;
+        int res = 0;
+        Map<Integer, Integer> map = new HashMap<>();
+        int n= deliciousness.length;
+        // 从前到后，不重不漏，也不需要重新记录每个数的个数
+        for(int i=0;i<n;i++){
+            int val = deliciousness[i];
+            for(int sum =1; sum <= maxSum; sum<<=1){
+                int count = map.getOrDefault(sum -val, 0);
+                res  = (res + count) %mod;
+            }
+            map.put(val, map.getOrDefault(val,0) +1);
+
+        }
+        return res;
 
     }
 }
