@@ -1969,6 +1969,143 @@ class Solution {
 
 ```
 
+### 62.[824. 山羊拉丁文](https://leetcode-cn.com/problems/goat-latin/)
+
+```java
+class Solution {
+    public String toGoatLatin(String S) {
+        Set<Character> vowel = new HashSet();
+        for (char c: new char[]{'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'})
+            vowel.add(c);
+
+        int t = 1;
+        StringBuilder ans = new StringBuilder();
+        for (String word: S.split(" ")) {
+            char first = word.charAt(0);
+            if (vowel.contains(first)) {
+                ans.append(word);
+            } else {
+                ans.append(word.substring(1));
+                ans.append(word.substring(0, 1));
+            }
+            ans.append("ma");
+            for (int i = 0; i < t; i++)
+                ans.append("a");
+            t++;
+            ans.append(" ");
+        }
+
+        ans.deleteCharAt(ans.length() - 1);
+        return ans.toString();
+    }
+}
+
+```
+
+### 63.[868. 二进制间距](https://leetcode-cn.com/problems/binary-gap/)
+
+```java
+class Solution {
+    public int binaryGap(int N) {
+        int last = -1, ans = 0;
+        for (int i = 0; i < 32; ++i)
+            if (((N >> i) & 1) > 0) {
+                if (last >= 0)
+                    ans = Math.max(ans, i - last);
+                last = i;
+            }
+
+        return ans;
+    }
+}
+
+
+```
+
+### 64.[1827. 最少操作使数组递增](https://leetcode-cn.com/problems/minimum-operations-to-make-the-array-increasing/)
+
+```java
+ public int minOperations(int[] nums) {
+     /**
+     一开始想法错了，这里的只要求严格递增，不要求一定大于一，所以路线错了
+     */
+        int ret = 0, max = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            max = nums[i] > max ? nums[i] : ++max;
+            ret += max - nums[i];
+        }
+        return ret;
+    }
+
+
+```
+
+### 65.[884. 两句话中的不常见单词](https://leetcode-cn.com/problems/uncommon-words-from-two-sentences/)
+
+```java
+class Solution {
+    public String[] uncommonFromSentences(String A, String B) {
+        Map<String, Integer> count = new HashMap();
+        for (String word: A.split(" "))
+            count.put(word, count.getOrDefault(word, 0) + 1);
+        for (String word: B.split(" "))
+            count.put(word, count.getOrDefault(word, 0) + 1);
+
+        List<String> ans = new LinkedList();
+        for (String word: count.keySet())
+            if (count.get(word) == 1)
+                ans.add(word);
+
+        return ans.toArray(new String[ans.size()]);
+    }
+}
+
+```
+
+### 66.[874. 模拟行走机器人](https://leetcode-cn.com/problems/walking-robot-simulation/)
+
+```java
+class Solution {
+    public int robotSim(int[] commands, int[][] obstacles) {
+        // 不要想着很难，实际上就是最简单的暴力
+        int[] dir_x = {0, 1, 0, -1};
+        int[] dir_y = {1, 0, -1, 0};
+        int x = 0;
+        int y = 0;
+        //0,1,2,3分别代表北、东、南、西方向，初始为正北方；
+        int status = 0;
+        int max_distance = 0;
+        //判断障碍物：将障碍物的x和y坐标组合成一个字符串用set保存障碍物，查找的时候只要判断当前坐标组成的串是否在set里即可。
+        HashSet<String> blockSet = new HashSet<>();
+        for (int i = 0; i < obstacles.length; i++) {
+            blockSet.add(obstacles[i][0] + "," + obstacles[i][1]);
+        }
+        for (int i = 0; i < commands.length; i++) {
+            if (commands[i] == -1){
+                status += 1;
+            }
+            if (commands[i] == -2){
+                status += 3;
+            }
+            if (commands[i] > 0){
+                for (int j = 0; j < commands[i]; j++) {
+                    int next_x = x + dir_x[status % 4]; // 方向要取余的
+                    int next_y = y + dir_y[status % 4];
+                    if (blockSet.contains(next_x + "," + next_y)){
+                        break;
+                    }else {
+                        x = next_x;
+                        y = next_y;
+                        max_distance = Math.max(max_distance, x*x+y*y);
+                    }
+                }
+            }
+        }
+        return max_distance;
+    }
+}
+```
+
 
 
 ## mediium
@@ -4025,9 +4162,117 @@ class Solution {
 
 
 
+### 44 .[930. 和相同的二元子数组](https://leetcode-cn.com/problems/binary-subarrays-with-sum/)
+
+```java
+class Solution {
+    public int numSubarraysWithSum(int[] nums, int goal) {
+        int sum =0;
+        Map<Integer, Integer> map = new HashMap<>();
+        int res = 0;
+        for(int num: nums){
+            // 先更新这之前，sum相同的个数，实际上（两个间隔的1之间有几个0）
+            map.put(sum, map.getOrDefault(sum, 0) +1);
+            // 更新sum
+            sum += num;
+            // 计算之前有多少个值==sum -goal 的 0的位置
+            res += map.getOrDefault(sum - goal, 0);
+
+        }
+        return res;
+
+    }
+}
+
+// 双指针解法
+class Solution {
+    public int numSubarraysWithSum(int[] nums, int t) {
+        int n = nums.length;
+        int ans = 0;
+        for (int r = 0, l1 = 0, l2 = 0, s1 = 0, s2 = 0; r < n; r++) {
+            s1 += nums[r];
+            s2 += nums[r];
+            while (l1 <= r && s1 > t) s1 -= nums[l1++];
+            while (l2 <= r && s2 >= t) s2 -= nums[l2++];
+            ans += l2 - l1;
+        }
+        return ans;
+    }
+}
+
+作者：AC_OIer
+链接：https://leetcode-cn.com/problems/binary-subarrays-with-sum/solution/gong-shui-san-xie-yi-ti-shuang-jie-qian-hfoc0/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
 
 
 
+
+
+### 45.[981. 基于时间的键值存储](https://leetcode-cn.com/problems/time-based-key-value-store/)
+
+```java
+class TimeMap {
+    class Node {
+        String k, v; 
+        int t;
+        Node (String _k, String _v, int _t) {
+            k = _k; v = _v; t = _t;
+        }
+    }
+    
+    Map<String, List<Node>> map = new HashMap<>();
+    public void set(String k, String v, int t) {
+        List<Node> list = map.getOrDefault(k, new ArrayList<>());
+        list.add(new Node(k, v, t));
+        map.put(k, list);
+    }
+    
+    public String get(String k, int t) {
+        List<Node> list = map.getOrDefault(k, new ArrayList<>());
+        if (list.isEmpty()) return "";
+        int n = list.size();
+        int l = 0, r = n - 1;
+        while (l < r) {
+            int mid = l + r + 1 >> 1;
+            if (list.get(mid).t <= t) {
+                l = mid;
+            } else {
+                r = mid - 1;
+            }
+        }
+        return list.get(r).t <= t ? list.get(r).v : "";
+    }
+}
+```
+
+### 46.[97. 交错字符串](https://leetcode-cn.com/problems/interleaving-string/)
+
+```java
+class Solution {
+    public boolean isInterleave(String s1, String s2, String s3) {
+        int m = s1.length(), n = s2.length(), q = s3.length();
+        if(m + n != q){
+            return false;
+        }
+        boolean[][] f = new boolean[m+1][n+1];
+        f[0][0] = true;
+        for(int i=0;i<= m ;++i){
+            for(int j=0;j<=n;++j){
+                int pos = i+j -1;
+                if(i>0){
+                    f[i][j] = f[i][j] || (f[i-1][j] && s1.charAt(i-1) == s3.charAt(pos));
+                }
+                if(j>0){
+                    f[i][j] = f[i][j] || (f[i][j-1] && s2.charAt(j-1) == s3.charAt(pos));
+                }
+            }
+        }
+        return f[m][n];
+    }
+}
+```
 
 
 
