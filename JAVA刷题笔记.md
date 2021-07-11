@@ -2106,6 +2106,34 @@ class Solution {
 }
 ```
 
+### 67.[5792. 统计平方和三元组的数目](https://leetcode-cn.com/problems/count-square-sum-triples/)
+
+```java
+class Solution {
+       public  int countTriples(int n) {
+        int res = 0;
+        System.out.println("l");
+        for(int i=1;i<=n;i++) {
+            for (int j = i ; j <= n; j++) {
+                for (int k = j+1 ; k <= n; k++) {
+//                    System.out.println("i:" + i + "j:" + j + " K:"+k);
+                    if (i * i + j * j == k * k) {
+                        if (i == j) {
+                            res += 1;
+                        } else {
+                            res += 2;
+                        }
+                    }
+                }
+
+            }
+        }
+        return res;
+
+    }
+}
+```
+
 
 
 ## mediium
@@ -4274,6 +4302,100 @@ class Solution {
 }
 ```
 
+### 47.[5793. 迷宫中离入口最近的出口](https://leetcode-cn.com/problems/nearest-exit-from-entrance-in-maze/)
+
+```java
+class Solution {
+    public int nearestExit(char[][] maze, int[] entrance) {
+        /**
+        不要用dfs会超时，最短这种字眼，实际上用bfs是最好的 */
+        int m = maze.length;
+        int n = maze[0].length;
+        int step = 0;
+        Queue<int[]> q = new LinkedList<>();
+        q.offer(entrance);
+        int[] mvoes = new int[]{-1,0,1,0,-1};
+        // 还是需要考虑去重的
+        Set<String> set = new HashSet<>();
+        set.add(entrance[0]+"-"+entrance[1]);
+        while(!q.isEmpty()){
+            int size = q.size();
+            step++;
+            for(int s=0;s<size;s++){
+                int[] tmp = q.poll();
+                int x =tmp[0],y = tmp[1];
+
+                for(int i=0;i<4;i++){
+                    int _x= x + mvoes[i];
+                    int _y = y + mvoes[i+1];
+                          
+                    if(_x >=0 &&  _x <m&& _y>=0 && _y<n && maze[_x][_y] == '.' && !set.contains(_x+"-"+_y)){
+                        // System.out.println(String.format("%d, %d, m;%d",_x,_y,m));
+                        set.add(_x+"-"+_y);
+                        if((_x==0 || _x==m-1 ||_y==0 || _y==n-1)   ){
+                            return step;
+                        }
+                        q.offer(new int[]{_x, _y});
+                    }
+                }
+            }
+        }
+        return -1;
+
+    }
+}
+```
+
+### 48. [5794. 求和游戏](https://leetcode-cn.com/problems/sum-game/)
+
+```java
+class Solution {
+   public  boolean sumGame(String num) {
+        /**
+         需要分类讨论
+         sum(左右和之差) ==0 时， cnt(左右问号之差)  == 0 ，必败， 剩下的，必胜，因为总可以使左右不等
+         sum > 0使， cnt > 0， 必胜，  cnt == 0时，必胜， cnt <  0:
+         cnt 为奇数：必胜   cnt 为偶数： 如果 - （cnt/2) *9 != sum 必胜， 否则必败（这里Bob可以控制cnt每一对之和为9，惟一可控的抓手）
+         sum < 0 ,解法类似*/
+        int n = num.length(), cnt = 0;
+        int sum = 0;
+        for (int i = 0; i < n / 2; i++) {
+            if (num.charAt(i) == '?') cnt++;
+            else {
+                sum += num.charAt(i) - '0';
+            }
+        }
+        for (int i = n / 2; i < n; i++) {
+            if (num.charAt(i) == '?') cnt--;
+            else {
+                sum -= num.charAt(i) - '0';
+            }
+        }
+        // System.out.println(String.format("%d, %d", sum, cnt));
+
+        if (sum == 0) {
+            return cnt != 0;
+        }
+        if (sum < 0) {
+            sum *= -1;
+            cnt *= -1;
+        }// 这样左右两种情况统一处理；
+        if (cnt >= 0) return true;
+        if (cnt < 0) {
+            if (cnt % 2 == 1) {
+                return true;
+            }
+            if (-cnt / 2 * 9 == sum) {
+                return false;
+            }
+        }
+        return true;
+
+
+    }
+}
+```
+
 
 
 ## hard
@@ -5427,5 +5549,43 @@ class Solution {
         return h[r] - h[l - 1] * p[r - l + 1];
     }
 }
+```
+
+### 16. [5795. 规定时间内到达终点的最小花费](https://leetcode-cn.com/problems/minimum-cost-to-reach-destination-in-time/)
+
+```java
+class Solution {
+    /**
+    dp方法要有先暴力的勇气，然后才是想到地推公式的智慧，很遗憾，我都没有……
+    */
+        public int minCost(int maxTime, int[][] edges, int[] passingFees) {
+            int[][] dp = new int[maxTime + 1][passingFees.length];//dp表示花费i时间到达j地点需要的最小花费
+            //设置初值
+            for (int[] i : dp) {
+                Arrays.fill(i, Integer.MAX_VALUE / 2);
+            }
+            for (int i = 0; i < dp.length; i++) {//时间为i时到达城市0需要花费的通行费就是城市0的通行费
+                dp[i][0] = passingFees[0];
+            }
+            //外层循环遍历时间，内层循环遍历路径数组。虽然dp的j代表城市，但是循环遍历城市需要另外构建城市map，存储每个城市的连通道路。所以内层遍历edges数组。
+            int res = Integer.MAX_VALUE / 2;
+            for (int i = 1; i <= maxTime; i++) {//
+                for (int j = 0; j < edges.length; j++) {
+                    int[] tmp = edges[j];
+                    int sta1 = tmp[0];
+                    int sta2 = tmp[1];
+                    int time = tmp[2];
+                    if (i >= time) {
+                        dp[i][sta1] = Math.min(dp[i][sta1], dp[i - time][sta2] + passingFees[sta1]);//从城市0到城市sta1的最小花费
+                        dp[i][sta2] = Math.min(dp[i][sta2], dp[i - time][sta1] + passingFees[sta2]);//从城市0到城市sta2的最小花费
+                    }
+                }
+                res = Math.min(res, dp[i][passingFees.length - 1]);
+
+            }
+
+            return res == Integer.MAX_VALUE / 2 ? -1 : res;
+        }
+    }
 ```
 
