@@ -2134,6 +2134,120 @@ class Solution {
 }
 ```
 
+### 68.[1844. 将所有数字用字符替换](https://leetcode-cn.com/problems/replace-all-digits-with-characters/)
+
+```java
+class Solution {
+    public String replaceDigits(String s) {
+        char[] cs = s.toCharArray();
+        StringBuilder sb  =new StringBuilder();
+        for(int i=0;i<cs.length;i++){
+            if(Character.isDigit(cs[i])){
+                sb.append((char)(cs[i-1] + (cs[i] - '0')));
+            }else{
+                sb.append(cs[i]);
+            }
+        }
+        return sb.toString();
+
+    }
+}
+```
+
+### 69.[1848. 到目标元素的最小距离](https://leetcode-cn.com/problems/minimum-distance-to-the-target-element/)
+
+```java
+class Solution {
+    public int getMinDistance(int[] nums, int target, int start) {
+        if (nums[start] == target) return 0;
+        int min_value = 10001;
+        for(int i=0;i<nums.length;i++){
+            if(nums[i]==target) {min_value = Math.min(Math.abs(start-i),min_value);}
+        }
+        return min_value;
+    }
+}
+
+
+```
+
+### 70.[5817. 判断字符串是否可分解为值均等的子串](https://leetcode-cn.com/problems/check-if-a-string-is-decomposble-to-value-equal-substrings/)
+
+```java
+class Solution {
+    public boolean isDecomposable(String s) {
+        s += 'a';
+        char[] ss = s.toCharArray();
+        int count = 1, num = 0;
+        for (int i = 0; i < ss.length - 1; i++) {
+            if (ss[i] == ss[i + 1]) count++;
+            else {
+                if (count % 3 == 1) return false;
+                else if (count % 3 == 2) num++;
+                count = 1;
+                if (num > 1) return false;
+            }
+        }
+        return num == 1;
+    }
+}
+```
+
+### 71.[LCP 33. 蓄水](https://leetcode-cn.com/problems/o8SXZn/)
+
+```java
+class Solution {
+    public int storeWater(int[] bucket, int[] vat) {
+        /**
+        真就是暴力 */
+        int max = 0;
+        for(int v:vat)
+            if(max < v) max = v;
+        if(max == 0) return 0;
+        int n = bucket.length;
+        int ans = Integer.MAX_VALUE;
+        for(int i = 1; i <= 10000; i++) {//遍历倒水次数
+            int per = 0;
+            int cur = i;//倒水i次，所以操作次数+i
+            for(int j = 0; j < n; j++) {//遍历每个水缸
+                per = (vat[j] + i - 1) / i;// 水槽容量/倒水次数=每次倒水量
+//+（i - 1）目的是为了向上取整(除完后如果有余数，加上i-1之后就一定会多商1，从而达到向上取整的功能)
+//使用vat[j]%i==0 ? vat[j]/i : vat[j]/i+1 代替也行，但是更慢
+                cur += Math.max(0, per - bucket[j]);// 每次倒水量-初始水量=需要升级次数
+            }
+            ans = Math.min(ans, cur);//所有倒水次数中，取最小的操作次数
+        }
+        return ans;
+    }
+}
+
+
+```
+
+### 72.[929. 独特的电子邮件地址](https://leetcode-cn.com/problems/unique-email-addresses/)
+
+```java
+class Solution {
+    public int numUniqueEmails(String[] emails) {
+        Set<String> res = new HashSet<>();
+        for(String s:emails){
+            int end = s.indexOf("@");
+            String t = s.substring(0,end);
+       t = t.replace(".", "");
+            int idx = t.indexOf("+");
+            String final_ = t + s.substring(end);
+            if(idx != -1){
+                final_ = t.substring(0, idx) + s.substring(end);
+            }
+            res.add(final_);
+        }
+        // System.out.println(res);
+        return res.size();
+    }
+
+}
+```
+
 
 
 ## mediium
