@@ -2248,6 +2248,126 @@ class Solution {
 }
 ```
 
+### 73 .[LCP 28. 采购方案](https://leetcode-cn.com/problems/4xy4Wx/)
+
+```java
+class Solution {
+    public int purchasePlans(int[] nums, int target) {
+        // 先左不动，右动， 再计算完毕后，左再动，是双指针，不过……
+        int mod = 1_000_000_007;
+        int ans = 0;
+        // 首先对整体进行排序
+        Arrays.sort(nums);
+        // 双指针，left 从前往后找，right 从后往前
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            
+            // 如果当前左右之和大于了目标值，说明偏大了，就把右指针往左移动
+            if (nums[left] + nums[right] > target) right--;
+            else {
+                // 否则的话，说明找到了合适的，需要把两者中间的元素个数都累加起来
+                ans += right - left;
+                // 然后再向右移动左指针
+                left++;
+            }
+            ans %= mod;
+        }
+        return ans % mod;
+    }
+}
+
+
+```
+
+### 74 .[1033. 移动石子直到连续](https://leetcode-cn.com/problems/moving-stones-until-consecutive/)
+
+```java
+class Solution {
+    public int[] numMovesStones(int a, int b, int c) {
+        int[] t = new int[]{a, b, c};
+        Arrays.sort(t);
+        int[] res = new int[2];
+        if(t[0]+1==t[1] && t[1] + 1==t[2]){
+            res[0] = 0;
+            res[1] = 0;
+        }else if(t[2]<=t[0]){
+            return res;
+        }else if(t[0]+1==t[1] || t[1] + 1==t[2] || t[0] +2==t[1] || t[1] + 2 ==t[2] ){
+            res[0] = 1;
+            res[1] = t[2] -t[0] -2;
+        }else{
+            res[0] = 2;
+            res[1] =  t[2]-t[0]-2;
+        }
+        return res;
+
+    }
+}
+```
+
+### 75. [953. 验证外星语词典](https://leetcode-cn.com/problems/verifying-an-alien-dictionary/)
+
+```java
+class Solution {
+    public boolean isAlienSorted(String[] words, String order) {
+// 实际上就是两两比较，只是按照新的顺序来, 注意比较的是新的顺序
+        int[] o = new int[26];
+        // 除了数组，也可以使用map
+        for(int i=0;i<order.length();i++){
+            o[order.charAt(i) - 'a'] =i;
+        }
+        for(int i=0;i<words.length-1;i++){
+            boolean flag = false;
+            for(int j=-0; j < Math.min(words[i].length(), words[i+1].length()) ; j++){
+                if(o[words[i].charAt(j) -'a']==  o[words[i+1].charAt(j)-'a']){
+                    continue;
+                }
+                else if (o[words[i].charAt(j) -'a'] >  o[words[i+1].charAt(j)-'a']){
+                    return false;
+                }else{
+                    flag = true;
+                    break;
+                }
+            }
+            // System.out.println(flag);
+            if (!flag && words[i].length() > words[i+1].length()){
+                return false;
+            }
+        }
+        return true;
+     
+    }
+}
+```
+
+### 76.[937. 重新排列日志文件](https://leetcode-cn.com/problems/reorder-data-in-log-files/)
+
+```java
+class Solution {
+    public String[] reorderLogFiles(String[] logs) {
+        // 就是单纯排序
+        Arrays.sort(logs, (log1, log2) -> {
+            // 将字符串分成两份，一份标识，一份内容
+            String[] split1 = log1.split(" ", 2);
+            String[] split2 = log2.split(" ", 2);
+            // 分割后，比较标识后的第一位
+            boolean isDigit1 = Character.isDigit(split1[1].charAt(0));
+            boolean isDigit2 = Character.isDigit(split2[1].charAt(0));
+            // 如果都是字母日志，就是按照如果内容不同，直接排序，相同，按照标识排序
+            if (!isDigit1 && !isDigit2) {
+                int cmp = split1[1].compareTo(split2[1]);
+                if (cmp != 0) return cmp;
+                return split1[0].compareTo(split2[0]);
+            }
+            // 如果一个字母，一个数字，字母在前
+            return isDigit1 ? (isDigit2 ? 0 : 1) : -1;
+        });
+        return logs;
+    }
+}
+
+```
+
 
 
 ## mediium
@@ -4505,6 +4625,74 @@ class Solution {
         }
         return true;
 
+
+    }
+}
+```
+
+### 49 .[1818. 绝对差值和](https://leetcode-cn.com/problems/minimum-absolute-sum-difference/)
+
+```java
+// 想到了二分但是没有勇气，fuck
+class Solution {
+    public int minAbsoluteSumDiff(int[] nums1, int[] nums2) {
+        final int MOD = 1000000007;
+        int n = nums1.length;
+        int[] rec = new int[n];
+        System.arraycopy(nums1, 0, rec, 0, n);
+        Arrays.sort(rec);
+        int sum = 0, maxn = 0;
+        for (int i = 0; i < n; i++) {
+            int diff = Math.abs(nums1[i] - nums2[i]);
+            sum = (sum + diff) % MOD;
+            int j = binarySearch(rec, nums2[i]);
+            if (j < n) {
+                maxn = Math.max(maxn, diff - (rec[j] - nums2[i]));
+            }
+            if (j > 0) {
+                maxn = Math.max(maxn, diff - (nums2[i] - rec[j - 1]));
+            }
+        }
+        return (sum - maxn + MOD) % MOD;
+    }
+
+    public int binarySearch(int[] rec, int target) {
+        int low = 0, high = rec.length - 1;
+        if (rec[high] < target) {
+            return high + 1;
+        }
+        while (low < high) {
+            int mid = (high - low) / 2 + low;
+            if (rec[mid] < target) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return low;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/minimum-absolute-sum-difference/solution/jue-dui-chai-zhi-he-by-leetcode-solution-gv78/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### 50 .[1846. 减小和重新排列数组后的最大元素](https://leetcode-cn.com/problems/maximum-element-after-decreasing-and-rearranging/)
+
+```java
+class Solution {
+    public int maximumElementAfterDecrementingAndRearranging(int[] arr) {
+        int n = arr.length;
+        Arrays.sort(arr);
+        int res = 0;
+        for(int i: arr){
+            if(i > res){
+                res++;
+            }
+        }
+        return res;
 
     }
 }
