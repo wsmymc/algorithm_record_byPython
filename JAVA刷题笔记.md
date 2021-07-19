@@ -2368,6 +2368,112 @@ class Solution {
 
 ```
 
+### 77 .[1005. K 次取反后最大化的数组和](https://leetcode-cn.com/problems/maximize-sum-of-array-after-k-negations/)
+
+```java
+class Solution {
+     public int largestSumAfterKNegations(int[] A, int K) {
+        int[] number = new int[201];//-100 <= A[i] <= 100,这个范围的大小是201
+        for (int t : A) {
+            number[t + 100]++;//将[-100,100]映射到[0,200]上
+        }
+        int i = 0;
+        while (K > 0) {
+            while (number[i] == 0)//找到A[]中最小的数字
+                i++;
+            number[i]--;//此数字个数-1
+            number[200 - i]++;//其相反数个数+1
+            if (i > 100) {//若原最小数索引>100,则新的最小数索引应为200-i.(索引即number[]数组的下标)
+                i = 200 - i;
+            }
+            K--;
+        }
+        int sum = 0;
+        for (int j = i; j <number.length ; j++) {//遍历number[]求和
+            sum += (j-100)*number[j];//j-100是数字大小,number[j]是该数字出现次数.
+        }
+        return sum;
+    }
+}
+```
+
+### 78.[993. 二叉树的堂兄弟节点](https://leetcode-cn.com/problems/cousins-in-binary-tree/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public boolean isCousins(TreeNode root, int x, int y) {
+        int x_pos= 0,  y_pos = 0;
+        TreeNode x_parent = null;
+        TreeNode y_parent = null;
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(root);
+        int level = 0;
+        while(!q.isEmpty()){
+            int n = q.size();
+            level++;
+            for(int i=0;i<n;i++){
+                TreeNode t = q.poll();
+                if(t.left != null){
+                    if(t.left.val == x){
+                        x_parent = t;
+                        x_pos = level;
+                    }
+                    if(t.left.val == y){
+                        y_parent = t;
+                        y_pos = level;
+                    }
+                    q.offer(t.left);
+                }
+
+                 if(t.right != null){
+                    if(t.right.val == x){
+                        x_parent = t;
+                        x_pos = level;
+                    }
+                    if(t.right.val == y){
+                        y_parent = t;
+                        y_pos = level;
+                    }
+                    q.offer(t.right);
+                }
+            }
+        }
+        return x_pos == y_pos && x_parent != y_parent;
+
+    }
+}
+```
+
+### 79 [1827. 最少操作使数组递增](https://leetcode-cn.com/problems/minimum-operations-to-make-the-array-increasing/)
+
+```java
+class Solution {
+   public int minOperations(int[] nums) {
+        int ret = 0, max = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            max = nums[i] > max ? nums[i] : ++max;
+            ret += max - nums[i];
+        }
+        return ret;
+    }
+}
+```
+
 
 
 ## mediium
@@ -4697,6 +4803,186 @@ class Solution {
     }
 }
 ```
+
+### 51.[5814. 新增的最少台阶数](https://leetcode-cn.com/problems/add-minimum-number-of-rungs/)
+
+```java
+class Solution {
+    public int addRungs(int[] rungs, int dist) {
+        int n = rungs.length;
+        int idx = 0;
+        int cur  = 0;
+        int res = 0;
+        while(idx < n){
+            if(rungs[idx] - cur <= dist){
+                cur= rungs[idx];
+                idx ++;
+            }
+            else{
+                // 计算有多少个，不要直接加
+                int t = (rungs[idx] - cur-1)/ dist;
+                if( t  > 0){
+                    cur += t * dist;
+                    res += t;
+                }else{
+                    cur =cur + dist;
+                    res ++;
+                }
+
+            }
+        }
+        return res;
+
+    }
+}
+```
+
+
+
+### 52 [面试题 10.02. 变位词组](https://leetcode-cn.com/problems/group-anagrams-lcci/)
+
+```java
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        for (String str : strs) {
+            char[] array = str.toCharArray();
+            Arrays.sort(array);
+            String key = new String(array);
+            List<String> list = map.getOrDefault(key, new ArrayList<String>());
+            list.add(str);
+            map.put(key, list);
+        }
+        return new ArrayList<List<String>>(map.values());
+    }
+}
+
+```
+
+### 53 .[5815. 扣分后的最大得分](https://leetcode-cn.com/problems/maximum-number-of-points-with-cost/)
+
+```java
+// 自己的计算复杂度是m* n*n,看数据规模大概猜到需要mn的，可惜不会优化
+class Solution {
+    public long maxPoints(int[][] points) {
+        int m = points.length,n = points[0].length;
+        long[][] f = new long[m][n];
+        long res =0;
+        int y = -1;
+        for(int i=0;i<n;i++){
+            f[0][i] = (long)points[0][i];
+            if( f[0][i] > res){
+                res = f[0][i];
+                y = i;
+            }
+        }
+        
+        for(int i=1;i<m;i++){
+            for(int j=0;j<n;j++){
+                for(int k = 0;k< n ; k++){
+                    f[i][j] =Math.max(f[i][j],  points[i][j] + f[i-1][k] - Math.abs(j - k));
+                    if(i == m-1){
+                        res = Math.max(res, f[i][j]);
+                    }
+                }
+            }
+        }
+        //  System.out.println(y);
+        // for(int i=1;i<m;i++){
+        //     long tmp  = 0;
+        //     int tmp_y = -1;
+        //     for(int j=0;j<n;j++){
+        //         f[i][j] = (long)points[i][j]  - Math.abs(j - y);
+        //         if(f[i][j] > tmp){
+        //             tmp = f[i][j];
+        //             tmp_y = j;
+        //         }
+        //     }
+        //     System.out.println("tmp_y: " + tmp_y);
+        //     res += tmp;
+        //     y = tmp_y;
+        // }
+        return res;
+
+    }
+}
+
+
+class Solution {
+
+    public long maxPoints(int[][] points) {
+        int m = points.length;
+        int n = points[0].length;
+        long[] dp = new long[n];
+        for (int i = 0; i < m; i++) {
+            long[] cur = new long[n + 1];
+            long lmax = 0;
+            // 优化点在这里，相当于把abs拆成两个数组，分别是左 - 右  右-左， 然后在循环内并列循环，
+            // 时间复杂度降到了3mn， 以左减右为例： 针对每个j，统计它左侧最大值-偏移量，和当前正上方的大小，确定值
+            // 左侧最大值会不断更新，就是这里的更新逻辑，比赛时没有想到
+            for (int j = 0; j < n; j++) {
+                lmax = Math.max(lmax - 1, dp[j]);
+                cur[j] = lmax;
+            }
+            long rmax = 0;
+            for (int j = n - 1; j >= 0; j--) {
+                rmax = Math.max(rmax - 1, dp[j]);
+                cur[j] = Math.max(cur[j], rmax);
+            }
+            for (int j = 0; j < n; j++) {
+                dp[j] = cur[j] + points[i][j];
+            }
+        }
+        long ans = 0;
+        for (int j = 0; j < n; j++) {
+            ans = Math.max(ans, dp[j]);
+        }
+        return ans;
+    }
+}
+// 参考题解
+https://leetcode-cn.com/problems/maximum-number-of-points-with-cost/solution/omndong-tai-gui-hua-by-seiei-5dm2/
+```
+
+### 54 .[1838. 最高频元素的频数](https://leetcode-cn.com/problems/frequency-of-the-most-frequent-element/)
+
+```java
+class Solution {
+    public int maxFrequency(int[] nums, int k) {
+        // 一开始思路搞错了，以为是每个数字都可以k次操作
+        Arrays.sort(nums);
+		int n = nums.length;
+		int total = 0;
+		int l = 0, res = 1;
+		for (int r = 1; r < n; ++r) {
+            //total是将窗口所有的值都转换成窗口最后的那个值所需要的操作次数
+            //因为窗口1次滑动1个单位，所以每次判断当前最右值和前一个值的差值，然后乘以窗口中除去最后一个元素的前面的元素个数。
+			total += (nums[r] - nums[r - 1]) * (r - l);
+            //当total大于k时，需要将左边界右移，操作是：total减去最左值与最右值的差值
+            //然后将左边界右移
+			while (total > k) {
+				total -= nums[r] - nums[l];
+				++l;
+			}
+            //动态维护res的大小
+			res = Math.max(res, r - l + 1);
+		}
+        //最后返回res即可
+		return res;
+    }
+}
+
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
