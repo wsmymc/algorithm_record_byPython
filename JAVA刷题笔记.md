@@ -2474,6 +2474,116 @@ class Solution {
 }
 ```
 
+### 80 [LCP 29. 乐团站位](https://leetcode-cn.com/problems/SNJvJP/)
+
+```java
+class Solution {
+    public int orchestraLayout(int num, int xPos, int yPos) {
+        // 先采用剥洋葱的方式，将最外层剥开，然后临界层毕竟不完整，可以按照输顺序，走完、
+        // 具体的数字，可以先统计个数，然后取余
+        int level = Math.min(Math.min(xPos, yPos), Math.min(num-1 - xPos, num-1 - yPos));
+        // System.out.println(num * num);
+        // 个数统计外围，应该是a2 -b2， 但是tmd数据溢出，所以（a+b)(a-b) 这样可以提前取余
+        // 傻逼数据溢出，需要进一步优化化简
+        long s = (num -level) % 9 * (level%9) % 9 * 4;
+        // System.out.println("up:"+s);
+        int up = 0+level;
+        int down = num-level -1;
+        int left = 0+level;
+        int right = down;
+        // System.out.println("up:"+up + "down" + down);
+        s = s %9;
+        // System.out.println(s);
+        if(xPos== up){
+            s += yPos - level+1;
+            System.out.println("up:"+s);
+        }else if(yPos == right){
+            s += (right - left) %9 + 1 + xPos - up;
+            // System.out.println("right:"+s);
+        }else if(xPos == down){
+
+            s +=2 * (right -left)%9 + 1 + right - yPos;
+            // System.out.println("up:"+s);
+        }else{
+            s += 3*(right -left)%9 + 1 + down - xPos;
+            // System.out.println("up:"+s);
+        }
+        // System.out.println(s);
+        return (int)s%9 == 0? 9:   (int)s %9;
+
+
+    }
+}
+```
+
+### 81 .[138. 复制带随机指针的链表](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)
+
+```java
+/*
+// Definition for a Node.
+class Node {
+    int val;
+    Node next;
+    Node random;
+
+    public Node(int val) {
+        this.val = val;
+        this.next = null;
+        this.random = null;
+    }
+}
+*/
+
+class Solution {
+    /**
+    使用哈希表加递归的方式，比较暴力，但是写起来简单
+    */
+    Map<Node, Node> map = new HashMap<>();
+    public Node copyRandomList(Node head) {
+        if(head == null){
+            return head;
+        }
+        if(!map.containsKey(head)){
+            Node headNew = new Node(head.val);
+            map.put(head, headNew);
+            headNew.next = copyRandomList(head.next);
+            headNew.random = copyRandomList(head.random);
+        }
+        return map.get(head);
+    }
+}
+
+// 节点拆分加迭代的方式，写起来比较多，但是方法更巧妙
+class Solution {
+    public Node copyRandomList(Node head) {
+        if (head == null) {
+            return null;
+        }
+        for (Node node = head; node != null; node = node.next.next) {
+            Node nodeNew = new Node(node.val);
+            nodeNew.next = node.next;
+            node.next = nodeNew;
+        }
+        for (Node node = head; node != null; node = node.next.next) {
+            Node nodeNew = node.next;
+            nodeNew.random = (node.random != null) ? node.random.next : null;
+        }
+        Node headNew = head.next;
+        for (Node node = head; node != null; node = node.next) {
+            Node nodeNew = node.next;
+            node.next = node.next.next;
+            nodeNew.next = (nodeNew.next != null) ? nodeNew.next.next : null;
+        }
+        return headNew;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/copy-list-with-random-pointer/solution/fu-zhi-dai-sui-ji-zhi-zhen-de-lian-biao-rblsf/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 
 
 ## mediium
@@ -4971,6 +5081,47 @@ class Solution {
 		return res;
     }
 }
+
+```
+
+### 55 .[57. 插入区间](https://leetcode-cn.com/problems/insert-interval/)
+
+```java
+class Solution {
+    public int[][] insert(int[][] intervals, int[] newInterval) {
+        int left = newInterval[0];
+        int right = newInterval[1];
+        boolean placed = false;
+        List<int[]> ansList = new ArrayList<int[]>();
+    // 直接加就是了， 主要还是对java不熟悉
+        for (int[] interval : intervals) {
+            if (interval[0] > right) {
+                // 在插入区间的右侧且无交集
+                if (!placed) {
+                    ansList.add(new int[]{left, right});
+                    placed = true;                    
+                }
+                ansList.add(interval);
+            } else if (interval[1] < left) {
+                // 在插入区间的左侧且无交集
+                ansList.add(interval);
+            } else {
+                // 与插入区间有交集，计算它们的并集
+                left = Math.min(left, interval[0]);
+                right = Math.max(right, interval[1]);
+            }
+        }
+        if (!placed) {
+            ansList.add(new int[]{left, right});
+        }
+        int[][] ans = new int[ansList.size()][2];
+        for (int i = 0; i < ansList.size(); ++i) {
+            ans[i] = ansList.get(i);
+        }
+        return ans;
+    }
+}
+
 
 ```
 
