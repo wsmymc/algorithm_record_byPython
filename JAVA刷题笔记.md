@@ -2584,6 +2584,128 @@ class Solution {
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
 
+### 82 .[1736. 替换隐藏数字得到的最晚时间](https://leetcode-cn.com/problems/latest-time-by-replacing-hidden-digits/)
+
+```java
+class Solution {
+    public String maximumTime(String time) {
+        // 1. 状态机模拟清楚就ok 2. 有时候字符串可以切换成字符数组再操作
+        char[] arr = time.toCharArray();
+        if (arr[0] == '?') {
+            arr[0] = ('4' <= arr[1] && arr[1] <= '9') ? '1' : '2';
+        }
+        if (arr[1] == '?') {
+            arr[1] = (arr[0] == '2') ? '3' : '9';
+        }
+        if (arr[3] == '?') {
+            arr[3] = '5';
+        }
+        if (arr[4] == '?') {
+            arr[4] = '9';
+        }
+        return new String(arr);
+    }
+}
+
+
+```
+
+### 83 [5823. 字符串转化后的各位数字之和](https://leetcode-cn.com/problems/sum-of-digits-of-string-after-convert/)
+
+```java
+class Solution {
+    public int getLucky(String s, int k) {
+        String t = "";
+        for(int i=0;i<s.length();i++){
+            t += s.charAt(i) -'a' + 1;
+        }
+        int tmp = 0;
+        for(int i=0;i<k;i++){
+            // System.out.println(tmp + " " + t);
+            tmp = 0;
+            for(int j=0;j<t.length();j++){
+                tmp += t.charAt(j) - '0';
+            }
+            t = ""+ tmp;
+
+        }
+        return tmp;
+
+    }
+}
+```
+
+### 84 [5804. 检查是否所有字符出现次数相同](https://leetcode-cn.com/problems/check-if-all-characters-have-equal-number-of-occurrences/)
+
+```java
+class Solution {
+    public boolean areOccurrencesEqual(String s) {
+        int[] cnt = new int[26];
+        for(int i=0;i<s.length(); i++){
+            cnt[s.charAt(i) - 'a']++;
+        }
+        int t = 0;
+        for(int i:cnt){
+            if(t == 0 && i!=0){
+                t = i;
+            }else{
+                if(t != i && i!=0){
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
+}
+```
+
+### 85 [671. 二叉树中第二小的节点](https://leetcode-cn.com/problems/second-minimum-node-in-a-binary-tree/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int ans;
+    int rootvalue;
+
+    public int findSecondMinimumValue(TreeNode root) {
+        ans = -1;
+        rootvalue = root.val;
+        dfs(root);
+        return ans;
+    }
+
+    public void dfs(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+        if (ans != -1 && node.val >= ans) {
+            return;
+        }
+        if (node.val > rootvalue) {
+            ans = node.val;
+        }
+        dfs(node.left);
+        dfs(node.right);
+    }
+}
+
+```
+
 
 
 ## mediium
@@ -5125,11 +5247,971 @@ class Solution {
 
 ```
 
+###  56 [1743. 从相邻元素对还原数组](https://leetcode-cn.com/problems/restore-the-array-from-adjacent-pairs/)
+
+```java
+class Solution {
+
+    Map<Integer, List<Integer>> map = new HashMap<>(); 
+    public int[] restoreArray(int[][] adjacentPairs) {
+        for(int[] p: adjacentPairs){
+            map.putIfAbsent(p[0], new ArrayList<Integer>());
+            map.putIfAbsent(p[1], new ArrayList<Integer>());
+            map.get(p[0]).add(p[1]);
+            map.get(p[1]).add(p[0]);
+        }
+        int n = adjacentPairs.length + 1;
+        int[] res = new int[n];
+        // 找到一个端点
+        for(Map.Entry<Integer, List<Integer>> entry: map.entrySet()){
+            int e = entry.getKey();
+            List<Integer> adj = entry.getValue();
+            if(adj.size() == 1){
+                res[0] = e;
+                break;
+            }
+        }
+        res[1] = map.get(res[0]).get(0);
+        for(int i=2;i<n;i++){
+            // 确定了方向以后，不断连接数据
+            List<Integer> adj = map.get(res[i-1]);
+            res[i] = res[i-2] == adj.get(0) ? adj.get(1): adj.get(0);
+        }
+        return res;
+        }
+
+    
+}
+```
+
+### 57.[1946. 子字符串突变后可能得到的最大整数](https://leetcode-cn.com/problems/largest-number-after-mutating-substring/)
+
+```java
+class Solution {
+    public String maximumNumber(String num, int[] change) {
+        char[] s = num.toCharArray();
+        for(int i=0; i<s.length;i++){
+            
+            if(s[i] - '0' < change[s[i] - '0']){
+                while( i < s.length && (s[i] - '0') <= change[s[i] - '0']){
+                    // System.out.println(i);
+                    s[i] = (char)(change[s[i] - '0'] + '0');
+                    i++;
+                }
+                break;
+            }
+        }
+        return new String(s);
+
+    }
+}
+```
+
+### 58 .[1942. 最小未被占据椅子的编号](https://leetcode-cn.com/problems/the-number-of-the-smallest-unoccupied-chair/)
+
+```java
+class Solution {
+    public int smallestChair(int[][] times, int targetFriend) {
+        /**
+        看到题就知道是堆的做法，只是细节需要确定 */
+        int n = times.length;
+        int[][] arrivals = new  int[n][2];
+        int[][] leaves = new int[n][2];
+        // 记录出入的时间以及对应的人
+        for(int i=0; i<n;i++){
+            arrivals[i][0] = times[i][0];
+            arrivals[i][1] = i;
+            leaves[i][0] = times[i][1];
+            leaves[i][1]= i;
+        }
+        // 依据时间顺序从小到大排列
+        Arrays.sort(arrivals, (a, b) -> (a[0] - b[0]));
+        Arrays.sort(leaves, (a, b) -> (a[0] - b[0]));
+
+        Map<Integer, Integer> map = new HashMap<>();
+        // 优先级队列就是堆了
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        // 记录已有座位
+        for(int i=0; i<n;i++){
+            pq.offer(i);
+        }
+        int j=0;
+        // 依据到达时间占座
+        for(int[] a: arrivals){
+            // 如果有离开时间小于当前到达的，将释放的作为放进堆里
+            while(j < n && leaves[j][0] <= a[0]){
+                pq.offer(map.get(leaves[j][1]));
+                j++;
+            }
+            // 记录对应的人和座位
+            map.put(a[1], pq.poll());
+            // 如果有遇到目标人，就可以直接返回
+            if(a[1] == targetFriend){
+                return map.get(targetFriend);
+            }
+        }
+        return -1;
+
+    }
+}
+```
+
+### 59.[1943. 描述绘画结果](https://leetcode-cn.com/problems/describe-the-painting/)
+
+```java
+class Solution {
+    public List<List<Long>> splitPainting(int[][] segments) {
+        // 差分数组
+        List<List<Long>> res = new ArrayList<List<Long>>();
+        long[][] change = new long[(int)1e5+1][2];
+        for(int i=0;i<segments.length;i++){
+            change[segments[i][0]][0] += segments[i][2];
+            change[segments[i][1]][1] -= segments[i][2];
+        }
+        long sum = 0;
+        long start = 0;
+        for(int i=0;i<change.length;i++){
+            // System.out.println(res);
+            if(change[i][0] != 0 || change[i][1] != 0){
+                if(sum ==0){
+                    start = i;
+                }
+                if(sum != 0){
+                    // System.out.println(res);
+                    res.add(Arrays.asList(new Long[]{start, (long)i, sum}));
+                    start = i;
+                }
+                sum += change[i][0] + change[i][1];
+            }
+        }
+        return res;
+
+    }
+}
+```
+
+### 60. [1947. 最大兼容性评分和](https://leetcode-cn.com/problems/maximum-compatibility-score-sum/)
+
+```java
+class Solution 
+{
+    // 实际上就是全排列模板题，问题是模板记错了，导致超时
+    int sum = 0;
+    boolean[] f;
+    public int maxCompatibilitySum(int[][] students, int[][] mentors) {
+        f = new boolean[students.length];
+        dfs(students, mentors, 0, 0);
+        return sum;
+    }
+    void dfs(int[][] a, int[][] b, int l, int cur){
+        if(l == a.length){
+            sum = Math.max(sum, cur);
+            return;
+        }
+        for(int i = 0; i < a.length; i++){
+            if(!f[i]){
+                f[i] = true;
+                dfs(a, b, l + 1, cur + get(a, b, l, i));
+                f[i] = false;
+            }
+        }
+    }
+    int get(int[][] a, int[][] b, int idx, int jdx){
+        int sum = 0;
+        for(int i = 0; i < a[0].length; i++){
+            if(a[idx][i] == b[jdx][i])sum++;
+        }
+        return sum;
+    }
+}
+
+
+
+```
+
+### 61 .[284. 顶端迭代器](https://leetcode-cn.com/problems/peeking-iterator/)
+
+```java
+// Java Iterator interface reference:
+// https://docs.oracle.com/javase/8/docs/api/java/util/Iterator.html
+
+class PeekingIterator implements Iterator<Integer> {
+    // 本质上是先走一步的迭代器
+    private Iterator<Integer> it;
+
+    Integer next;
+	public PeekingIterator(Iterator<Integer> iterator) {
+	    // initialize any member here.
+	    it = iterator;
+        next = it.hasNext()?it.next(): null;
+	}
+	
+    // Returns the next element in the iteration without advancing the iterator.
+	public Integer peek() {
+        return next;
+        
+	}
+	
+	// hasNext() and next() should behave the same as in the Iterator interface.
+	// Override them if needed.
+	@Override
+	public Integer next() {
+        Integer tmp = next;
+        next = it.hasNext()? it.next():null;
+        return tmp;
+	    
+	}
+	
+	@Override
+	public boolean hasNext() {
+        return next != null;
+	    
+	}
+}
+```
+
+### 62 .[1104. 二叉树寻路](https://leetcode-cn.com/problems/path-in-zigzag-labelled-binary-tree/)
+
+```java
+class Solution {
+    public List<Integer> pathInZigZagTree(int label) {
+        int row = 1, rowStart = 1;
+        // 判断行号
+        while(rowStart *2 <= label){
+            row++;
+            rowStart *=2;
+        }
+        // 奇偶性顺序不同,如果当前行在偶数行，需要将对应的编号切换成左序的
+        // System.out.println(label);
+        // System.out.println(row);
+        if(row % 2== 0){
+            label = getReveser(label, row);
+        }
+        // System.out.println(label);
+        List<Integer> res = new ArrayList<>();
+        while(row > 0){
+            if(row % 2  ==0){
+                // 因为之前统一左序话，如果是偶数行，需要重新转换成右序记录结果
+                // System.out.println("even: " + getReveser(label, row));
+                res.add(getReveser(label, row));
+            }else{
+                // System.out.println("odd: " + label);
+                res.add(label);
+            }
+            row--;
+            label >>= 1;  // 实际的二叉树序列应该改是从左到右的
+        }
+        Collections.reverse(res);
+        return res;
+
+    }
+
+    // 针对偶数情况下的序号获取操作,也是根据编号获取满二叉树形式节点的位置
+    public int getReveser(int label, int row){
+        return (1<<row - 1) + (1<<row) -1 -label;
+    }
+}
+```
+
+### 63 .[375. 猜数字大小 II](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/)
+
+```java
+class Solution {
+    public int getMoneyAmount(int n) {
+        /**
+        重叠子问题，dp问题
+        二维数组i，j标识i到j内的最坏情况下的最小情况，由于一次就准为 耗费为0 ，所以初始化就哈皮
+        i为长度， j为起始，由于最坏是越大越好，因此从中带你后半段开始统计
+        每一次统计当前位置选错的情况下，的耗费
+        最后统一 */
+        int[][] dp = new int[n+1][n+1];
+        for(int len = 2; len<= n ;len++){
+            for(int start = 1; start + len <= n + 1; start++){
+                int minRes = Integer.MAX_VALUE;
+                for(int idx = start + (len - 1)/2 ; idx < start + len -1; idx++){
+                    // System.out.println(String.format("start: %d, idx: %d, len%d", start,idx,len));
+                    int res =  idx + Math.max(dp[start][idx - 1], dp[idx+1][start + len -1]);
+                    minRes = Math.min(res, minRes);
+                }
+                dp[start][start + len -1] = minRes;
+            }
+        }
+        return dp[1][n];
+
+    }
+}
+```
 
 
 
 
 
+### 64 .[368. 最大整除子集](https://leetcode-cn.com/problems/largest-divisible-subset/)
+
+```java
+class Solution {
+    public List<Integer> largestDivisibleSubset(int[] nums) {
+        int n = nums.length;
+        Arrays.sort(nums);
+
+        //有点类似最长递增数组， 首先确定最大长度，以及集合中的最大值
+        int[] dp = new int[n];
+        Arrays.fill(dp, 1);   // 初始时只有一个集合
+        int maxSize = 1;
+        int maxVal = dp[0]; // 记录集合中的最大值
+        for(int i=1;i<n;i++){
+            for(int j =0; j < i ; j++)
+            {
+                if(nums[i] % nums[j] == 0){
+                    dp[i] = Math.max(dp[i], dp[j] +1);
+                }
+                // System.out.println(String.format("maxSize: %d, i %d, j: %d", maxSize, i, j));
+            }
+
+            if(dp[i] > maxSize){
+                
+                maxSize = dp[i];
+                maxVal  = nums[i];
+            }
+            // System.out.println(String.format("maxSize: %d, i %d, j: %d", maxSize, i, j));
+        }
+
+        // 倒推获取最大子集：从后往前，依次找到符合最大长度，和最大值相除为0的值
+        List<Integer> res = new ArrayList<>();
+        if(maxSize == 1){
+            res.add(nums[0]);
+            return res;
+        }
+        for(int i = n -1;i >=0 && maxSize > 0;i--){
+            if(dp[i] == maxSize && maxVal % nums[i] == 0){
+                res.add(nums[i]);
+                maxVal = nums[i];
+                maxSize--;
+
+            }
+        }
+        return res;
+
+    }
+}
+```
+
+### 65.[863. 二叉树中所有距离为 K 的结点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    Map<Integer, TreeNode> parents = new HashMap<Integer, TreeNode>();
+    List<Integer> ans = new ArrayList<Integer>();
+
+    public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {
+        // 从 root 出发 DFS，记录每个结点的父结点
+        findParents(root);
+
+        // 从 target 出发 DFS，寻找所有深度为 k 的结点
+        findAns(target, null, 0, k);
+
+        return ans;
+    }
+
+    public void findParents(TreeNode node) {
+        if (node.left != null) {
+            parents.put(node.left.val, node);
+            findParents(node.left);
+        }
+        if (node.right != null) {
+            parents.put(node.right.val, node);
+            findParents(node.right);
+        }
+    }
+
+    public void findAns(TreeNode node, TreeNode from, int depth, int k) {
+        if (node == null) {
+            return;
+        }
+        if (depth == k) {
+            ans.add(node.val);
+            return;
+        }
+        if (node.left != from) {
+            findAns(node.left, node, depth + 1, k);
+        }
+        if (node.right != from) {
+            findAns(node.right, node, depth + 1, k);
+        }
+        if (parents.get(node.val) != from) {
+            findAns(parents.get(node.val), node, depth + 1, k);
+        }
+    }
+}
+```
+
+### 66 .[324. 摆动排序 II](https://leetcode-cn.com/problems/wiggle-sort-ii/)
+
+```java
+class Solution {
+    public  void wiggleSort(int[] nums) {
+        int[]bucket=new int[5001];
+        for(int num:nums)bucket[num]++;
+        int len=nums.length;
+        int small,big;//穿插数字时的上界
+        //总长度为奇数时，“小 大 小 大 小”边界左右都为较小的数；
+        //总长度为偶数时，“小 大 小 大”边界左为较小的数，边界右为较大的数
+        if((len&1)==1){
+            small=len-1;
+            big=len-2;
+        }else{
+            small=len-2;
+            big=len-1;
+        }
+        int j=5000; //从后往前，将桶中数字穿插到数组中，后界为j
+        //桶中大的数字在后面，小的数字在前面，所以先取出较大的数字，再取出较小的数字
+        //先将桶中的较大的数字穿插放在nums中
+        for(int i=1;i<=big;i+=2){
+            while (bucket[j]==0)j--;//找到不为0的桶
+            nums[i]=j;
+            bucket[j]--;
+        }
+        //再将桶中的较小的数字穿插放在nums中
+        for(int i=0;i<=small;i+=2){
+            while (bucket[j]==0)j--;//找到不为0的桶
+            nums[i]=j;
+            bucket[j]--;
+        }
+    }
+}
+```
+
+
+
+### 67 .[99. 恢复二叉搜索树](https://leetcode-cn.com/problems/recover-binary-search-tree/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public void recoverTree(TreeNode root) {
+        Deque<TreeNode> stack  = new ArrayDeque<TreeNode>();
+        TreeNode x = null, y = null, pred= null;
+        // 中序遍历迭代写法
+        while(!stack.isEmpty() || root != null){
+            while(root != null){
+                stack.push(root);
+                root = root.left;
+            }
+            root = stack.pop();
+            // 如果是逆序的，那么用y记录
+            if(pred != null && root.val < pred.val){
+                y = root;
+                if(x == null){
+                    x = pred;
+                }else{
+                    break;
+                }
+            }
+            pred = root;
+            root = root.right;
+        }
+        swap(x, y);
+    }
+
+    // 交换两个值
+    public void swap(TreeNode x , TreeNode y){
+        int tmp = x.val;
+        x.val = y.val;
+        y.val = tmp;
+    }
+}
+```
+
+### 68.[209. 长度最小的子数组](https://leetcode-cn.com/problems/minimum-size-subarray-sum/)
+
+```java
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        int n = nums.length;
+        int[] sum = new int[n+1];
+        for(int i=0; i<n;i++){
+            sum[i+1] = sum[i] + nums[i];
+        }
+        for(int i=1;i<=n;i++){
+            for(int j=0; j + i <= n; j++){
+                if(sum[j+i] - sum[j] >= target ){
+                    return i;
+                }
+            }
+        }
+        return 0;
+
+    }
+}
+
+// 上面的方法本质还是O(n^2)的，滑动窗口的O（N）明显更优秀
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        int n = nums.length;
+        if (n == 0) {
+            return 0;
+        }
+        int ans = Integer.MAX_VALUE;
+        int start = 0, end = 0;
+        int sum = 0;
+        while (end < n) {
+            sum += nums[end];
+            while (sum >= s) {
+                ans = Math.min(ans, end - start + 1);
+                sum -= nums[start];
+                start++;
+            }
+            end++;
+        }
+        return ans == Integer.MAX_VALUE ? 0 : ans;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/minimum-size-subarray-sum/solution/chang-du-zui-xiao-de-zi-shu-zu-by-leetcode-solutio/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+// O(nlogn)的前缀和+ 二分也可以，不过Arrays.binarySearch()不熟悉
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        int n = nums.length;
+        if (n == 0) {
+            return 0;
+        }
+        int ans = Integer.MAX_VALUE;
+        int[] sums = new int[n + 1]; 
+        // 为了方便计算，令 size = n + 1 
+        // sums[0] = 0 意味着前 0 个元素的前缀和为 0
+        // sums[1] = A[0] 前 1 个元素的前缀和为 A[0]
+        // 以此类推
+        for (int i = 1; i <= n; i++) {
+            sums[i] = sums[i - 1] + nums[i - 1];
+        }
+        for (int i = 1; i <= n; i++) {
+            int target = s + sums[i - 1];
+            // 通过这个来查找时否有sum[j] - sum[i-1] == s
+            int bound = Arrays.binarySearch(sums, target);
+            // binarySearch()方法的返回值为：1、如果找到关键字，则返回值为关键字在数组中的位置索引，且索引从0开始2、如果没有找到关键字，返回值为负的插入点值，所谓插入点值就是第一个比关键字大的元素在数组中的位置索引，而且这个位置索引从1开始。
+            // 所以返回值为负值的情况是能够间接确定应当插入的位置，返回为第几个，转换成索引要减一
+            if (bound < 0) {
+                System.out.println(bound);
+                bound = -bound - 1;
+            }
+            // 如果在范围内部的话，确认合法，更新ans
+            if (bound <= n) {
+                ans = Math.min(ans, bound - (i - 1));
+            }
+        }
+        return ans == Integer.MAX_VALUE ? 0 : ans;
+    }
+}
+
+```
+
+### 69 .[211. 添加与搜索单词 - 数据结构设计](https://leetcode-cn.com/problems/design-add-and-search-words-data-structure/)
+
+```java
+class WordDictionary {
+    class Trie {
+        Trie[] children;
+        boolean isEnd;
+        public Trie(){
+            children = new Trie[26];
+            isEnd = false;
+        }
+    }
+
+    /** Initialize your data structure here. */
+    Trie root;
+    public WordDictionary() {
+        root = new Trie();
+
+    }
+    
+    public void addWord(String word) {
+        Trie node = this.root;
+        int n = word.length();
+        for(int i=0; i< n;i++){
+            if(node.children[word.charAt(i) - 'a'] == null){
+                node.children[word.charAt(i) - 'a'] = new Trie();
+            }
+            node = node.children[word.charAt(i) - 'a'];
+        }
+        node.isEnd = true;
+
+    }
+    
+    public boolean search(String word) {
+        return searchWord(word, this.root);
+
+    }
+
+    public boolean searchWord(String word, Trie root){
+        Trie node = root;
+        int n = word.length();
+        for(int i=-0; i<n;i++){
+            char c = word.charAt(i);
+            if(c == '.'){
+                for(int j=0;j<26;j++){
+                    if(node.children[j] != null){
+                        if(searchWord(word.substring(i+1), node.children[j])){
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            else if (c != '.' && node.children[c -'a'] == null) return false;
+            else{
+                node = node.children[c - 'a'];
+            }
+            
+            
+        }
+        return node.isEnd;
+    }
+}
+
+/**
+ * Your WordDictionary object will be instantiated and called as such:
+ * WordDictionary obj = new WordDictionary();
+ * obj.addWord(word);
+ * boolean param_2 = obj.search(word);
+ */
+
+// 也有另一种方法，更符合我的直觉： 以长度作为key，然后对比时，对'.'跳过
+class WordDictionary {
+
+  private Map<Integer, List<String>> maps;
+        /** Initialize your data structure here. */
+        public WordDictionary() {
+            maps = new HashMap<>();
+        }
+
+        public void addWord(String word) {
+            int key = word.length();
+            if(maps.containsKey(key)) {
+                List<String> valueList = maps.get(key);
+                valueList.add(word);
+            }else {
+                List<String> value = new ArrayList<>();
+                value.add(word);
+                maps.put(key,value);
+            }
+        }
+
+        public boolean search(String word) {
+            int key = word.length();
+            if(!maps.containsKey(key)) return false;
+            List<String> valueList = maps.get(key);
+            boolean flag = true;
+            for (String value : valueList) {
+                flag = true;
+                for (int i = 0; i < value.length(); i++) {
+                    char w = word.charAt(i);
+                    if(w == '.') {
+                        continue;
+                    }else {
+                        char v = value.charAt(i);
+                        if(w == v) {
+                            continue;
+                        }else {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+                if(flag) {
+                    return true;
+                }
+            }
+            return false;
+        }
+}
+
+
+```
+
+### 70 [223. 矩形面积](https://leetcode-cn.com/problems/rectangle-area/)
+
+```java
+class Solution {
+    public int computeArea(int A, int B, int C, int D, int E, int F, int G, int H) {
+        // 单纯模拟想复杂了，直接计算了两个矩形总面积- 一次重叠面积
+        int S1 = (C-A)*(D-B);
+        int S2 = (G-E)*(H-F);
+        //无重叠， 当最左最右，或者最上最下都不重叠的时候，就没有重复的面积，具体可以画图标识
+        if(B >= H || C <= E || D <= F || A >= G){
+            return S1+S2;
+        }
+        //有重叠
+        else{
+            //重叠部分,上边界y，下边界y，左边界x，右边界x， 上、右取最小， 下、左取最大
+            int upY = Math.min(D,H);
+            int downY = Math.max(B,F);
+            int rightX = Math.min(C,G);
+            int leftX = Math.max(A,E);
+            return S1+S2-(upY-downY)*(rightX-leftX);
+        }
+    }
+}
+
+
+```
+
+### 71.[743. 网络延迟时间](https://leetcode-cn.com/problems/network-delay-time/)
+
+```java
+// 堆优化的dijstra算法
+class Solution {
+    public int networkDelayTime(int[][] times, int n, int k) {
+        final int INF = Integer.MAX_VALUE/2;
+        List<int[]>[] g = new List[n];
+        for(int i=0;i<n; i++){
+            g[i] = new ArrayList<int[]>();
+        }
+        for(int[] t : times){
+            int x = t[0]-1, y = t[1] -1;
+            g[x].add(new int[]{y, t[2]});
+        }
+
+        int[] dist = new int[n];
+        Arrays.fill(dist, INF);
+        dist[k-1]  = 0;
+        PriorityQueue<int[]> pq = new PriorityQueue<int[]>((a,b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);
+        pq.offer(new int[]{0, k-1});
+        while(!pq.isEmpty()){
+            int[] p = pq.poll();
+            int time = p[0], x= p[1];
+            if(dist[x] < time){
+                continue;
+            }
+            for(int[] e:g[x]){
+                int  y = e[0], d = dist[x] + e[1];
+                if(d < dist[y]){
+                    dist[y] = d;
+                    pq.offer(new int[]{d, y});
+                }
+            }
+        }
+        int res = Arrays.stream(dist).max().getAsInt();
+        return res == INF ? -1 : res;
+
+    }
+}
+
+
+class Solution {
+    // flord 算法
+    int N = 110, M = 6010;
+    int[][] w = new int[N][N];
+    int INF = 0x3f3f3f3f;
+    int n,k;
+    public int networkDelayTime(int[][] times, int _n, int _k) {
+        n = _n;
+        k = _k;
+        // 初始化
+        for(int i=1;i<= n; i++){
+            for(int j = 1; j<=n; j++){
+                w[i][j] = w[j][i] = i==j ? 0 : INF;
+            }
+        }
+        for(int[] t : times){
+            int u = t[0], v = t[1], c = t[2];
+            w[u][v] = c;
+        }
+        // 标准模板， k松弛点， i，j为固定点
+        
+        for(int k=1; k<=n; k++){
+            for(int i = 1; i<=n; i++){
+                for(int j=1; j <= n; j++){
+                    w[i][j] = Math.min(w[i][j], w[i][k] + w[k][j]);
+                }
+            }
+        }
+        int res =0;
+        for(int i=1; i<=n; i++){
+            res = Math.max(res,w[k][i]);
+        }
+        return res == INF ? -1 : res;
+
+    }
+}
+```
+
+### 72 .[307. 区域和检索 - 数组可修改](https://leetcode-cn.com/problems/range-sum-query-mutable/)
+
+```java
+// 树状数组解法，说实话还是不熟悉， 需要加紧
+class NumArray {
+    int[] tree;
+    int lowbit(int x){
+        return x& -x;
+    }
+
+    int query(int x){
+        int res =0;
+        for(int i=x ; i>0; i-=lowbit(i)) res += tree[i];
+        return res;
+    }
+
+    void add(int x, int u){
+        for(int i=x; i <= n;i+= lowbit(i)){
+            tree[i] += u;
+        }
+    }
+    int[] nums;
+    int n;
+
+    public NumArray(int[] _nums) {
+        nums = _nums;
+        n = nums.length;
+        tree = new int[n+1];
+        for(int i=0;i <n ;i++){
+            add(i+1, nums[i]);
+        }
+
+    }
+    
+    public void update(int i, int val) {
+        add(i+1, val - nums[i]);
+        nums[i] = val;
+
+    }
+    
+    public int sumRange(int left, int right) {
+        return query(right+1) - query(left);
+
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * obj.update(index,val);
+ * int param_2 = obj.sumRange(left,right);
+ */
+```
+
+### 73.[299. 猜数字游戏](https://leetcode-cn.com/problems/bulls-and-cows/)
+
+```java
+class Solution {
+    public String getHint(String secret, String guess) {
+        int[] unmatched = new int[10]; //遇到从secret来的未被匹配的字符，则做++动作。遇到从guess来的未被匹配的字符，则做--动作
+        int n = secret.length();
+        int bullsCount = 0;
+        int cowsCount = 0;
+        for (int i = 0; i < n; i++){
+            char c_secret = secret.charAt(i);
+            char c_guess = guess.charAt(i);
+            if (c_secret != c_guess){
+                if (unmatched[c_secret - '0'] < 0){ //对于c_secret而言，之前遇到过来自guess的未被匹配字符，那么就找到一组奶牛
+                    cowsCount++;
+                }
+                unmatched[c_secret - '0']++; //按照桶的操作规则更新桶
+                if (unmatched[c_guess - '0'] > 0){ //对于c_guess而言，之前遇到过来自secret的未被匹配字符，那么就找到一组奶牛
+                    cowsCount++;
+                }
+                unmatched[c_guess - '0']--; //按照桶的操作规则更新桶
+            }
+            else{
+                bullsCount++; //secret和guess匹配上了，找到一组公牛
+            }
+        }
+        return bullsCount + "A" + cowsCount + "B";
+    }
+}
+```
+
+### 74 .[306. 累加数](https://leetcode-cn.com/problems/additive-number/)
+
+```java
+class Solution {
+    /**
+    本质时是递归回溯，一开始被题目吓到了 */
+    /**
+     * 字符串
+     */
+    String s;
+    /**
+     * 字符串的长度
+     */
+    int n;
+
+    public boolean isAdditiveNumber(String num) {
+        this.s = num;
+        this.n = num.length();
+        return toFlashBack(0, 0, 0, 0);
+    }
+
+    /**
+     * @param index    当前的下标
+     * @param sum      前两个数的和
+     * @param previous 前一个数的值
+     * @param count    已生成几个数
+     */
+    public boolean toFlashBack(int index, long sum, long previous, int count) {
+        // 如果已生成三个数及以上则返回 true
+        if (index == n) {
+            return count >= 3;
+        }
+        // 拼接数字的值，值可能越 int 界所以使用 long
+        long value = 0;
+        // 开始拼接数字
+        for (int i = index; i < n; i++) {
+            // 除 0 以外，其他数字第一位不能为 0
+            if (i > index && s.charAt(index) == '0') {
+                break;
+            }
+            // 计算数值
+            value = value * 10 + s.charAt(i) - '0';
+            // 判断数值是否合法，如果前面有两个以上的数，则判断前两个数的和是否等于这个数
+            if (count >= 2) {
+                if (value < sum) {
+                    // 小的话继续向后继续拼接
+                    continue;
+                } else if (value > sum) {
+                    // 大的话直接结束，再往后拼接无意义
+                    break;
+                }
+            }
+            // 使用该数，向下递归
+            if (toFlashBack(i + 1, previous + value, value, count + 1)) {
+                return true;
+            }
+            // 没有可恢复原样的变量
+        }
+        return false;
+    }
+}
+
+
+```
 
 
 
@@ -5248,7 +6330,46 @@ class Solution {
     }
 }
 
+//method2
+class Solution {
+    Map<Integer,List<Integer>> map = new HashMap<>();
+    List<Integer> path = new ArrayList<>();
+    void dfs(int u, int father){
+        path.add(u);
+        for(int x : map.get(u)){
+            if(x != father){
+                dfs(x, u);
+            }
+        }
+    }
+    public int[] restoreArray(int[][] adjacentPairs) {
+        Map<Integer, Integer> cnt = new HashMap<>();
+        for(int[] p : adjacentPairs){
+            int a= p[0], b = p[1];
+            // 这里有个恶心的地方，add是value值，还需要把value放到map中，否则map会空
+            List<Integer> t = map.getOrDefault(a, new ArrayList<>());
+            t.add(b);
+            map.put(a, t);
+            t = map.getOrDefault(b, new ArrayList<>());
+            t.add(a);
+            map.put(b, t);
 
+            cnt.put(a, cnt.getOrDefault(a,0)+1);
+            cnt.put(b, cnt.getOrDefault(b, 0)+1);
+        }
+        int root = 0;
+        // 也是在找端点
+        for(Map.Entry<Integer, Integer> entry: cnt.entrySet()){
+            if(entry.getValue() == 1){
+                root = entry.getKey();
+                break;
+            }
+        }
+        dfs(root ,-1);
+        int[] res = path.stream().mapToInt(Integer::valueOf).toArray();
+        return res;
+    }
+}
 ```
 
 
@@ -6326,5 +7447,113 @@ class Solution {
             return res == Integer.MAX_VALUE / 2 ? -1 : res;
         }
     }
+```
+
+### 17 .[1713. 得到子序列的最少操作次数](https://leetcode-cn.com/problems/minimum-operations-to-make-a-subsequence/)
+
+```java
+class Solution {
+    public int minOperations(int[] target, int[] arr) {
+        // 类似一个最长递增字串的做法，前提是去掉不想管的字符，只是这里的递增的索引位置
+        int n = target.length;
+        Map<Integer, Integer> pos = new HashMap<Integer, Integer>();
+        for (int i = 0; i < n; ++i) {
+            pos.put(target[i], i);
+        }
+        List<Integer> d = new ArrayList<Integer>();
+        for (int val : arr) {
+            if (pos.containsKey(val)) {
+                int idx = pos.get(val);
+                int it = binarySearch(d, idx);
+                if (it != d.size()) {
+                    d.set(it, idx);
+                } else {
+                    d.add(idx);
+                }
+            }
+        }
+        return n - d.size();
+    }
+
+   // 二分法查找目标索引是否在已有的答案中
+    public int binarySearch(List<Integer> d, int target) {
+        int size = d.size();
+        if (size == 0 || d.get(size - 1) < target) {
+            return size;
+        }
+        int low = 0, high = size - 1;
+        while (low < high) {
+            int mid = (high - low) / 2 + low;
+            if (d.get(mid) < target) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return low;
+    }
+}
+```
+
+### 18 .[987. 二叉树的垂序遍历](https://leetcode-cn.com/problems/vertical-order-traversal-of-a-binary-tree/)
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> verticalTraversal(TreeNode root) {
+        List<int[]> nodes = new ArrayList<int[]>();
+        dfs(root, 0, 0, nodes);
+        // 不难，三元排序要记清
+        Collections.sort(nodes, new Comparator<int[]>() {
+            public int compare(int[] tuple1, int[] tuple2) {
+                if (tuple1[0] != tuple2[0]) {
+                    return tuple1[0] - tuple2[0];
+                } else if (tuple1[1] != tuple2[1]) {
+                    return tuple1[1] - tuple2[1];
+                } else {
+                    return tuple1[2] - tuple2[2];
+                }
+            }
+        });
+        List<List<Integer>> ans = new ArrayList<List<Integer>>();
+        int size = 0;
+        int lastcol = Integer.MIN_VALUE;
+        for (int[] tuple : nodes) {
+            int col = tuple[0], row = tuple[1], value = tuple[2];
+            if (col != lastcol) {
+                lastcol = col;
+                ans.add(new ArrayList<Integer>());
+                size++;
+            }
+            ans.get(size - 1).add(value);
+        }
+        return ans;
+    }
+
+    public void dfs(TreeNode node, int row, int col, List<int[]> nodes) {
+        if (node == null) {
+            return;
+        }
+        nodes.add(new int[]{col, row, node.val});
+        dfs(node.left, row + 1, col - 1, nodes);
+        dfs(node.right, row + 1, col + 1, nodes);
+    }
+}
+
+
 ```
 
