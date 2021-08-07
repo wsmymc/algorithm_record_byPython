@@ -5248,7 +5248,7 @@ class Solution {
 ```
 
 ###  56 [1743. 从相邻元素对还原数组](https://leetcode-cn.com/problems/restore-the-array-from-adjacent-pairs/)
-<<<<<<< HEAD
+
 
 ```java
 class Solution {
@@ -5279,9 +5279,8 @@ class Solution {
             res[i] = res[i-2] == adj.get(0) ? adj.get(1): adj.get(0);
         }
         return res;
-=======
 
-```java
+​```java
 class Solution {
 
     Map<Integer, List<Integer>> map = new HashMap<>(); 
@@ -5355,13 +5354,13 @@ class Solution {
             arrivals[i][1] = i;
             leaves[i][0] = times[i][1];
             leaves[i][1]= i;
->>>>>>> 40a4043bf57893bc117e0705d99661f3c44c59d6
+
         }
         // 依据时间顺序从小到大排列
         Arrays.sort(arrivals, (a, b) -> (a[0] - b[0]));
         Arrays.sort(leaves, (a, b) -> (a[0] - b[0]));
 
-<<<<<<< HEAD
+
     
 }
 ```
@@ -5384,7 +5383,7 @@ class Solution {
             }
         }
         return new String(s);
-=======
+
         Map<Integer, Integer> map = new HashMap<>();
         // 优先级队列就是堆了
         PriorityQueue<Integer> pq = new PriorityQueue<>();
@@ -5408,13 +5407,13 @@ class Solution {
             }
         }
         return -1;
->>>>>>> 40a4043bf57893bc117e0705d99661f3c44c59d6
+
 
     }
 }
 ```
 
-<<<<<<< HEAD
+
 ### 58 .[1942. 最小未被占据椅子的编号](https://leetcode-cn.com/problems/the-number-of-the-smallest-unoccupied-chair/)
 
 ```java
@@ -5462,7 +5461,7 @@ class Solution {
 =======
 ### 59.[1943. 描述绘画结果](https://leetcode-cn.com/problems/describe-the-painting/)
 
-```java
+​```java
 class Solution {
     public List<List<Long>> splitPainting(int[][] segments) {
         // 差分数组
@@ -5502,7 +5501,7 @@ class Solution {
 =======
 ### 60. [1947. 最大兼容性评分和](https://leetcode-cn.com/problems/maximum-compatibility-score-sum/)
 
-```java
+​```java
 class Solution 
 {
     // 实际上就是全排列模板题，问题是模板记错了，导致超时
@@ -6320,6 +6319,40 @@ class Solution {
     }
 }
 
+
+```
+
+### 75 .[457. 环形数组是否存在循环](https://leetcode-cn.com/problems/circular-array-loop/)
+
+```java
+class Solution {   
+    public boolean circularArrayLoop(int[] nums) {
+        int n = nums.length;
+        // 使用 vis 数组对每个下标进行标记
+        // 如果下标为 i 的位置在第 idx 轮被标记，则有 vis[i] = idx
+        int[] vis = new int[n];
+        for (int start = 0, idx = 1; start < n; start++, idx++) {
+            if (vis[start] != 0) continue;
+            int cur = start;
+            boolean flag = nums[cur] > 0;
+            while (true) {
+                int next = ((cur + nums[cur]) % n + n) % n;
+                if (next == cur) break;
+                if (vis[next] != 0) {
+                    // 如果 next 点已经被标记过，并且不是在本轮被标记，那么往后的通路必然都被标记，且无环，跳出   
+                    if (vis[next] != idx) break;
+                    // 如果 next 点已被标记，并且是本来被标记，说明找到了环
+                    else return true;
+                }
+                if (flag && nums[next] < 0) break;
+                if (!flag && nums[next] > 0) break;
+                vis[next] = idx;
+                cur = next;
+            }
+        }
+        return false;
+    }
+}
 
 ```
 
